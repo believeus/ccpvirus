@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ccpvirus</string>
+    <string name="Circle_size">Setting Circle size</string>
+    <string name="Rectancle_size">Adjust rectangle size and orientation</string>
+    <string name="Setting_Rows">Setting rows</string>
+    <string name="Setting_Column">Setting columns</string>
+    <string name="x_axis_space">Circle Row spacing</string>
+    <string name="circle_yxis_space">Circle Column spacing </string>
+</resources>
