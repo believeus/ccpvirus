@@ -9,7 +9,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <org.opencv.android.JavaCameraView
+    <tech.huqi.smartopencv.core.preview.CameraPreview
         android:id="@+id/javaCameraView"
         android:layout_width="match_parent"
         android:layout_height="250dp"
