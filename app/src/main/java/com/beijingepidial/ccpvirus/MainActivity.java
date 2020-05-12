@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private int radius;
     //圆与圆X轴之间的距离
     private int xDelta;
+    private boolean isXDelta;
+    private boolean isYDelta;
     //圆与圆y轴之间的距离
     private int yDelta;
     private int rx = 50;
@@ -118,8 +120,13 @@ public class MainActivity extends AppCompatActivity {
                 Imgproc.findContours(edges, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
                 //绘制上下左右居中矩形框
                 for (int i = 0; i< row; i++){
-                    int xDelta = (((w - rx - lx))/row);
-                    int yDelta = (h - ry - ly)/col;
+                    if (!isXDelta){
+                        xDelta = (((w - rx - lx))/row);
+                    }
+
+                    if (!isYDelta) {
+                        yDelta = (h - ry - ly) / col;
+                    }
                     Imgproc.putText(frame, rowVal[i],new Point(lx+(xDelta*i)+15,ly-10),Core.FONT_HERSHEY_SIMPLEX,1, new Scalar(0, 139, 139),5);
                     if (i< col) {
                         Imgproc.putText(frame, colVal[i], new Point(lx - 30, ly + (yDelta * i)+40), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
@@ -414,6 +421,34 @@ public class MainActivity extends AppCompatActivity {
                 row++;
                 if (row>12)return;
                 edtRow.setText(String.valueOf(row));
+            }
+        });
+        findViewById(R.id.btnMixCircleColSpacing).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isXDelta=true;
+                xDelta--;
+            }
+        });
+        findViewById(R.id.btnMaxCircleColSpacing).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isXDelta=true;
+                xDelta++;
+            }
+        });
+        findViewById(R.id.btnMixCircleRowSpacing).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isYDelta=true;
+                yDelta--;
+            }
+        });
+        findViewById(R.id.btnMaxCircleRowSpacing).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isYDelta=true;
+                yDelta++;
             }
         });
 
