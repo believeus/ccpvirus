@@ -13,6 +13,8 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.beijingepidial.entity.Circle;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
@@ -36,8 +38,13 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
     private JavaCameraView javaCameraView;
+    private Circle[][] circlebox;
     private EditText edtRadius;
     private EditText edtRow;
+    private EditText edtColDelta;
+    private EditText edtRowDelta;
+    private EditText edtRowNum;
+    private EditText edtColNum;
     private Mat gary;
     private Mat edges;
     private Mat hierarchy;
@@ -51,17 +58,31 @@ public class MainActivity extends AppCompatActivity {
     private boolean isYDelta;
     //圆与圆y轴之间的距离
     private int yDelta;
-    private int rx = 50;
-    private int ry = 50;
+    private int rx;
+    private int ry;
     //左上角点x坐标点
-    private int lx = 50;
+    private int lx;
     //左上角点y坐标点
-    private int ly = 50;
+    private int ly;
     private String[] colVal;
     private String[] rowVal;
     private int col;
     private int row;
     private boolean isCapture;
+
+    public MainActivity() {
+        this.circlebox = new Circle[8][12];
+        this.lx = 50;
+        this.ly = 50;
+        this.rx = 50;
+        this.ry = 50;
+        this.isCapture = false;
+        this.rowVal = new String[]{"A", "B", "C", "D", "E", "F", "G", "H"};
+        this.colVal = new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
+        this.col = colVal.length;
+        this.row = rowVal.length;
+    }
+
     private BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -83,25 +104,31 @@ public class MainActivity extends AppCompatActivity {
         //保持螢幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
-        edtRadius=(EditText) findViewById(R.id.edtRadius);
-        edtRow=(EditText)findViewById(R.id.edtRow);
+        edtRadius = (EditText) findViewById(R.id.edtRadius);
+        edtRow = (EditText) findViewById(R.id.edtRow);
+        edtColDelta = (EditText) findViewById(R.id.edtColDelta);
+        edtRowDelta = (EditText) findViewById(R.id.edtRowDelta);
+        edtRowNum = (EditText) findViewById(R.id.edtRowNum);
+        edtColNum=(EditText)findViewById(R.id.edtColNun);
         javaCameraView = (JavaCameraView) findViewById(R.id.javaCameraView);
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
         javaCameraView.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
-           private List<MatOfPoint> list = new ArrayList<MatOfPoint>();
+            private List<MatOfPoint> list = new ArrayList<MatOfPoint>();
+
             @Override
             public void onCameraViewStarted(int width, int height) {
-                radius=Integer.parseInt(edtRadius.getText().toString());
-                xDelta=50;
-                yDelta=50;
-                isCapture=false;
-                colVal =new String[]{"A","B","C","D","E","F","G","H"};
-                rowVal =new String[]{"1","2","3","4","5","6","7","8","9","10","11","12"};
-                col=colVal.length;
-                row=rowVal.length;
-                gary = new Mat();
-                edges = new Mat();
-                hierarchy = new Mat();
+                MainActivity.this.gary = new Mat();
+                MainActivity.this.edges = new Mat();
+                MainActivity.this.hierarchy = new Mat();
+                MainActivity.this.radius = Integer.parseInt(edtRadius.getText().toString());
+                MainActivity.this.xDelta = Integer.parseInt(edtColDelta.getText().toString());
+                MainActivity.this.yDelta = Integer.parseInt(edtRowDelta.getText().toString());
+                //初始化96圓
+                for (int r = 0; r < row; r++) {
+                    for (int c = 0; c < col; c++) {
+                        circlebox[r][c] = new Circle(0, 0);
+                    }
+                }
             }
 
             @Override
@@ -118,38 +145,32 @@ public class MainActivity extends AppCompatActivity {
                 Imgproc.Canny(gary, edges, 50, 500, 3, false);
                 list.clear();
                 Imgproc.findContours(edges, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-                //绘制上下左右居中矩形框
-                for (int i = 0; i< row; i++){
-                    if (!isXDelta){
-                        xDelta = (((w - rx - lx))/row);
-                    }
-
-                    if (!isYDelta) {
-                        yDelta = (h - ry - ly) / col;
-                    }
-                    Imgproc.putText(frame, rowVal[i],new Point(lx+(xDelta*i)+15,ly-10),Core.FONT_HERSHEY_SIMPLEX,1, new Scalar(0, 139, 139),5);
-                    if (i< col) {
-                        Imgproc.putText(frame, colVal[i], new Point(lx - 30, ly + (yDelta * i)+40), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
-                        for (int j = 0; j< row; j++) {
-                            Imgproc.circle(frame, new Point(lx + (xDelta * j) + 30, ly + (yDelta * i) + 40), radius, new Scalar(0, 139, 139), 2,Core.LINE_AA);
-                        }
+                int xArea = (((w - rx - lx)) / col);
+                int yArea = (h - ry - ly) / row;
+                for (int r = 0; r < row; r++) {
+                    Imgproc.putText(frame, rowVal[r], new Point(lx - 30, ly + (yArea * r) + 50), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                    for (int c = 0; c < col; c++) {
+                        Imgproc.putText(frame, colVal[c], new Point(lx + (xArea * c) + 20, ly - 10), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                        circlebox[r][c].setX(lx + (xArea * c));
+                        circlebox[r][c].setY(ly + (yArea * r));
+                        Imgproc.circle(frame, new Point(circlebox[r][c].getX(), circlebox[r][c].getY()), radius, new Scalar(0, 139, 139), 2, Core.LINE_AA);
                     }
                 }
                 //绘制一个上下左右居中的矩形
                 Imgproc.rectangle(frame, new Point(lx, ly), new Point(w - rx, h - ry), new Scalar(0, 139, 139), 5);
                 //5 绘制轮廓
                 for (int i = 0, len = list.size(); i < len; i++) {
-                   Imgproc.drawContours(frame, list, i, new Scalar(0, 255, 0), 1);
+                    Imgproc.drawContours(frame, list, i, new Scalar(0, 255, 0), 1);
                 }
                 //拍照截图
-                if (isCapture){
-                    isCapture=false;
+                if (isCapture) {
+                    isCapture = false;
                     MainActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            try{
-                                Mat src=inputFrame.rgba().clone();
-                                Rect rect = new Rect(lx, ly, w - 2*lx, h - 2*ly);
+                            try {
+                                Mat src = inputFrame.rgba().clone();
+                                Rect rect = new Rect(lx, ly, w - 2 * lx, h - 2 * ly);
                                 Mat mat = new Mat();
                                 Imgproc.cvtColor(src.submat(rect), mat, Imgproc.COLOR_BGR2RGBA);
                                 double[] rgb = mat.get(100, 100);
@@ -161,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
                                 Uri uri = Uri.fromFile(file);
                                 sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
                                 Toast.makeText(MainActivity.this, "take phone success", Toast.LENGTH_LONG).show();
-                            }catch (Exception e){
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
@@ -186,13 +207,13 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-                  *//*  Utils.matToBitmap(mat, mBitmap);
+         *//*  Utils.matToBitmap(mat, mBitmap);
                     OutputStream fileout = new FileOutputStream(new File(path,filename).toString());
                     mBitmap.compress(Bitmap.CompressFormat.PNG,100,fileout);
                     fileout.flush();
                     fileout.close();*//*
 
-                   *//* MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.toString(), null);
+         *//* MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.toString(), null);
                     Uri uri = Uri.fromFile(file);
                     sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));*//*
 
@@ -395,7 +416,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnCicleMin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (radius==0)return;
+                if (radius == 0) return;
                 radius--;
                 edtRadius.setText(String.valueOf(radius));
             }
@@ -411,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 row--;
-                if (row<0)return;
+                if (row < 0) return;
                 edtRow.setText(String.valueOf(row));
             }
         });
@@ -419,39 +440,78 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 row++;
-                if (row>12)return;
+                if (row > 8) return;
                 edtRow.setText(String.valueOf(row));
             }
         });
-        findViewById(R.id.btnMixCircleColSpacing).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnMixEdtColDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isXDelta=true;
+                isXDelta = true;
                 xDelta--;
+                edtColDelta.setText(String.valueOf(xDelta));
             }
         });
-        findViewById(R.id.btnMaxCircleColSpacing).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnMaxEdtColDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isXDelta=true;
+                isXDelta = true;
                 xDelta++;
+                edtColDelta.setText(String.valueOf(xDelta));
             }
         });
-        findViewById(R.id.btnMixCircleRowSpacing).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnMixEdtRowDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isYDelta=true;
+                isYDelta = true;
                 yDelta--;
+                edtRowDelta.setText(String.valueOf(xDelta));
             }
         });
-        findViewById(R.id.btnMaxCircleRowSpacing).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnMaxEdtRowDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isYDelta=true;
+                isYDelta = true;
                 yDelta++;
+                edtRowDelta.setText(String.valueOf(xDelta));
             }
         });
+        findViewById(R.id.btnRowRight).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+            }
+        });
+        findViewById(R.id.btnRowLeft).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        findViewById(R.id.btnColLeft).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int c = Integer.parseInt(edtColNum.getText().toString());
+                c--;
+                for (int r = 0; r < row; r++) {
+                       int xDelta=circlebox[r][c].getxDelta();
+                       xDelta--;
+                       circlebox[r][c].setxDelta(xDelta);
+                    }
+            }
+        });
+        findViewById(R.id.btnColRight).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int c = Integer.parseInt(edtColNum.getText().toString());
+                c--;
+                for (int r = 0; r < row; r++) {
+                    int xDelta=circlebox[r][c].getxDelta();
+                    xDelta++;
+                    circlebox[r][c].setxDelta(xDelta);
+                }
+            }
+        });
     }
 
     @Override
