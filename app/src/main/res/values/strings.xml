@@ -1,11 +1,13 @@
 <resources>
     <string name="app_name">ccpvirus</string>
+    <string name="catch_picture">Catch picture</string>
+    <string name="catch_color">Catch Color</string>
     <string name="Circle_size">Setting Circle size</string>
     <string name="Rectancle_size">Adjust rectangle size and orientation</string>
     <string name="Setting_Rows">Set the number of rows</string>
     <string name="Setting_Column">Set the number of columns</string>
-    <string name="x_axis_space">Circle row height</string>
-    <string name="circle_yxis_space">Circle Column width </string>
+    <string name="x_axis_space">Circle row height:↕</string>
+    <string name="circle_yxis_space">Circle Column width:↔ </string>
     <string name="move_row">Move row</string>
     <string name="move_col">Move column</string>
 </resources>

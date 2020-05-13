@@ -94,11 +94,22 @@
                         android:layout_row="1"
                         android:text="H↓" />
                 </GridLayout>
-                <Button
-                    android:id="@+id/btnTakePhone"
-                    android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:text="Capture color" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <Button
+                        android:id="@+id/btnCatchPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:text="@string/catch_picture" />
+                    <Button
+                        android:id="@+id/btnCatchColor"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:text="@string/catch_color" />
+                </LinearLayout>
+
             </LinearLayout>
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -127,10 +138,10 @@
                         android:id="@+id/edtRow"
                         android:layout_width="60dp"
                         android:layout_height="40dp"
-                        android:inputType="number"
+                        android:inputType="text"
                         android:gravity="center"
                         android:enabled="false"
-                        android:text="12" />
+                        android:text="H" />
                     <Button
                         android:id="@+id/btnRowMax"
                         android:layout_width="60dp"
@@ -190,7 +201,7 @@
                             android:inputType="number"
                             android:gravity="center"
                             android:enabled="false"
-                            android:text="70">
+                            android:text="0">
                         </EditText>
                         <Button
                             android:id="@+id/btnMaxEdtRowDelta"
@@ -220,7 +231,7 @@
                             android:inputType="number"
                             android:gravity="center"
                             android:enabled="false"
-                            android:text="70">
+                            android:text="0">
                         </EditText>
                         <Button
                             android:id="@+id/btnMaxEdtColDelta"
@@ -252,6 +263,7 @@
                             android:layout_width="60dp"
                             android:layout_height="40dp"
                             android:text="↑"/>
+
                         <EditText
                             android:id="@+id/edtRowNum"
                             android:layout_width="60dp"
@@ -280,7 +292,7 @@
                             android:layout_height="40dp"
                             android:text="←"/>
                         <EditText
-                            android:id="@+id/edtColNun"
+                            android:id="@+id/edtColNum"
                             android:layout_width="60dp"
                             android:layout_height="40dp"
                             android:inputType="number"

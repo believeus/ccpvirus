@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private Circle[][] circlebox;
     private EditText edtRadius;
     private EditText edtRow;
+    private EditText edtCol;
     private EditText edtColDelta;
     private EditText edtRowDelta;
     private EditText edtRowNum;
@@ -48,14 +49,12 @@ public class MainActivity extends AppCompatActivity {
     private Mat gary;
     private Mat edges;
     private Mat hierarchy;
-    private int width;
-    private int height;
+    private int xArea;
+    private int yArea;
     //圆半径
     private int radius;
     //圆与圆X轴之间的距离
     private int xDelta;
-    private boolean isXDelta;
-    private boolean isYDelta;
     //圆与圆y轴之间的距离
     private int yDelta;
     private int rx;
@@ -109,7 +108,8 @@ public class MainActivity extends AppCompatActivity {
         edtColDelta = (EditText) findViewById(R.id.edtColDelta);
         edtRowDelta = (EditText) findViewById(R.id.edtRowDelta);
         edtRowNum = (EditText) findViewById(R.id.edtRowNum);
-        edtColNum=(EditText)findViewById(R.id.edtColNun);
+        edtColNum=(EditText)findViewById(R.id.edtColNum);
+        edtCol=(EditText)findViewById(R.id.edtCol);
         javaCameraView = (JavaCameraView) findViewById(R.id.javaCameraView);
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
         javaCameraView.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                 //初始化96圓
                 for (int r = 0; r < row; r++) {
                     for (int c = 0; c < col; c++) {
-                        circlebox[r][c] = new Circle(0, 0);
+                        circlebox[r][c] = new Circle();
                     }
                 }
             }
@@ -140,15 +140,15 @@ public class MainActivity extends AppCompatActivity {
             public Mat onCameraFrame(final CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
                 final Mat frame = inputFrame.rgba();
                 final int w = frame.width();
-                final int h = frame.height();
+                final int h = 750;
                 Imgproc.cvtColor(frame, gary, Imgproc.COLOR_RGB2GRAY);
                 Imgproc.Canny(gary, edges, 50, 500, 3, false);
                 list.clear();
                 Imgproc.findContours(edges, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-                int xArea = (((w - rx - lx)) / col);
-                int yArea = (h - ry - ly) / row;
+                xArea = (((w - rx - lx)) / col);
+                yArea = (h - ry - ly) / row;
                 for (int r = 0; r < row; r++) {
-                    Imgproc.putText(frame, rowVal[r], new Point(lx - 30, ly + (yArea * r) + 50), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                    Imgproc.putText(frame, rowVal[r], new Point(lx - 30, ly + (yArea * r)+40), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                     for (int c = 0; c < col; c++) {
                         Imgproc.putText(frame, colVal[c], new Point(lx + (xArea * c) + 20, ly - 10), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                         circlebox[r][c].setX(lx + (xArea * c));
@@ -411,8 +411,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-
-
         findViewById(R.id.btnCicleMin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -431,23 +429,21 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnRowMin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                row--;
-                if (row < 0) return;
-                edtRow.setText(String.valueOf(row));
+                if (row > 1)row--;
+                edtRow.setText(Character.toString((char)(64+row)));
             }
         });
         findViewById(R.id.btnRowMax).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                row++;
-                if (row > 8) return;
-                edtRow.setText(String.valueOf(row));
+                //A==65 B=66 C=67 D=68 E=69 F=70 G=71 H=72
+                if (row<8)row++;
+                edtRow.setText(Character.toString((char) (64 + row)));
             }
         });
         findViewById(R.id.btnMixEdtColDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isXDelta = true;
                 xDelta--;
                 edtColDelta.setText(String.valueOf(xDelta));
             }
@@ -455,7 +451,6 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnMaxEdtColDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isXDelta = true;
                 xDelta++;
                 edtColDelta.setText(String.valueOf(xDelta));
             }
@@ -463,7 +458,6 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnMixEdtRowDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isYDelta = true;
                 yDelta--;
                 edtRowDelta.setText(String.valueOf(xDelta));
             }
@@ -471,7 +465,6 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnMaxEdtRowDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isYDelta = true;
                 yDelta++;
                 edtRowDelta.setText(String.valueOf(xDelta));
             }
@@ -510,6 +503,20 @@ public class MainActivity extends AppCompatActivity {
                     xDelta++;
                     circlebox[r][c].setxDelta(xDelta);
                 }
+            }
+        });
+        findViewById(R.id.btnColMin).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (col>1)col--;
+                edtCol.setText(String.valueOf(col));
+            }
+        });
+        findViewById(R.id.btnColMax).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (col<12)col++;
+                edtCol.setText(String.valueOf(col));
             }
         });
     }
