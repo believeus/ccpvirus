@@ -47,4 +47,16 @@ public class Circle {
     public void setyDelta(int yDelta) {
         this.yDelta = yDelta;
     }
+    public void xDeltaAdd(){
+        this.xDelta++;
+    }
+    public void xDeltaLow(){
+        this.xDelta--;
+    }
+    public void yDeltaAdd(){
+        this.yDelta++;
+    }
+    public void yDeltaLow(){
+        this.yDelta--;
+    }
 }
