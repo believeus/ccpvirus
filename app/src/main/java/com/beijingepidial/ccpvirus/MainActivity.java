@@ -49,8 +49,6 @@ public class MainActivity extends AppCompatActivity {
     private Mat gary;
     private Mat edges;
     private Mat hierarchy;
-    private int xArea;
-    private int yArea;
     //圆半径
     private int radius;
     //圆与圆X轴之间的距离
@@ -67,6 +65,10 @@ public class MainActivity extends AppCompatActivity {
     private String[] rowVal;
     private int col;
     private int row;
+    private int xArea;
+    private int yArea;
+    private int width;
+    private int height;
     private boolean isCapture;
 
     public MainActivity() {
@@ -117,12 +119,16 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCameraViewStarted(int width, int height) {
+                MainActivity.this.width=1080;
+                MainActivity.this.height=750;
                 MainActivity.this.gary = new Mat();
                 MainActivity.this.edges = new Mat();
                 MainActivity.this.hierarchy = new Mat();
                 MainActivity.this.radius = Integer.parseInt(edtRadius.getText().toString());
                 MainActivity.this.xDelta = Integer.parseInt(edtColDelta.getText().toString());
                 MainActivity.this.yDelta = Integer.parseInt(edtRowDelta.getText().toString());
+                MainActivity.this.xArea = (1080 - rx - lx) / col;
+                MainActivity.this.yArea = (750 - ry - ly) / row;
                 //初始化96圓
                 for (int r = 0; r < row; r++) {
                     for (int c = 0; c < col; c++) {
@@ -145,15 +151,14 @@ public class MainActivity extends AppCompatActivity {
                 Imgproc.Canny(gary, edges, 50, 500, 3, false);
                 list.clear();
                 Imgproc.findContours(edges, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-                xArea = (((w - rx - lx)) / col);
-                yArea = (h - ry - ly) / row;
                 for (int r = 0; r < row; r++) {
                     Imgproc.putText(frame, rowVal[r], new Point(lx - 30, ly + (yArea * r)+40), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                     for (int c = 0; c < col; c++) {
                         Imgproc.putText(frame, colVal[c], new Point(lx + (xArea * c) + 20, ly - 10), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
-                        circlebox[r][c].setX(lx + (xArea * c));
-                        circlebox[r][c].setY(ly + (yArea * r));
-                        Imgproc.circle(frame, new Point(circlebox[r][c].getX(), circlebox[r][c].getY()), radius, new Scalar(0, 139, 139), 2, Core.LINE_AA);
+                        Circle cl=circlebox[r][c];
+                        cl.setX(lx + (xArea * c));
+                        cl.setY(ly + (yArea * r));
+                        Imgproc.circle(frame, new Point(cl.getX()+cl.getxDelta(), cl.getY()+cl.getyDelta()), radius, new Scalar(0, 139, 139), 2, Core.LINE_AA);
                     }
                 }
                 //绘制一个上下左右居中的矩形
@@ -429,6 +434,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnRowMin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //A==65 B=66 C=67 D=68 E=69 F=70 G=71 H=72
                 if (row > 1)row--;
                 edtRow.setText(Character.toString((char)(64+row)));
             }
@@ -445,6 +451,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 xDelta--;
+                MainActivity.this.xArea = ((width - ry - ly) / col);
+                MainActivity.this.xArea+=xDelta;
                 edtColDelta.setText(String.valueOf(xDelta));
             }
         });
@@ -452,6 +460,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 xDelta++;
+                MainActivity.this.xArea = ((width - ry - ly) / col);
+                MainActivity.this.xArea+=xDelta;
                 edtColDelta.setText(String.valueOf(xDelta));
             }
         });
@@ -459,14 +469,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 yDelta--;
-                edtRowDelta.setText(String.valueOf(xDelta));
+                MainActivity.this.yArea = (height - ry - ly) / row;
+                MainActivity.this.yArea+=yDelta;
+                edtRowDelta.setText(String.valueOf(yDelta));
             }
         });
         findViewById(R.id.btnMaxEdtRowDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 yDelta++;
-                edtRowDelta.setText(String.valueOf(xDelta));
+                MainActivity.this.yArea = (height - ry - ly) / row;
+                MainActivity.this.yArea+=yDelta;
+                edtRowDelta.setText(String.valueOf(yDelta));
             }
         });
         findViewById(R.id.btnRowRight).setOnClickListener(new View.OnClickListener() {

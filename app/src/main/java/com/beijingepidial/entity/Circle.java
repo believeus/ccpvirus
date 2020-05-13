@@ -5,7 +5,10 @@ public class Circle {
     private int y;
     private  int xDelta;
     private int yDelta;
-    public Circle(){}
+    public Circle(){
+        this.xDelta=35;
+        this.yDelta=45;
+    }
     public Circle(int x, int y) {
         this.x = x;
         this.y = y;
@@ -14,7 +17,7 @@ public class Circle {
     }
 
     public int getX() {
-        return x+xDelta;
+        return x;
     }
 
     public void setX(int x) {
@@ -22,7 +25,7 @@ public class Circle {
     }
 
     public int getY() {
-        return y+yDelta;
+        return y;
     }
 
     public void setY(int y) {
