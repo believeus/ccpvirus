@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private int yArea;
     private int width;
     private int height;
+    private int angele;
     private boolean init;
     private boolean isclone;
     private boolean isTakePhoto;
@@ -255,10 +256,9 @@ public class MainActivity extends AppCompatActivity {
                                 rx -= 1;
                                 lx -= 1;
                             }
-                        }, 0, 20);
-
+                        }, 0, 5);
                         break;
-                    case MotionEvent.ACTION_UP:
+                    default:
                         timer.cancel();
                         break;
                 }
@@ -280,9 +280,9 @@ public class MainActivity extends AppCompatActivity {
                                 rx += 1;
                                 lx += 1;
                             }
-                        }, 0, 20);
+                        }, 0, 5);
                         break;
-                    case MotionEvent.ACTION_UP:
+                    default:
                         timer.cancel();
                         break;
                 }
@@ -303,9 +303,9 @@ public class MainActivity extends AppCompatActivity {
                                 ly -= 1;
                                 ry -= 1;
                             }
-                        }, 0, 20);
+                        }, 0, 5);
                         break;
-                    case MotionEvent.ACTION_UP:
+                    default:
                         timer.cancel();
                         break;
                 }
@@ -326,9 +326,9 @@ public class MainActivity extends AppCompatActivity {
                                 ly += 1;
                                 ry += 1;
                             }
-                        }, 0, 20);
+                        }, 0, 5);
                         break;
-                    case MotionEvent.ACTION_UP:
+                    default:
                         timer.cancel();
                         break;
                 }
@@ -350,9 +350,9 @@ public class MainActivity extends AppCompatActivity {
                                 rx -= 1;
 
                             }
-                        }, 0, 20);
+                        }, 0, 5);
                         break;
-                    case MotionEvent.ACTION_UP:
+                    default:
                         timer.cancel();
                         break;
                 }
@@ -374,9 +374,9 @@ public class MainActivity extends AppCompatActivity {
                                 rx += 1;
 
                             }
-                        }, 0, 20);
+                        }, 0, 5);
                         break;
-                    case MotionEvent.ACTION_UP:
+                    default:
                         timer.cancel();
                         break;
                 }
@@ -397,9 +397,9 @@ public class MainActivity extends AppCompatActivity {
                                 ly -= 1;
                                 ry += 1;
                             }
-                        }, 0, 20);
+                        }, 0, 5);
                         break;
-                    case MotionEvent.ACTION_UP:
+                    default:
                         timer.cancel();
                         break;
                 }
@@ -420,9 +420,9 @@ public class MainActivity extends AppCompatActivity {
                                 ly += 1;
                                 ry -= 1;
                             }
-                        }, 0, 20);
+                        }, 0, 5);
                         break;
-                    case MotionEvent.ACTION_UP:
+                    default:
                         timer.cancel();
                         break;
 
@@ -547,6 +547,26 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (col<12)col++;
                 edtCol.setText(String.valueOf(col));
+            }
+        });
+        findViewById(R.id.btnSpinReverse).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                angele++;
+               // Mat dst = image.clone();
+                Point center = new Point(image.width() / 2.0, image.height() / 2.0);
+                Mat affineTrans = Imgproc.getRotationMatrix2D(center, angele, 1.0);
+                Imgproc.warpAffine(image, image, affineTrans, image.size(), Imgproc.INTER_NEAREST);
+            }
+        });
+        findViewById(R.id.btnClockwise).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                angele--;
+                // Mat dst = image.clone();
+                Point center = new Point(image.width() / 2.0, image.height() / 2.0);
+                Mat affineTrans = Imgproc.getRotationMatrix2D(center, angele, 1.0);
+                Imgproc.warpAffine(image, image, affineTrans, image.size(), Imgproc.INTER_NEAREST);
             }
         });
     }

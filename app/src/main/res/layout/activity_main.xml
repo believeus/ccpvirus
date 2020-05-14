@@ -125,24 +125,25 @@
                         android:layout_height="0dp"
                         app:layout_widthPercent="40%"
                         app:layout_heightPercent="100%">
+
                         <Button
-                            android:id="@+id/btnCatchPicture"
+                            android:id="@+id/btnSpinReverse"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_widthPercent="100%"
                             app:layout_heightPercent="50%"
                             android:layout_alignParentTop="true"
                             android:layout_alignParentLeft="true"
-                            android:text="@string/catch_picture" />
+                            android:text="@string/SpinReverse" />
                         <Button
-                            android:id="@+id/btnCatchColor"
+                            android:id="@+id/btnClockwise"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_widthPercent="100%"
                             app:layout_heightPercent="50%"
                             android:layout_alignParentBottom="true"
                             android:layout_alignParentLeft="true"
-                            android:text="@string/catch_color" />
+                            android:text="@string/SpinClockwise" />
                     </android.support.percent.PercentRelativeLayout>
                 </android.support.percent.PercentRelativeLayout>
                 <android.support.percent.PercentRelativeLayout
@@ -313,6 +314,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="200dp">
                         <LinearLayout
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentLeft="true"
                             android:layout_width="0dp"
                             android:layout_height="200dp"
                             app:layout_widthPercent="50%"
@@ -419,7 +422,28 @@
                                     android:text="↑"/>
                             </android.support.percent.PercentRelativeLayout>
                         </LinearLayout>
+                        <LinearLayout
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentRight="true"
+                            android:layout_width="0dp"
+                            android:layout_height="200dp"
+                            app:layout_widthPercent="50%"
+                            android:orientation="vertical">
+                            <android.support.percent.PercentRelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+                                <Button
+                                    android:id="@+id/btnCatchPicture"
+                                    android:layout_width="0dp"
+                                    android:layout_height="50dp"
+                                    app:layout_widthPercent="100%"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentLeft="true"
+                                    android:text="@string/catch_picture" />
+                            </android.support.percent.PercentRelativeLayout>
 
+
+                    </LinearLayout>
                 </android.support.percent.PercentRelativeLayout>
             </LinearLayout>
         </ScrollView>
