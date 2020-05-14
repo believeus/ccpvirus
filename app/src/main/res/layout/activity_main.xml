@@ -1,350 +1,428 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.percent.PercentFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <tech.huqi.smartopencv.core.preview.CameraPreview
-        android:id="@+id/javaCameraView"
+    android:layout_height="match_parent">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
-        app:camera_id="any"
-        app:show_fps="false" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <tech.huqi.smartopencv.core.preview.CameraPreview
+            android:id="@+id/javaCameraView"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            app:camera_id="any"
+            app:show_fps="false" />
         <ScrollView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:orientation="vertical">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/Rectancle_size"/>
-                <LinearLayout
+                <android.support.percent.PercentRelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="90dp">
+                    <android.support.percent.PercentRelativeLayout
+                        android:id="@+id/RlMoving"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentTop="true"
+                        app:layout_widthPercent="30%"
+                        app:layout_heightPercent="100%">
+                        <Button
+                            android:id="@+id/btnLeft"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="50%"
+                            app:layout_heightPercent="50%"
+                            android:text="←" />
+                        <Button
+                            android:id="@+id/btnRight"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentRight="true"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="50%"
+                            app:layout_heightPercent="50%"
+                            android:text="→" />
+                        <Button
+                            android:id="@+id/btnUp"
+                            android:layout_alignParentBottom="true"
+                            android:layout_alignParentLeft="true"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="50%"
+                            app:layout_heightPercent="50%"
+                            android:text="↑" />
+                        <Button
+                            android:id="@+id/btnDown"
+                            android:layout_alignParentBottom="true"
+                            android:layout_alignParentRight="true"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="50%"
+                            app:layout_heightPercent="50%"
+                            android:text="↓" />
+                    </android.support.percent.PercentRelativeLayout>
+                    <android.support.percent.PercentRelativeLayout
+                        android:id="@+id/RLzoom"
+                        android:layout_toRightOf="@+id/RlMoving"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_widthPercent="30%"
+                        app:layout_heightPercent="100%">
+                        <Button
+                            android:id="@+id/btnHeightMax"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentLeft="true"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="50%"
+                            app:layout_heightPercent="50%"
+                            android:text="↕" />
+                        <Button
+                            android:id="@+id/btnWidthMax"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="50%"
+                            app:layout_heightPercent="50%"
+                            android:layout_alignParentBottom="true"
+                            android:layout_alignParentLeft="true"
+                            android:text="↔" />
+                        <Button
+                            android:id="@+id/btnWidthMin"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_alignParentRight="true"
+                            android:layout_alignParentBottom="true"
+                            app:layout_widthPercent="50%"
+                            app:layout_heightPercent="50%"
+                            android:text="W↓" />
+                        <Button
+                            android:id="@+id/btnHeightMin"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_alignParentRight="true"
+                            android:layout_alignParentTop="true"
+                            app:layout_widthPercent="50%"
+                            app:layout_heightPercent="50%"
+                            android:text="H↓" />
+                    </android.support.percent.PercentRelativeLayout>
+                    <android.support.percent.PercentRelativeLayout
+                        android:layout_toRightOf="@+id/RLzoom"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_widthPercent="40%"
+                        app:layout_heightPercent="100%">
+                        <Button
+                            android:id="@+id/btnCatchPhone"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="100%"
+                            app:layout_heightPercent="50%"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentLeft="true"
+                            android:text="@string/catch_picture" />
+                        <Button
+                            android:id="@+id/btnCatchColor"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="100%"
+                            app:layout_heightPercent="50%"
+                            android:layout_alignParentBottom="true"
+                            android:layout_alignParentLeft="true"
+                            android:text="@string/catch_color" />
+                    </android.support.percent.PercentRelativeLayout>
+                </android.support.percent.PercentRelativeLayout>
+                <android.support.percent.PercentRelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="15dp">
+                    <TextView
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_widthPercent="50%"
+                        app:layout_heightPercent="100%"
+                        android:text="@string/Setting_Rows" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_widthPercent="50%"
+                        app:layout_heightPercent="100%"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentBottom="true"
+                        android:text="@string/Setting_Column"/>
+                </android.support.percent.PercentRelativeLayout>
+                <android.support.percent.PercentRelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp">
+                    <android.support.percent.PercentRelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <GridLayout
-                            android:layout_height="100dp"
-                            android:layout_width="100dp"
-                            android:rowCount="2"
-                            android:columnCount="2">
-                            <Button
-                                android:id="@+id/btnup"
-                                android:layout_height="50dp"
-                                android:layout_width="50dp"
-                                android:layout_column="0"
-                                android:layout_row="0"
-                                android:text="↑" />
-                            <Button
-                                android:id="@+id/btnDown"
-                                android:layout_height="50dp"
-                                android:layout_width="50dp"
-                                android:layout_column="0"
-                                android:layout_row="1"
-                                android:layout_margin="0dp"
-                                android:text="↓" />
-                            <Button
-                                android:id="@+id/btnLeft"
-                                android:layout_height="50dp"
-                                android:layout_width="50dp"
-                                android:layout_column="1"
-                                android:layout_row="0"
-                                android:text="←" />
-                            <Button
-                                android:id="@+id/btnRight"
-                                android:layout_height="50dp"
-                                android:layout_width="50dp"
-                                android:layout_column="1"
-                                android:layout_row="1"
-                                android:text="→" />
-                        </GridLayout>
-                        <GridLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="100dp"
-                            android:useDefaultMargins="false"
-                            android:rowCount="2"
-                            android:columnCount="2">
-                            <Button
-                                android:id="@+id/btnHeightMax"
-                                android:layout_width="50dp"
-                                android:layout_height="50dp"
-                                android:layout_column="0"
-                                android:layout_row="0"
-                                android:text="↕" />
-                            <Button
-                                android:id="@+id/btnWidthMax"
-                                android:layout_width="50dp"
-                                android:layout_height="50dp"
-                                android:layout_column="0"
-                                android:layout_row="1"
-                                android:text="↔" />
-                            <Button
-                                android:id="@+id/btnWidthMin"
-                                android:layout_width="60dp"
-                                android:layout_height="50dp"
-                                android:layout_column="1"
-                                android:layout_row="0"
-                                android:text="W↓" />
-
-                            <Button
-                                android:id="@+id/btnHeightMin"
-                                android:layout_width="60dp"
-                                android:layout_height="50dp"
-                                android:layout_column="1"
-                                android:layout_row="1"
-                                android:text="H↓" />
-                        </GridLayout>
+                        android:layout_height="40dp">
+                        <Button
+                            android:id="@+id/btnRowMin"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentTop="true"
+                            app:layout_widthPercent="18.5%"
+                            app:layout_heightPercent="100%"
+                            android:text="Min"/>
+                        <EditText
+                            android:id="@+id/edtRow"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_toRightOf="@+id/btnRowMin"
+                            app:layout_widthPercent="13%"
+                            app:layout_heightPercent="100%"
+                            android:gravity="center"
+                            android:enabled="false"
+                            android:text="H" />
+                        <Button
+                            android:id="@+id/btnRowMax"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_toRightOf="@+id/edtRow"
+                            app:layout_widthPercent="18.5%"
+                            app:layout_heightPercent="100%"
+                            android:text="Max"/>
+                        <Button
+                            android:id="@+id/btnColMin"
+                            android:layout_toRightOf="@+id/btnRowMax"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="18.5%"
+                            app:layout_heightPercent="100%"
+                            android:text="Min"/>
+                        <EditText
+                            android:id="@+id/edtCol"
+                            android:layout_toRightOf="@+id/btnColMin"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="13%"
+                            app:layout_heightPercent="100%"
+                            android:gravity="center"
+                            android:enabled="false"
+                            android:text="12" />
+                        <Button
+                            android:id="@+id/btnColMax"
+                            android:layout_toRightOf="@+id/edtCol"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="18.5%"
+                            app:layout_heightPercent="100%"
+                            android:text="Max"/>
+                    </android.support.percent.PercentRelativeLayout>
+                </android.support.percent.PercentRelativeLayout>
+                <android.support.percent.PercentRelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="15dp">
+                    <TextView
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_widthPercent="50%"
+                        app:layout_heightPercent="100%"
+                        android:text="@string/x_axis_space" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_widthPercent="50%"
+                        app:layout_heightPercent="100%"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentBottom="true"
+                        android:text="@string/circle_yxis_space"/>
+                </android.support.percent.PercentRelativeLayout>
+                <android.support.percent.PercentRelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp">
+                    <android.support.percent.PercentRelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp">
+                        <Button
+                            android:id="@+id/btnMixEdtRowDelta"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentTop="true"
+                            app:layout_widthPercent="18.5%"
+                            app:layout_heightPercent="100%"
+                            android:text="Min"/>
+                        <EditText
+                            android:id="@+id/edtRowDelta"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_toRightOf="@+id/btnMixEdtRowDelta"
+                            app:layout_widthPercent="13%"
+                            app:layout_heightPercent="100%"
+                            android:gravity="center"
+                            android:enabled="false"
+                            android:text="0" />
+                        <Button
+                            android:id="@+id/btnMaxEdtRowDelta"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_toRightOf="@+id/edtRowDelta"
+                            app:layout_widthPercent="18.5%"
+                            app:layout_heightPercent="100%"
+                            android:text="Mix"/>
+                        <Button
+                            android:id="@+id/btnMixEdtColDelta"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_toRightOf="@+id/btnMaxEdtRowDelta"
+                            app:layout_widthPercent="18.5%"
+                            app:layout_heightPercent="100%"
+                            android:text="Mix">
+                        </Button>
+                        <EditText
+                            android:id="@+id/edtColDelta"
+                            android:layout_toRightOf="@+id/btnMixEdtColDelta"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="13%"
+                            app:layout_heightPercent="100%"
+                            android:gravity="center"
+                            android:enabled="false"
+                            android:text="0">
+                        </EditText>
+                        <Button
+                            android:id="@+id/btnMaxEdtColDelta"
+                            android:layout_toRightOf="@+id/edtColDelta"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="18.5%"
+                            app:layout_heightPercent="100%"
+                            android:text="Max">
+                        </Button>
+                    </android.support.percent.PercentRelativeLayout>
+                </android.support.percent.PercentRelativeLayout>
+                <android.support.percent.PercentRelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp">
                         <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-                            <Button
-                                android:id="@+id/btnCatchPhone"
-                                android:layout_width="match_parent"
-                                android:layout_height="100dp"
-                                android:text="@string/catch_picture" />
-                            <Button
-                                android:id="@+id/btnCatchColor"
-                                android:layout_width="match_parent"
-                                android:layout_height="100dp"
-                                android:text="@string/catch_color" />
-                        </LinearLayout>
-                    </LinearLayout>
-                <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        >
-                        <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        >
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/Setting_Rows" />
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-                            <Button
-                                android:id="@+id/btnRowMin"
-                                android:layout_width="60dp"
-                                android:layout_height="40dp"
-                                android:text="Min"/>
-                            <EditText
-                                android:id="@+id/edtRow"
-                                android:layout_width="60dp"
-                                android:layout_height="40dp"
-                                android:inputType="text"
-                                android:gravity="center"
-                                android:enabled="false"
-                                android:text="H" />
-                            <Button
-                                android:id="@+id/btnRowMax"
-                                android:layout_width="60dp"
-                                android:layout_height="40dp"
-                                android:text="Max"/>
-                        </LinearLayout>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/Setting_Column"/>
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-                            <Button
-                                android:id="@+id/btnColMin"
-                                android:layout_width="60dp"
-                                android:layout_height="40dp"
-                                android:text="Min"/>
-                            <EditText
-                                android:id="@+id/edtCol"
-                                android:layout_width="60dp"
-                                android:layout_height="40dp"
-                                android:inputType="number"
-                                android:gravity="center"
-                                android:enabled="false"
-                                android:text="12" />
-                            <Button
-                                android:id="@+id/btnColMax"
-                                android:layout_width="60dp"
-                                android:layout_height="40dp"
-                                android:text="Max"/>
-                        </LinearLayout>
-                    </LinearLayout>
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/x_axis_space"/>
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal">
-                                <Button
-                                    android:id="@+id/btnMixEdtRowDelta"
-                                    android:layout_width="60dp"
-                                    android:layout_height="40dp"
-                                    android:text="Mix">
-                                </Button>
-                                <EditText
-                                    android:id="@+id/edtRowDelta"
-                                    android:layout_width="60dp"
-                                    android:layout_height="40dp"
-                                    android:inputType="number"
-                                    android:gravity="center"
-                                    android:enabled="false"
-                                    android:text="0">
-                                </EditText>
-                                <Button
-                                    android:id="@+id/btnMaxEdtRowDelta"
-                                    android:layout_width="60dp"
-                                    android:layout_height="40dp"
-                                    android:text="Max">
-                                </Button>
-                            </LinearLayout>
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/circle_yxis_space"/>
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal">
-                                <Button
-                                    android:id="@+id/btnMixEdtColDelta"
-                                    android:layout_width="60dp"
-                                    android:layout_height="40dp"
-                                    android:text="Mix">
-                                </Button>
-                                <EditText
-                                    android:id="@+id/edtColDelta"
-                                    android:layout_width="60dp"
-                                    android:layout_height="40dp"
-                                    android:inputType="number"
-                                    android:gravity="center"
-                                    android:enabled="false"
-                                    android:text="0">
-                                </EditText>
-                                <Button
-                                    android:id="@+id/btnMaxEdtColDelta"
-                                    android:layout_width="60dp"
-                                    android:layout_height="40dp"
-                                    android:text="Max">
-                                </Button>
-                            </LinearLayout>
-                        </LinearLayout>
-                    </LinearLayout>
-                <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_height="200dp"
+                            app:layout_widthPercent="50%"
                             android:orientation="vertical">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/move_row" />
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal">
+                            <android.support.percent.PercentRelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp">
                                 <Button
                                     android:id="@+id/btnRowUp"
-                                    android:layout_width="60dp"
-                                    android:layout_height="40dp"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="25%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentLeft="true"
                                     android:text="↑"/>
                                 <Spinner
                                     android:id="@+id/spRowNum"
-                                    android:layout_width="80dp"
-                                    android:layout_height="40dp"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="50%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_toRightOf="@+id/btnRowUp"
                                     android:gravity="center"/>
                                 <Button
                                     android:id="@+id/btnRowDown"
-                                    android:layout_width="60dp"
-                                    android:layout_height="40dp"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="25%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_toRightOf="@+id/spRowNum"
                                     android:text="↓"/>
-                            </LinearLayout>
+                            </android.support.percent.PercentRelativeLayout>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/move_col"/>
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal">
+                            <android.support.percent.PercentRelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp">
                                 <Button
                                     android:id="@+id/btnColLeft"
-                                    android:layout_width="60dp"
-                                    android:layout_height="40dp"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="25%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentLeft="true"
                                     android:text="←"/>
                                 <Spinner
                                     android:id="@+id/spColNum"
-                                    android:layout_width="80dp"
-                                    android:layout_height="40dp"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="50%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_toRightOf="@+id/btnColLeft"
                                     android:gravity="center"/>
-
                                 <Button
                                     android:id="@+id/btnColRight"
-                                    android:layout_width="60dp"
-                                    android:layout_height="40dp"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="25%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_toRightOf="@+id/spColNum"
                                     android:text="→"/>
-                            </LinearLayout>
-                            <LinearLayout
-                                android:layout_width="match_parent"
+                            </android.support.percent.PercentRelativeLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical">
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/Circle_size"/>
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal">
-                                    <Button
-                                        android:id="@+id/btnCicleMin"
-                                        android:layout_width="60dp"
-                                        android:layout_height="40dp"
-                                        android:text="Min"/>
-                                    <EditText
-                                        android:id="@+id/edtRadius"
-                                        android:layout_width="80dp"
-                                        android:layout_height="50dp"
-                                        android:inputType="number"
-                                        android:gravity="center"
-                                        android:enabled="true"
-                                        android:text="18" />
-                                    <Button
-                                        android:id="@+id/btnCicleMax"
-                                        android:layout_width="60dp"
-                                        android:layout_height="40dp"
-                                        android:text="Max"/>
-                                </LinearLayout>
-                            </LinearLayout>
-                        </LinearLayout>
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:orientation="vertical">
-                            <Button
+                                android:text="@string/Circle_size"/>
+                            <android.support.percent.PercentRelativeLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:text="corlor boarod"/>
-
+                                android:layout_height="50dp">
+                                <Button
+                                    android:id="@+id/btnCicleMin"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="25%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentLeft="true"
+                                    android:text="↓"/>
+                                <EditText
+                                    android:id="@+id/edtRadius"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="50%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_toRightOf="@+id/btnCicleMin"
+                                    android:gravity="center"
+                                    android:enabled="false"
+                                    android:text="18" />
+                                <Button
+                                    android:id="@+id/btnCicleMax"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="25%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_toRightOf="@+id/edtRadius"
+                                    android:text="↑"/>
+                            </android.support.percent.PercentRelativeLayout>
                         </LinearLayout>
-                    </LinearLayout>
+
+                </android.support.percent.PercentRelativeLayout>
             </LinearLayout>
         </ScrollView>
-</LinearLayout>
+    </LinearLayout>
+</android.support.percent.PercentFrameLayout>

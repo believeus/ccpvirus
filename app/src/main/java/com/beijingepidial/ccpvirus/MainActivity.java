@@ -88,6 +88,12 @@ public class MainActivity extends AppCompatActivity {
         this.colVal = new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
         this.col = colVal.length;
         this.row = rowVal.length;
+        //初始化96圓
+        for (int r = 0; r < row; r++) {
+            for (int c = 0; c < col; c++) {
+                clbox[r][c] = new Circle();
+            }
+        }
     }
 
     private BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(this) {
@@ -139,12 +145,6 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.xDelta = Integer.parseInt(edtColDelta.getText().toString());
                 MainActivity.this.yDelta = Integer.parseInt(edtRowDelta.getText().toString());
 
-                //初始化96圓
-                for (int r = 0; r < row; r++) {
-                    for (int c = 0; c < col; c++) {
-                        clbox[r][c] = new Circle();
-                    }
-                }
             }
 
             @Override
@@ -385,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-        findViewById(R.id.btnup).setOnTouchListener(new View.OnTouchListener() {
+        findViewById(R.id.btnUp).setOnTouchListener(new View.OnTouchListener() {
             private Timer timer;
 
             @Override
