@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText edtRowDelta;
     private Spinner spColNum;
     private Spinner spRowNum;
+    private Mat image;
     private Mat gary;
     private Mat edges;
     private Mat hierarchy;
@@ -74,7 +75,9 @@ public class MainActivity extends AppCompatActivity {
     private int width;
     private int height;
     private boolean init;
-    private boolean isCapture;
+    private boolean isclone;
+    private boolean isTakePhoto;
+    private boolean isCaptureColor;
 
     public MainActivity() {
         this.clbox = new Circle[8][12];
@@ -83,17 +86,14 @@ public class MainActivity extends AppCompatActivity {
         this.ly = 50;
         this.rx = 50;
         this.ry = 50;
-        this.isCapture = false;
+        this.isCaptureColor = false;
+        this.isTakePhoto=false;
         this.rowVal = new String[]{"A", "B", "C", "D", "E", "F", "G", "H"};
         this.colVal = new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
         this.col = colVal.length;
         this.row = rowVal.length;
         //初始化96圓
-        for (int r = 0; r < row; r++) {
-            for (int c = 0; c < col; c++) {
-                clbox[r][c] = new Circle();
-            }
-        }
+        for (int r = 0; r < row; r++) {for (int c = 0; c < col; c++) {clbox[r][c] = new Circle();} }
     }
 
     private BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(this) {
@@ -154,17 +154,36 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public Mat onCameraFrame(final CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-                final Mat frame = inputFrame.rgba();
-                final int w=MainActivity.this.width= frame.width();
+                final int w=MainActivity.this.width= inputFrame.rgba().width();
                 final int h=MainActivity.this.height= 750;
                 if (init)
-                MainActivity.this.xArea = (w - rx - lx) / col;
+                    MainActivity.this.xArea = (w - rx - lx) / col;
                 if (init)
-                MainActivity.this.yArea = (h - ry - ly) / row;
+                    MainActivity.this.yArea = (h - ry - ly) / row;
                 init=false;
+                if (isclone){image=inputFrame.rgba().clone();isclone=false;}
+                if (isTakePhoto) {
+                    Mat mat=image.clone();
+                    for (int r = 0; r < row; r++) {
+                        Imgproc.putText(mat, rowVal[r], new Point(lx - 30, ly + (yArea * r)+40), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                        for (int c = 0; c < col; c++) {
+                            Imgproc.putText(mat, colVal[c], new Point(lx + (xArea * c) + 20, ly - 10), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                            Circle cl= clbox[r][c];
+                            cl.setX(lx + (xArea * c));
+                            cl.setY(ly + (yArea * r));
+                            Imgproc.circle(mat, new Point(cl.getX()+cl.getxDelta(), cl.getY()+cl.getyDelta()), radius, new Scalar(0, 139, 139), 2, Core.LINE_AA);
+                        }
+                    }
+                    //绘制一个上下左右居中的矩形
+                    Imgproc.rectangle(mat, new Point(lx, ly), new Point(w - rx, h - ry), new Scalar(0, 139, 139), 5);
+                    return mat;
+                }
+                final Mat frame  = inputFrame.rgba();
                 Imgproc.cvtColor(frame, gary, Imgproc.COLOR_RGB2GRAY);
                 Imgproc.Canny(gary, edges, 50, 500, 3, false);
                 list.clear();
+                //绘制一个上下左右居中的矩形
+                Imgproc.rectangle(frame, new Point(lx, ly), new Point(w - rx, h - ry), new Scalar(0, 139, 139), 5);
                 Imgproc.findContours(edges, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
                 for (int r = 0; r < row; r++) {
                     Imgproc.putText(frame, rowVal[r], new Point(lx - 30, ly + (yArea * r)+40), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
@@ -176,40 +195,19 @@ public class MainActivity extends AppCompatActivity {
                         Imgproc.circle(frame, new Point(cl.getX()+cl.getxDelta(), cl.getY()+cl.getyDelta()), radius, new Scalar(0, 139, 139), 2, Core.LINE_AA);
                     }
                 }
-                //绘制一个上下左右居中的矩形
-                Imgproc.rectangle(frame, new Point(lx, ly), new Point(w - rx, h - ry), new Scalar(0, 139, 139), 5);
                 //5 绘制轮廓
                 for (int i = 0, len = list.size(); i < len; i++) {
                     Imgproc.drawContours(frame, list, i, new Scalar(0, 255, 0), 1);
                 }
-                //拍照截图
-                if (isCapture) {
-                    isCapture = false;
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Mat src = inputFrame.rgba().clone();
-                                Rect rect = new Rect(lx, ly, w - 2 * lx, h - 2 * ly);
-                                Mat mat = new Mat();
-                                Imgproc.cvtColor(src.submat(rect), mat, Imgproc.COLOR_BGR2RGBA);
-                                double[] rgb = mat.get(100, 100);
-                                File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                                String filename = "xxx.png";
-                                File file = new File(path, filename);
-                                Imgcodecs.imwrite(file.toString(), new Mat(100, 100, CvType.CV_8UC3, new Scalar(rgb[0], rgb[1], rgb[2])));
-                                MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.toString(), null);
-                                Uri uri = Uri.fromFile(file);
-                                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
-                                Toast.makeText(MainActivity.this, "take phone success", Toast.LENGTH_LONG).show();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
 
-                }
                 return frame;
+            }
+        });
+        findViewById(R.id.btnCatchPicture).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isTakePhoto=true;
+                isclone=true;
             }
         });
        /* findViewById(R.id.btnTakePhone).setOnClickListener(new View.OnClickListener() {
@@ -463,7 +461,7 @@ public class MainActivity extends AppCompatActivity {
                 edtRow.setText(Character.toString((char) (64 + row)));
             }
         });
-        findViewById(R.id.btnMixEdtColDelta).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnMixColDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 xDelta--;
@@ -472,7 +470,7 @@ public class MainActivity extends AppCompatActivity {
                 edtColDelta.setText(String.valueOf(xDelta));
             }
         });
-        findViewById(R.id.btnMaxEdtColDelta).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnMaxColDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 xDelta++;
@@ -481,7 +479,7 @@ public class MainActivity extends AppCompatActivity {
                 edtColDelta.setText(String.valueOf(xDelta));
             }
         });
-        findViewById(R.id.btnMixEdtRowDelta).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnMixRowDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 yDelta--;
@@ -490,7 +488,7 @@ public class MainActivity extends AppCompatActivity {
                 edtRowDelta.setText(String.valueOf(yDelta));
             }
         });
-        findViewById(R.id.btnMaxEdtRowDelta).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnMaxRowDelta).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 yDelta++;

@@ -126,7 +126,7 @@
                         app:layout_widthPercent="40%"
                         app:layout_heightPercent="100%">
                         <Button
-                            android:id="@+id/btnCatchPhone"
+                            android:id="@+id/btnCatchPicture"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_widthPercent="100%"
@@ -253,7 +253,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="40dp">
                         <Button
-                            android:id="@+id/btnMixEdtRowDelta"
+                            android:id="@+id/btnMixRowDelta"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             android:layout_alignParentLeft="true"
@@ -265,14 +265,14 @@
                             android:id="@+id/edtRowDelta"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:layout_toRightOf="@+id/btnMixEdtRowDelta"
+                            android:layout_toRightOf="@+id/btnMixRowDelta"
                             app:layout_widthPercent="13%"
                             app:layout_heightPercent="100%"
                             android:gravity="center"
                             android:enabled="false"
                             android:text="0" />
                         <Button
-                            android:id="@+id/btnMaxEdtRowDelta"
+                            android:id="@+id/btnMaxRowDelta"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             android:layout_toRightOf="@+id/edtRowDelta"
@@ -280,27 +280,26 @@
                             app:layout_heightPercent="100%"
                             android:text="Mix"/>
                         <Button
-                            android:id="@+id/btnMixEdtColDelta"
+                            android:id="@+id/btnMixColDelta"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            android:layout_toRightOf="@+id/btnMaxEdtRowDelta"
+                            android:layout_toRightOf="@+id/btnMaxRowDelta"
                             app:layout_widthPercent="18.5%"
                             app:layout_heightPercent="100%"
                             android:text="Mix">
                         </Button>
                         <EditText
                             android:id="@+id/edtColDelta"
-                            android:layout_toRightOf="@+id/btnMixEdtColDelta"
+                            android:layout_toRightOf="@+id/btnMixColDelta"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_widthPercent="13%"
                             app:layout_heightPercent="100%"
                             android:gravity="center"
                             android:enabled="false"
-                            android:text="0">
-                        </EditText>
+                            android:text="0"/>
                         <Button
-                            android:id="@+id/btnMaxEdtColDelta"
+                            android:id="@+id/btnMaxColDelta"
                             android:layout_toRightOf="@+id/edtColDelta"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
