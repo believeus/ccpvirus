@@ -16,6 +16,85 @@
             android:layout_height="250dp"
             app:camera_id="any"
             app:show_fps="false" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="#000000"
+            android:paddingTop="5dp">
+            <com.beijingepidial.ccpvirus.LevelView
+                android:id="@+id/gv_hv"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                app:bubbleColor="#e03524"
+                app:bubbleRadius="10dp"
+                app:bubbleRuleColor="#ffffff"
+                app:bubbleRuleRadius="12dp"
+                app:bubbleRuleWidth="1dp"
+                app:limitCircleWidth="3dp"
+                app:limitColor="#e03524"
+                app:limitRadius="20dp"
+                app:horizontalColor="#00ff00"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:padding="5dp">
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5">
+
+                    <TextView
+                        android:id="@+id/tvv_vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:gravity="center_horizontal"
+                        android:text="vert"
+                        android:textColor="#fff"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/tvl_vertical"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/tvv_vertical"
+                        android:layout_centerHorizontal="true"
+                        android:text="@string/vertical"
+                        android:gravity="center_horizontal"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="10sp" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_weight="0.5">
+                    <TextView
+                        android:id="@+id/tvv_horz"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:gravity="center_horizontal"
+                        android:text="horiz"
+                        android:textColor="#fff"
+                        android:textSize="20sp" />
+                    <TextView
+                        android:id="@+id/tvl_horz"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/tvv_horz"
+                        android:layout_centerHorizontal="true"
+                        android:gravity="center_horizontal"
+                        android:text="@string/horizontal"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="10sp" />
+                </RelativeLayout>
+            </LinearLayout>
+        </RelativeLayout>
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -125,106 +204,94 @@
                         android:layout_height="0dp"
                         app:layout_widthPercent="40%"
                         app:layout_heightPercent="100%">
-
                         <Button
-                            android:id="@+id/btnSpinReverse"
+                            android:id="@+id/btnSaveTmp"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_widthPercent="100%"
                             app:layout_heightPercent="50%"
                             android:layout_alignParentTop="true"
                             android:layout_alignParentLeft="true"
-                            android:text="@string/SpinReverse" />
+                            android:text="@string/save_template" />
                         <Button
-                            android:id="@+id/btnClockwise"
+                            android:id="@+id/btnReTake"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_widthPercent="100%"
                             app:layout_heightPercent="50%"
                             android:layout_alignParentBottom="true"
                             android:layout_alignParentLeft="true"
-                            android:text="@string/SpinClockwise" />
+                            android:text="@string/retake" />
                     </android.support.percent.PercentRelativeLayout>
                 </android.support.percent.PercentRelativeLayout>
-                <RelativeLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#000000"
-                    android:paddingTop="10dp">
-                    <com.beijingepidial.ccpvirus.LevelView
-                        android:id="@+id/gv_hv"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_centerHorizontal="true"
-                        app:bubbleColor="#e03524"
-                        app:bubbleRadius="10dp"
-                        app:bubbleRuleColor="#ffffff"
-                        app:bubbleRuleRadius="12dp"
-                        app:bubbleRuleWidth="1dp"
-                        app:limitCircleWidth="3dp"
-                        app:limitColor="#e03524"
-                        app:limitRadius="20dp"
-                        app:horizontalColor="#00ff00"/>
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Set cell position"/>
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:padding="30dp">
-
-                        <RelativeLayout
+                        android:layout_height="40dp"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <Button
+                            android:id="@+id/btnCellUp"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0.5">
-
-                            <TextView
-                                android:id="@+id/tvv_vertical"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_centerHorizontal="true"
-                                android:gravity="center_horizontal"
-                                android:text="vert"
-                                android:textColor="#fff"
-                                android:textSize="40sp" />
-
-                            <TextView
-                                android:id="@+id/tvl_vertical"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_below="@id/tvv_vertical"
-                                android:layout_centerHorizontal="true"
-                                android:text="@string/vertical"
-                                android:gravity="center_horizontal"
-                                android:textColor="@android:color/darker_gray"
-                                android:textSize="20sp" />
-                        </RelativeLayout>
-
-                        <RelativeLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:layout_weight="0.5">
-                            <TextView
-                                android:id="@+id/tvv_horz"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_centerHorizontal="true"
-                                android:gravity="center_horizontal"
-                                android:text="horiz"
-                                android:textColor="#fff"
-                                android:textSize="40sp" />
-                            <TextView
-                                android:id="@+id/tvl_horz"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_below="@id/tvv_horz"
-                                android:layout_centerHorizontal="true"
-                                android:gravity="center_horizontal"
-                                android:text="@string/horizontal"
-                                android:textColor="@android:color/darker_gray"
-                                android:textSize="20sp" />
-                        </RelativeLayout>
+                            android:layout_height="match_parent"
+                            android:text="↑"/>
                     </LinearLayout>
-                </RelativeLayout>
+                    <android.support.percent.PercentRelativeLayout
+                        android:layout_height="40dp"
+                        android:layout_width="match_parent">
+                        <Button
+                            android:id="@+id/btnCellLeft"
+                            android:layout_height="0dp"
+                            android:layout_width="0dp"
+                            app:layout_widthPercent="20%"
+                            app:layout_heightPercent="100%"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentLeft="true"
+                            android:text="←"/>
+                        <Spinner
+                            android:id="@+id/spCellRow"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="30%"
+                            app:layout_heightPercent="100%"
+                            android:layout_toRightOf="@+id/btnCellLeft"
+                            android:gravity="center"/>
+                        <Spinner
+                            android:id="@+id/spCellCol"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_widthPercent="30%"
+                            app:layout_heightPercent="100%"
+                            android:layout_toRightOf="@+id/spCellRow"
+                            android:gravity="center"/>
+                        <Button
+                            android:id="@+id/btnCellRight"
+                            android:layout_height="0dp"
+                            android:layout_width="0dp"
+                            app:layout_heightPercent="100%"
+                            app:layout_widthPercent="20%"
+                            android:layout_toRightOf="@+id/spCellCol"
+                            android:text="→"/>
+                    </android.support.percent.PercentRelativeLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <Button
+                            android:id="@+id/btnCellDown"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:text="↓"/>
+                    </LinearLayout>
+                </LinearLayout>
                 <android.support.percent.PercentRelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="15dp">
@@ -584,6 +651,7 @@
                             </android.support.percent.PercentRelativeLayout>
                         </LinearLayout>
                 </android.support.percent.PercentRelativeLayout>
+
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

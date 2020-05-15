@@ -77,7 +77,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private boolean init;
     private boolean isClone;
     private boolean isTakePhoto;
+    private boolean isReTake;
     private boolean isCaptureColor;
+    private Spinner spCellRow;
+    private Spinner spCellCol;
     //Begin:传感器
     private SensorManager sensorManager;
     private Sensor acc_sensor;
@@ -152,6 +155,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         spRowNumLeftRight =(Spinner)findViewById(R.id.spRowNumLeftRight);
         spColNumUpDown = (Spinner) findViewById(R.id.spColNumUpDown);
         spColNumLeftRight =(Spinner) findViewById(R.id.spColNumLeftRight);
+        spCellRow = (Spinner)findViewById(R.id.spCellRow);
+        spCellCol=(Spinner)findViewById(R.id.spCellCol);
         ArrayAdapter rowAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(new String[]{"A","B","C","D","E","F","G","H"}));
         rowAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ArrayAdapter colAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(new String[]{"1","2","3","4","5","6","7","8","9","10","11","12"}));
@@ -161,7 +166,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         spRowNumLeftRight.setAdapter(rowAdapter);
         spColNumLeftRight.setAdapter(colAdapter);
         spColNumUpDown.setAdapter(colAdapter);
-
+        spCellRow.setAdapter(rowAdapter);
+        spCellCol.setAdapter(colAdapter);
         edtCol=(EditText)findViewById(R.id.edtCol);
         javaCameraView = (JavaCameraView) findViewById(R.id.javaCameraView);
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
@@ -195,25 +201,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 init=false;
                 if (isClone){image=inputFrame.rgba().clone();
                     isClone =false;}
-                if (isTakePhoto) {
-                    Mat mat=image.clone();
-                    for (int r = 0; r < row; r++) {
-                        gridRows[r].setX(lx-30);
-                        gridRows[r].setY(ly + (yArea * r));
-                        Imgproc.putText(mat, gridRows[r].getName(), new Point(gridRows[r].getX()+ gridRows[r].getxDelta(), gridRows[r].getY()+ gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
-                        for (int c = 0; c < col; c++) {
-                            gridCols[c].setX(lx + (xArea * c));
-                            gridCols[c].setY(ly);
-                            Imgproc.putText(mat, gridCols[c].getName(), new Point( gridCols[c].getX()+ gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
-                            Circle cl= clbox[r][c];
-                            cl.setX(lx + (xArea * c));
-                            cl.setY(ly + (yArea * r));
-                            Imgproc.circle(mat, new Point(cl.getX()+cl.getxDelta(), cl.getY()+cl.getyDelta()), radius, new Scalar(0, 139, 139), 2, Core.LINE_AA);
+                if (!isReTake) {
+                    if (isTakePhoto) {
+                        Mat mat = image.clone();
+                        for (int r = 0; r < row; r++) {
+                            gridRows[r].setX(lx - 30);
+                            gridRows[r].setY(ly + (yArea * r));
+                            Imgproc.putText(mat, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                            for (int c = 0; c < col; c++) {
+                                gridCols[c].setX(lx + (xArea * c));
+                                gridCols[c].setY(ly);
+                                Imgproc.putText(mat, gridCols[c].getName(), new Point(gridCols[c].getX() + gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                                Circle cl = clbox[r][c];
+                                cl.setX(lx + (xArea * c));
+                                cl.setY(ly + (yArea * r));
+                                Imgproc.circle(mat, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius, new Scalar(0, 139, 139), 2, Core.LINE_AA);
+                            }
                         }
+                        //绘制一个上下左右居中的矩形
+                        Imgproc.rectangle(mat, new Point(lx, ly), new Point(w - rx, h - ry), new Scalar(0, 139, 139), 5);
+                        return mat;
                     }
-                    //绘制一个上下左右居中的矩形
-                    Imgproc.rectangle(mat, new Point(lx, ly), new Point(w - rx, h - ry), new Scalar(0, 139, 139), 5);
-                    return mat;
                 }
                 final Mat frame  = inputFrame.rgba();
                 Imgproc.cvtColor(frame, gary, Imgproc.COLOR_RGB2GRAY);
@@ -244,11 +252,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 return frame;
             }
         });
-        javaCameraView.setOnClickListener(new View.OnClickListener() {
+        //拍照
+        levelView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isTakePhoto=true;
                 isClone =true;
+                isReTake=false;
             }
         });
        /* findViewById(R.id.btnTakePhone).setOnClickListener(new View.OnClickListener() {
@@ -697,24 +707,48 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 edtCol.setText(String.valueOf(col));
             }
         });
-        findViewById(R.id.btnSpinReverse).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnSaveTmp).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                angele++;
-               // Mat dst = image.clone();
-                Point center = new Point(image.width() / 2.0, image.height() / 2.0);
-                Mat affineTrans = Imgproc.getRotationMatrix2D(center, angele, 1.0);
-                Imgproc.warpAffine(image, image, affineTrans, image.size(), Imgproc.INTER_NEAREST);
             }
         });
-        findViewById(R.id.btnClockwise).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnReTake).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                angele--;
-                // Mat dst = image.clone();
-                Point center = new Point(image.width() / 2.0, image.height() / 2.0);
-                Mat affineTrans = Imgproc.getRotationMatrix2D(center, angele, 1.0);
-                Imgproc.warpAffine(image, image, affineTrans, image.size(), Imgproc.INTER_NEAREST);
+               isReTake=true;
+            }
+        });
+        findViewById(R.id.btnCellLeft).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int r=(spCellRow.getSelectedItem().toString().charAt(0))-64-1;
+                int c=Integer.valueOf(spCellCol.getSelectedItem().toString()).intValue()-1;
+                clbox[r][c].xDeltaLow();
+            }
+        });
+        findViewById(R.id.btnCellRight).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int r=(spCellRow.getSelectedItem().toString().charAt(0))-64-1;
+                int c=Integer.valueOf(spCellCol.getSelectedItem().toString()).intValue()-1;
+                clbox[r][c].xDeltaAdd();
+            }
+        });
+        findViewById(R.id.btnCellUp).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int r=(spCellRow.getSelectedItem().toString().charAt(0))-64-1;
+                int c=Integer.valueOf(spCellCol.getSelectedItem().toString()).intValue()-1;
+                clbox[r][c].yDeltaLow();
+            }
+        });
+        findViewById(R.id.btnCellDown).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int r=(spCellRow.getSelectedItem().toString().charAt(0))-64-1;
+                int c=Integer.valueOf(spCellCol.getSelectedItem().toString()).intValue()-1;
+                clbox[r][c].yDeltaAdd();
+
             }
         });
     }
