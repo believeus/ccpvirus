@@ -1,9 +1,5 @@
 package com.beijingepidial.ccpvirus;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -13,7 +9,6 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.beijingepidial.entity.Circle;
 
@@ -23,17 +18,12 @@ import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,8 +38,10 @@ public class MainActivity extends AppCompatActivity {
     private EditText edtCol;
     private EditText edtColDelta;
     private EditText edtRowDelta;
-    private Spinner spColNum;
-    private Spinner spRowNum;
+    private Spinner spColNumLeftRight;
+    private Spinner spRowNumUpDown;
+    private Spinner spRowNumLeftRight;
+    private Spinner spColNumUpDown;
     private Mat image;
     private Mat gary;
     private Mat edges;
@@ -122,15 +114,20 @@ public class MainActivity extends AppCompatActivity {
         edtRow = (EditText) findViewById(R.id.edtRow);
         edtColDelta = (EditText) findViewById(R.id.edtColDelta);
         edtRowDelta = (EditText) findViewById(R.id.edtRowDelta);
-        spRowNum = (Spinner) findViewById(R.id.spRowNum);
-        spColNum=(Spinner) findViewById(R.id.spColNum);
+        spRowNumUpDown = (Spinner) findViewById(R.id.spRowNumUpDown);
+        spRowNumLeftRight =(Spinner)findViewById(R.id.spRowNumLeftRight);
+        spColNumUpDown = (Spinner) findViewById(R.id.spColNumUpDown);
+        spColNumLeftRight =(Spinner) findViewById(R.id.spColNumLeftRight);
         ArrayAdapter rowAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(rowVal));
         rowAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ArrayAdapter colAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(colVal));
         colAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //第四步：将适配器添加到下拉列表上
-        spRowNum.setAdapter(rowAdapter);
-        spColNum.setAdapter(colAdapter);
+        spRowNumUpDown.setAdapter(rowAdapter);
+        spRowNumLeftRight.setAdapter(rowAdapter);
+        spColNumLeftRight.setAdapter(colAdapter);
+        spColNumUpDown.setAdapter(colAdapter);
+
         edtCol=(EditText)findViewById(R.id.edtCol);
         javaCameraView = (JavaCameraView) findViewById(R.id.javaCameraView);
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
@@ -204,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 return frame;
             }
         });
-        findViewById(R.id.btnCatchPicture).setOnClickListener(new View.OnClickListener() {
+        javaCameraView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isTakePhoto=true;
@@ -256,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                                 rx -= 1;
                                 lx -= 1;
                             }
-                        }, 0, 5);
+                        }, 0, 2);
                         break;
                     default:
                         timer.cancel();
@@ -280,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
                                 rx += 1;
                                 lx += 1;
                             }
-                        }, 0, 5);
+                        }, 0, 2);
                         break;
                     default:
                         timer.cancel();
@@ -303,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
                                 ly -= 1;
                                 ry -= 1;
                             }
-                        }, 0, 5);
+                        }, 0, 2);
                         break;
                     default:
                         timer.cancel();
@@ -326,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
                                 ly += 1;
                                 ry += 1;
                             }
-                        }, 0, 5);
+                        }, 0, 2);
                         break;
                     default:
                         timer.cancel();
@@ -497,42 +494,146 @@ public class MainActivity extends AppCompatActivity {
                 edtRowDelta.setText(String.valueOf(yDelta));
             }
         });
-        findViewById(R.id.btnRowDown).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnRowDown).setOnTouchListener(new View.OnTouchListener() {
+            private Timer timer;
             @Override
-            public void onClick(View v) {
-                //A==65 B=66 C=67 D=68 E=69 F=70 G=71 H=72
-                int row=((int)spRowNum.getSelectedItem().toString().charAt(0))-64-1;
-                for (int c = 0; c < col; c++) {
-                    clbox[row][c].yDeltaAdd();
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        timer = new Timer();
+                        timer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                //A==65 B=66 C=67 D=68 E=69 F=70 G=71 H=72
+                                int row=((int) spRowNumUpDown.getSelectedItem().toString().charAt(0))-64-1;
+                                for (int c = 0; c < col; c++) {
+                                    clbox[row][c].yDeltaAdd();
+                                }
+                            }
+                        }, 0, 2);
+                        break;
+                    default:
+                        timer.cancel();
+                        break;
+
                 }
+
+                return true;
             }
+
         });
         findViewById(R.id.btnRowUp).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //A==65 B=66 C=67 D=68 E=69 F=70 G=71 H=72
-                int row=((int)spRowNum.getSelectedItem().toString().charAt(0))-64-1;
+                int row=((int) spRowNumUpDown.getSelectedItem().toString().charAt(0))-64-1;
                 for (int c = 0; c < col; c++) {
                     clbox[row][c].yDeltaLow();
                 }
             }
         });
+        findViewById(R.id.btnRowLeft).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               // spN
+                int row=spRowNumLeftRight.getSelectedItem().toString().charAt(0)-64-1;
+                for (int c = 0; c < col; c++) {
+                    clbox[row][c].xDeltaLow();
+                }
+            }
+        });
+        findViewById(R.id.btnRowRight).setOnTouchListener(new View.OnTouchListener() {
+            private Timer timer;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        timer = new Timer();
+                        timer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                //A==65 B=66 C=67 D=68 E=69 F=70 G=71 H=72
+                                int row=((int) spRowNumLeftRight.getSelectedItem().toString().charAt(0))-64-1;
+                                for (int c = 0; c < col; c++) {
+                                    clbox[row][c].xDeltaAdd();
+                                }
+                            }
+                        }, 0, 2);
+                        break;
+                    default:
+                        timer.cancel();
+                        break;
+
+                }
+
+                return true;
+            }
+        });
         findViewById(R.id.btnColLeft).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int col = Integer.parseInt(spColNum.getSelectedItem().toString())-1;
+                int col = Integer.parseInt(spColNumLeftRight.getSelectedItem().toString())-1;
                 for (int r = 0; r < row; r++) {
                        clbox[r][col].xDeltaLow();
                 }
             }
         });
-        findViewById(R.id.btnColRight).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnColRight).setOnTouchListener(new View.OnTouchListener() {
+            private Timer timer;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        timer = new Timer();
+                        timer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                int col=Integer.valueOf(spColNumLeftRight.getSelectedItem().toString()).intValue()-1;
+                                for (int r = 0; r < row; r++) {
+                                    clbox[r][col].xDeltaAdd();
+                                }
+                            }
+                        }, 0, 2);
+                        break;
+                    default:
+                        timer.cancel();
+                        break;
+
+                }
+                return true;
+            }
+        });
+        findViewById(R.id.btnColDown).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int col=Integer.valueOf(spColNum.getSelectedItem().toString()).intValue()-1;
+                int col = Integer.parseInt(spColNumUpDown.getSelectedItem().toString())-1;
                 for (int r = 0; r < row; r++) {
-                     clbox[r][col].xDeltaAdd();
+                    clbox[r][col].yDeltaAdd();
                 }
+            }
+        });
+        findViewById(R.id.btnColUp).setOnTouchListener(new View.OnTouchListener() {
+            private Timer timer;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        timer = new Timer();
+                        timer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                int col = Integer.parseInt(spColNumUpDown.getSelectedItem().toString())-1;
+                                for (int r = 0; r < row; r++) {
+                                    clbox[r][col].yDeltaLow();
+                                }
+                            }
+                        }, 0, 2);
+                        break;
+                    default:
+                        timer.cancel();
+                        break;
+                }
+                return true;
             }
         });
         findViewById(R.id.btnColMin).setOnClickListener(new View.OnClickListener() {

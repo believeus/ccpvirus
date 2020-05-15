@@ -323,7 +323,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/move_row" />
+                                android:text="@string/move_row_up_down" />
                             <android.support.percent.PercentRelativeLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp">
@@ -337,7 +337,7 @@
                                     android:layout_alignParentLeft="true"
                                     android:text="↑"/>
                                 <Spinner
-                                    android:id="@+id/spRowNum"
+                                    android:id="@+id/spRowNumUpDown"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
                                     app:layout_widthPercent="50%"
@@ -350,13 +350,13 @@
                                     android:layout_height="0dp"
                                     app:layout_widthPercent="25%"
                                     app:layout_heightPercent="100%"
-                                    android:layout_toRightOf="@+id/spRowNum"
+                                    android:layout_toRightOf="@+id/spRowNumUpDown"
                                     android:text="↓"/>
                             </android.support.percent.PercentRelativeLayout>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="@string/move_col"/>
+                                android:text="@string/move_col_left_right"/>
                             <android.support.percent.PercentRelativeLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp">
@@ -370,7 +370,7 @@
                                     android:layout_alignParentLeft="true"
                                     android:text="←"/>
                                 <Spinner
-                                    android:id="@+id/spColNum"
+                                    android:id="@+id/spColNumLeftRight"
                                     android:layout_width="0dp"
                                     android:layout_height="0dp"
                                     app:layout_widthPercent="50%"
@@ -383,7 +383,7 @@
                                     android:layout_height="0dp"
                                     app:layout_widthPercent="25%"
                                     app:layout_heightPercent="100%"
-                                    android:layout_toRightOf="@+id/spColNum"
+                                    android:layout_toRightOf="@+id/spColNumLeftRight"
                                     android:text="→"/>
                             </android.support.percent.PercentRelativeLayout>
                             <TextView
@@ -429,21 +429,81 @@
                             android:layout_height="200dp"
                             app:layout_widthPercent="50%"
                             android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/move_row_left_right" />
                             <android.support.percent.PercentRelativeLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
+                                android:layout_height="50dp">
                                 <Button
+                                    android:id="@+id/btnRowLeft"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="25%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentLeft="true"
+                                    android:text="←"/>
+                                <Spinner
+                                    android:id="@+id/spRowNumLeftRight"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="50%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_toRightOf="@+id/btnRowLeft"
+                                    android:gravity="center"/>
+                                <Button
+                                    android:id="@+id/btnRowRight"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="25%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_toRightOf="@+id/spRowNumLeftRight"
+                                    android:text="→"/>
+                               <!-- <Button
                                     android:id="@+id/btnCatchPicture"
                                     android:layout_width="0dp"
                                     android:layout_height="50dp"
                                     app:layout_widthPercent="100%"
                                     android:layout_alignParentTop="true"
                                     android:layout_alignParentLeft="true"
-                                    android:text="@string/catch_picture" />
+                                    android:text="@string/catch_picture" />-->
                             </android.support.percent.PercentRelativeLayout>
-
-
-                    </LinearLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/move_col_up_down"/>
+                            <android.support.percent.PercentRelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp">
+                                <Button
+                                    android:id="@+id/btnColDown"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="25%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentLeft="true"
+                                    android:text="↓"/>
+                                <Spinner
+                                    android:id="@+id/spColNumUpDown"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="50%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_toRightOf="@+id/btnColDown"
+                                    android:gravity="center"/>
+                                <Button
+                                    android:id="@+id/btnColUp"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_widthPercent="25%"
+                                    app:layout_heightPercent="100%"
+                                    android:layout_toRightOf="@+id/spColNumUpDown"
+                                    android:text="↑"/>
+                            </android.support.percent.PercentRelativeLayout>
+                        </LinearLayout>
                 </android.support.percent.PercentRelativeLayout>
             </LinearLayout>
         </ScrollView>
