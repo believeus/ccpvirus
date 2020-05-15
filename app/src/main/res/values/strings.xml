@@ -3,7 +3,7 @@
     <string name="catch_picture">Catch picture</string>
     <string name="catch_color">Catch Color</string>
     <string name="Circle_size">Setting Circle size</string>
-    <string name="Rectancle_size">Adjust rectangle size and orientation</string>
+    <string name="Rectancle_size">Setting rectangle size and orientation</string>
     <string name="Setting_Rows">Set the number of rows</string>
     <string name="Setting_Column">Set the number of columns</string>
     <string name="x_axis_space">Circle row height:↕</string>
@@ -12,8 +12,9 @@
     <string name="move_row_left_right">Move row: ← →</string>
     <string name="move_col_left_right">Move column:← →</string>
     <string name="move_col_up_down">Move column:↑↓</string>
-    <string name="save_template">Save Template</string>
+    <string name="save_parameters">Save Settings</string>
     <string name="retake">reTake</string>
     <string name="vertical">vertical</string>
     <string name="horizontal">horizontal</string>
+    <string name="color_palette">Color palette</string>
 </resources>

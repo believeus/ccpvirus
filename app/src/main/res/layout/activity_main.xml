@@ -205,14 +205,14 @@
                         app:layout_widthPercent="40%"
                         app:layout_heightPercent="100%">
                         <Button
-                            android:id="@+id/btnSaveTmp"
+                            android:id="@+id/btnCatchColor"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_widthPercent="100%"
                             app:layout_heightPercent="50%"
                             android:layout_alignParentTop="true"
                             android:layout_alignParentLeft="true"
-                            android:text="@string/save_template" />
+                            android:text="@string/catch_color" />
                         <Button
                             android:id="@+id/btnReTake"
                             android:layout_width="0dp"
@@ -223,6 +223,25 @@
                             android:layout_alignParentLeft="true"
                             android:text="@string/retake" />
                     </android.support.percent.PercentRelativeLayout>
+                </android.support.percent.PercentRelativeLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/color_palette"/>
+                <android.support.percent.PercentRelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:gravity="center">
+                    <SurfaceView
+                        android:id="@+id/svColorPlate"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        app:layout_heightPercent="100%"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentTop="true"
+                        app:layout_widthPercent="98%"
+                        android:background="@color/colorgrey"/>
+
                 </android.support.percent.PercentRelativeLayout>
                 <LinearLayout
                     android:layout_width="match_parent"

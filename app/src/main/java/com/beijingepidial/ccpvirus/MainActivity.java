@@ -1,9 +1,13 @@
 package com.beijingepidial.ccpvirus;
 
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -81,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private boolean isCaptureColor;
     private Spinner spCellRow;
     private Spinner spCellCol;
+    private MediaPlayer mediaPlayer;
     //Begin:传感器
     private SensorManager sensorManager;
     private Sensor acc_sensor;
@@ -138,6 +143,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AudioManager meng = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        int volume = meng.getStreamVolume( AudioManager.STREAM_NOTIFICATION);
+        if (volume!=0) {
+            Uri uri = Uri.parse("file:///system/media/audio/ui/camera_click.ogg");
+            mediaPlayer = MediaPlayer.create(this, uri);
+        }
         //保持螢幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
@@ -259,6 +270,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 isTakePhoto=true;
                 isClone =true;
                 isReTake=false;
+                //播放相机拍照的声音
+                if (mediaPlayer!=null)
+                    mediaPlayer.start();
+
             }
         });
        /* findViewById(R.id.btnTakePhone).setOnClickListener(new View.OnClickListener() {
@@ -707,7 +722,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 edtCol.setText(String.valueOf(col));
             }
         });
-        findViewById(R.id.btnSaveTmp).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnCatchColor).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             }
