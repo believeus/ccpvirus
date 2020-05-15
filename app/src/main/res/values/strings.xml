@@ -14,4 +14,6 @@
     <string name="move_col_up_down">Move column:↑↓</string>
     <string name="SpinReverse">Spin Reverse</string>
     <string name="SpinClockwise">Spin Clockwise</string>
+    <string name="vertical">垂直</string>
+    <string name="horizontal">水平</string>
 </resources>

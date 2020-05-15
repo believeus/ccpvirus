@@ -1,5 +1,9 @@
 package com.beijingepidial.ccpvirus;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -9,6 +13,7 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.beijingepidial.entity.Circle;
 import com.beijingepidial.entity.GridCol;
@@ -32,7 +37,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private JavaCameraView javaCameraView;
     private Circle[][] clbox;
     private GridCol gridCols[];
@@ -73,7 +78,21 @@ public class MainActivity extends AppCompatActivity {
     private boolean isClone;
     private boolean isTakePhoto;
     private boolean isCaptureColor;
+    //Begin:传感器
+    private SensorManager sensorManager;
+    private Sensor acc_sensor;
+    private Sensor mag_sensor;
+    private float[] accValues = new float[3];
+    private float[] magValues = new float[3];
+    // 旋转矩阵，用来保存磁场和加速度的数据
+    private float r[] = new float[9];
+    // 模拟方向传感器的数据（原始数据为弧度）
+    private float values[] = new float[3];
 
+    private LevelView levelView;
+    private TextView tvHorz;
+    private TextView tvVert;
+    //End:传感器
     public MainActivity() {
         this.clbox = new Circle[8][12];
         this.gridCols =new GridCol[12];
@@ -119,6 +138,12 @@ public class MainActivity extends AppCompatActivity {
         //保持螢幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
+        //Begin:传感器
+        levelView = (LevelView)findViewById(R.id.gv_hv);
+        tvVert = (TextView)findViewById(R.id.tvv_vertical);
+        tvHorz = (TextView)findViewById(R.id.tvv_horz);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        //End:传感器
         edtRadius = (EditText) findViewById(R.id.edtRadius);
         edtRow = (EditText) findViewById(R.id.edtRow);
         edtColDelta = (EditText) findViewById(R.id.edtColDelta);
@@ -697,6 +722,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
+        // 取消方向传感器的监听
+        sensorManager.unregisterListener(this);
         if (javaCameraView != null)
             javaCameraView.disableView();
     }
@@ -704,6 +731,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        //Begin:传感器
+        acc_sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mag_sensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        // 给传感器注册监听：
+        sensorManager.registerListener(this, acc_sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, mag_sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        //End:传感器
         if (!OpenCVLoader.initDebug()) {
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_2, this, baseLoaderCallback);
         } else {
@@ -712,4 +746,43 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        // 获取手机触发event的传感器的类型
+        int sensorType = event.sensor.getType();
+        switch (sensorType) {
+            case Sensor.TYPE_ACCELEROMETER:
+                accValues = event.values.clone();
+                break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                magValues = event.values.clone();
+                break;
+        }
+        SensorManager.getRotationMatrix(r, null, accValues, magValues);
+        SensorManager.getOrientation(r, values);
+        // 获取　沿着Z轴转过的角度
+        float azimuth = values[0];
+        // 获取　沿着X轴倾斜时　与Y轴的夹角
+        float pitchAngle = values[1];
+        // 获取　沿着Y轴的滚动时　与X轴的角度
+        //此处与官方文档描述不一致，所在加了符号（https://developer.android.google.cn/reference/android/hardware/SensorManager.html#getOrientation(float[], float[])）
+        float rollAngle = - values[2];
+        onAngleChanged(rollAngle, pitchAngle, azimuth);
+
+    }
+    /**
+     * 角度变更后显示到界面
+     * @param rollAngle
+     * @param pitchAngle
+     * @param azimuth
+     */
+    private void onAngleChanged(float rollAngle, float pitchAngle, float azimuth){
+        levelView.setAngle(rollAngle, pitchAngle);
+        tvHorz.setText(String.valueOf((int)Math.toDegrees(rollAngle)) + "°");
+        tvVert.setText(String.valueOf((int)Math.toDegrees(pitchAngle)) + "°");
+    }
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
 }
