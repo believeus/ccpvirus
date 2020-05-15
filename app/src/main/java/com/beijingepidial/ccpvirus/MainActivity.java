@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.beijingepidial.entity.Circle;
+import com.beijingepidial.entity.GridCol;
+import com.beijingepidial.entity.GridRow;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -33,6 +35,8 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
     private JavaCameraView javaCameraView;
     private Circle[][] clbox;
+    private GridCol gridCols[];
+    private GridRow gridRows[];
     private EditText edtRadius;
     private EditText edtRow;
     private EditText edtCol;
@@ -58,8 +62,6 @@ public class MainActivity extends AppCompatActivity {
     private int lx;
     //左上角点y坐标点
     private int ly;
-    private String[] colVal;
-    private String[] rowVal;
     private int col;
     private int row;
     private int xArea;
@@ -68,12 +70,14 @@ public class MainActivity extends AppCompatActivity {
     private int height;
     private int angele;
     private boolean init;
-    private boolean isclone;
+    private boolean isClone;
     private boolean isTakePhoto;
     private boolean isCaptureColor;
 
     public MainActivity() {
         this.clbox = new Circle[8][12];
+        this.gridCols =new GridCol[12];
+        this.gridRows =new GridRow[8];
         this.init=true;
         this.lx = 50;
         this.ly = 50;
@@ -81,12 +85,17 @@ public class MainActivity extends AppCompatActivity {
         this.ry = 50;
         this.isCaptureColor = false;
         this.isTakePhoto=false;
-        this.rowVal = new String[]{"A", "B", "C", "D", "E", "F", "G", "H"};
-        this.colVal = new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
-        this.col = colVal.length;
-        this.row = rowVal.length;
+        this.col = gridCols.length;
+        this.row = gridRows.length;
         //初始化96圓
         for (int r = 0; r < row; r++) {for (int c = 0; c < col; c++) {clbox[r][c] = new Circle();} }
+        //初始化12列
+        for (int i=0;i<12;i++){
+            gridCols[i]=new GridCol(String.valueOf(i+1));}
+        //初始化8行
+        for (int i=0;i<8;i++){
+            gridRows[i]=new GridRow(Character.toString((char) (65 + i)));
+        }
     }
 
     private BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(this) {
@@ -118,9 +127,9 @@ public class MainActivity extends AppCompatActivity {
         spRowNumLeftRight =(Spinner)findViewById(R.id.spRowNumLeftRight);
         spColNumUpDown = (Spinner) findViewById(R.id.spColNumUpDown);
         spColNumLeftRight =(Spinner) findViewById(R.id.spColNumLeftRight);
-        ArrayAdapter rowAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(rowVal));
+        ArrayAdapter rowAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(new String[]{"A","B","C","D","E","F","G","H"}));
         rowAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        ArrayAdapter colAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(colVal));
+        ArrayAdapter colAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(new String[]{"1","2","3","4","5","6","7","8","9","10","11","12"}));
         colAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //第四步：将适配器添加到下拉列表上
         spRowNumUpDown.setAdapter(rowAdapter);
@@ -159,13 +168,18 @@ public class MainActivity extends AppCompatActivity {
                 if (init)
                     MainActivity.this.yArea = (h - ry - ly) / row;
                 init=false;
-                if (isclone){image=inputFrame.rgba().clone();isclone=false;}
+                if (isClone){image=inputFrame.rgba().clone();
+                    isClone =false;}
                 if (isTakePhoto) {
                     Mat mat=image.clone();
                     for (int r = 0; r < row; r++) {
-                        Imgproc.putText(mat, rowVal[r], new Point(lx - 30, ly + (yArea * r)+40), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                        gridRows[r].setX(lx-30);
+                        gridRows[r].setY(ly + (yArea * r));
+                        Imgproc.putText(mat, gridRows[r].getName(), new Point(gridRows[r].getX()+ gridRows[r].getxDelta(), gridRows[r].getY()+ gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                         for (int c = 0; c < col; c++) {
-                            Imgproc.putText(mat, colVal[c], new Point(lx + (xArea * c) + 20, ly - 10), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                            gridCols[c].setX(lx + (xArea * c));
+                            gridCols[c].setY(ly);
+                            Imgproc.putText(mat, gridCols[c].getName(), new Point( gridCols[c].getX()+ gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                             Circle cl= clbox[r][c];
                             cl.setX(lx + (xArea * c));
                             cl.setY(ly + (yArea * r));
@@ -184,9 +198,13 @@ public class MainActivity extends AppCompatActivity {
                 Imgproc.rectangle(frame, new Point(lx, ly), new Point(w - rx, h - ry), new Scalar(0, 139, 139), 5);
                 Imgproc.findContours(edges, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
                 for (int r = 0; r < row; r++) {
-                    Imgproc.putText(frame, rowVal[r], new Point(lx - 30, ly + (yArea * r)+40), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                    gridRows[r].setX(lx-30);
+                    gridRows[r].setY(ly + (yArea * r));
+                    Imgproc.putText(frame,  gridRows[r].getName(), new Point(gridRows[r].getX()+ gridRows[r].getxDelta(), gridRows[r].getY()+ gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                     for (int c = 0; c < col; c++) {
-                        Imgproc.putText(frame, colVal[c], new Point(lx + (xArea * c) + 20, ly - 10), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                        gridCols[c].setX(lx + (xArea * c));
+                        gridCols[c].setY(ly);
+                        Imgproc.putText(frame, gridCols[c].getName(), new Point( gridCols[c].getX()+ gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                         Circle cl= clbox[r][c];
                         cl.setX(lx + (xArea * c));
                         cl.setY(ly + (yArea * r));
@@ -205,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 isTakePhoto=true;
-                isclone=true;
+                isClone =true;
             }
         });
        /* findViewById(R.id.btnTakePhone).setOnClickListener(new View.OnClickListener() {
@@ -509,6 +527,7 @@ public class MainActivity extends AppCompatActivity {
                                 for (int c = 0; c < col; c++) {
                                     clbox[row][c].yDeltaAdd();
                                 }
+                                gridRows[row].yDeltaAdd();
                             }
                         }, 0, 2);
                         break;
@@ -530,6 +549,7 @@ public class MainActivity extends AppCompatActivity {
                 for (int c = 0; c < col; c++) {
                     clbox[row][c].yDeltaLow();
                 }
+                gridRows[row].yDeltaLow();
             }
         });
         findViewById(R.id.btnRowLeft).setOnClickListener(new View.OnClickListener() {
@@ -576,6 +596,7 @@ public class MainActivity extends AppCompatActivity {
                 for (int r = 0; r < row; r++) {
                        clbox[r][col].xDeltaLow();
                 }
+                gridCols[col].xDeltaLow();
             }
         });
         findViewById(R.id.btnColRight).setOnTouchListener(new View.OnTouchListener() {
@@ -592,6 +613,7 @@ public class MainActivity extends AppCompatActivity {
                                 for (int r = 0; r < row; r++) {
                                     clbox[r][col].xDeltaAdd();
                                 }
+                                gridCols[col].xDeltaAdd();
                             }
                         }, 0, 2);
                         break;
