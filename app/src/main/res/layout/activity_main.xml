@@ -240,8 +240,7 @@
                         app:layout_heightPercent="100%"
                         android:layout_alignParentLeft="true"
                         android:layout_alignParentTop="true"
-                        app:layout_widthPercent="98%"
-                        android:background="@color/colorgrey"/>
+                        app:layout_widthPercent="98%" />
 
                 </android.support.percent.PercentRelativeLayout>
                 <LinearLayout

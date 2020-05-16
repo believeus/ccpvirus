@@ -1,6 +1,7 @@
 package com.beijingepidial.ccpvirus;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -598,7 +599,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         findViewById(R.id.btnRowLeft).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // spN
                 int row = spRowNumLeftRight.getSelectedItem().toString().charAt(0) - 64 - 1;
                 for (int c = 0; c < col; c++) {
                     clbox[row][c].xDeltaLow();
@@ -724,7 +724,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View v) {
                 try {
                     isCaptureColor = true;
-                    Toast.makeText(MainActivity.this,"success",Toast.LENGTH_LONG).show();
+                    SurfaceHolder holder =svColorPlate.getHolder();
+                    Canvas canvas = holder.lockCanvas();
                     for (int r = 0; r < row; r++) {
                         for (int c = 0; c < col; c++) {
                             Circle cl = clbox[r][c];
@@ -732,20 +733,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             int xDelta = cl.getxDelta();
                             int y = cl.getY();
                             int yDelta = cl.getyDelta();
+                          /*  Bitmap mBitmap = Bitmap.createBitmap(image.cols(), image.rows(), Bitmap.Config.ARGB_8888);
+                            int pixel = mBitmap.getPixel(x + xDelta, y + yDelta);
+                            int red = (pixel & 0x00ff0000) >> 16; // 取高两位
+                            int green = (pixel & 0x0000ff00) >> 8; // 取中两位
+                            int blue = pixel & 0x000000ff; // 取低两位*/
+
                             double[] color = image.get(x + xDelta, y + yDelta);
                             RGB rgb = rgbs[r][c];
                             rgb.setR(color[0]);
                             rgb.setG(color[1]);
                             rgb.setB(color[2]);
+                            Paint paint = new Paint();
+                            paint.setARGB((int)color[3],(int)color[0],(int)color[1],(int)color[2]);
+                            paint.setStyle(Paint.Style.STROKE);
+                            paint.setStrokeWidth(15);
+                            int xArea=svColorPlate.getWidth()/12;
+                            int yArea=svColorPlate.getHeight()/8;
+                            canvas.drawCircle(30+(xArea*c),30+(yArea*r),10,paint);
                         }
                     }
-                    SurfaceHolder holder = svColorPlate.getHolder();
-                    Canvas canvas = holder.lockCanvas();
-                    Paint paint = new Paint();
-                    paint.setColor(Color.BLUE);
-                    paint.setStyle(Paint.Style.STROKE);
-                    paint.setStrokeWidth(5);
-                    canvas.drawRect(new Rect(10, 10, 300, 300), paint);//画矩形
                     holder.unlockCanvasAndPost(canvas);
                 } catch (Exception e) {
                     e.printStackTrace();
