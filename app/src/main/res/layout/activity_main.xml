@@ -210,6 +210,7 @@
                             android:layout_height="0dp"
                             app:layout_widthPercent="100%"
                             app:layout_heightPercent="50%"
+                            android:enabled="false"
                             android:layout_alignParentTop="true"
                             android:layout_alignParentLeft="true"
                             android:text="@string/catch_color" />
