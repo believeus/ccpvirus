@@ -1,31 +1,40 @@
 package com.beijingepidial.entity;
 
 public class RGB {
-    private double r;
-    private double g;
-    private double b;
+    private double alpha;
+    private double red;
+    private double green;
+    private double blun;
 
-    public double getR() {
-        return r;
+    public double getAlpha() {
+        return alpha;
     }
 
-    public void setR(double r) {
-        this.r = r;
+    public void setAlpha(double alpha) {
+        this.alpha = alpha;
     }
 
-    public double getG() {
-        return g;
+    public double getRed() {
+        return red;
     }
 
-    public void setG(double g) {
-        this.g = g;
+    public void setRed(double red) {
+        this.red = red;
     }
 
-    public double getB() {
-        return b;
+    public double getGreen() {
+        return green;
     }
 
-    public void setB(double b) {
-        this.b = b;
+    public void setGreen(double green) {
+        this.green = green;
+    }
+
+    public double getBlun() {
+        return blun;
+    }
+
+    public void setBlun(double blun) {
+        this.blun = blun;
     }
 }

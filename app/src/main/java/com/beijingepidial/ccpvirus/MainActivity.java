@@ -733,17 +733,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             int xDelta = cl.getxDelta();
                             int y = cl.getY();
                             int yDelta = cl.getyDelta();
-                          /*  Bitmap mBitmap = Bitmap.createBitmap(image.cols(), image.rows(), Bitmap.Config.ARGB_8888);
-                            int pixel = mBitmap.getPixel(x + xDelta, y + yDelta);
-                            int red = (pixel & 0x00ff0000) >> 16; // 取高两位
-                            int green = (pixel & 0x0000ff00) >> 8; // 取中两位
-                            int blue = pixel & 0x000000ff; // 取低两位*/
-
                             double[] color = image.get(x + xDelta, y + yDelta);
                             RGB rgb = rgbs[r][c];
-                            rgb.setR(color[0]);
-                            rgb.setG(color[1]);
-                            rgb.setB(color[2]);
+                            rgb.setRed(color[0]);
+                            rgb.setGreen(color[1]);
+                            rgb.setBlun(color[2]);
+                            rgb.setAlpha(color[3]);
                             Paint paint = new Paint();
                             paint.setARGB((int)color[3],(int)color[0],(int)color[1],(int)color[2]);
                             paint.setStyle(Paint.Style.STROKE);
