@@ -224,8 +224,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             @Override
             public Mat onCameraFrame(final CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-                final int w = MainActivity.this.width = inputFrame.rgba().width();
-                final int h = MainActivity.this.height = 750;
+                //w=1080
+                final int w = MainActivity.this.width = inputFrame.rgba().cols();
+                //h=1440
+                final int h = MainActivity.this.height = inputFrame.rgba().rows();
                 if (init)
                     MainActivity.this.xArea = (w - rx - lx) / col;
                 if (init)
@@ -240,33 +242,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         Mat mat = image.clone();
                         for (int r = 0; r < row; r++) {
                             gridRows[r].setX(lx - 30);
-                            gridRows[r].setY(ly + (yArea * r));
-                            Imgproc.putText(mat, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                            gridRows[r].setY(ly + ((((yArea-8) * r))/2));                            Imgproc.putText(mat, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                             for (int c = 0; c < col; c++) {
                                 gridCols[c].setX(lx + (xArea * c));
                                 gridCols[c].setY(ly);
                                 Imgproc.putText(mat, gridCols[c].getName(), new Point(gridCols[c].getX() + gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                                 Circle cl = clbox[r][c];
                                 cl.setX(lx + (xArea * c));
-                                cl.setY(ly + (yArea * r));
-                                Imgproc.circle(mat, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius, new Scalar(0, 139, 139), 2, Core.LINE_AA);
+                                cl.setY(ly + (((yArea-10) * r)/2)-10);
+                                double[] color = image.get(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta());
+                                //Bgr
+                                Scalar scalar=new Scalar(color[0], color[1], color[2]);
+                                Imgproc.circle(mat, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius,scalar , 2, Core.LINE_AA);
                             }
                         }
                         //绘制一个上下左右居中的矩形
-                        Imgproc.rectangle(mat, new Point(lx, ly), new Point(w - rx, h - ry), new Scalar(0, 139, 139), 5);
+                        Imgproc.rectangle(mat, new Point(lx, ly), new Point(w - rx, (h/2) - ry), new Scalar(0, 139, 139), 5);
                         return mat;
                     }
                 }
                 final Mat frame = inputFrame.rgba();
                 Imgproc.cvtColor(frame, gary, Imgproc.COLOR_RGB2GRAY);
-                Imgproc.Canny(gary, edges, 50, 500, 3, false);
+                //Imgproc.Canny(gary, edges, 50, 500, 3, false);
                 list.clear();
                 //绘制一个上下左右居中的矩形
-                Imgproc.rectangle(frame, new Point(lx, ly), new Point(w - rx, h - ry), new Scalar(0, 139, 139), 5);
-                Imgproc.findContours(edges, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+                Imgproc.rectangle(frame, new Point(lx, ly), new Point(w - rx, (h/2) - ry), new Scalar(0, 139, 139), 5);
+                //Imgproc.findContours(edges, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
                 for (int r = 0; r < row; r++) {
                     gridRows[r].setX(lx - 30);
-                    gridRows[r].setY(ly + (yArea * r));
+                    gridRows[r].setY(ly + ((((yArea-8) * r))/2));
                     Imgproc.putText(frame, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                     for (int c = 0; c < col; c++) {
                         gridCols[c].setX(lx + (xArea * c));
@@ -274,14 +278,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         Imgproc.putText(frame, gridCols[c].getName(), new Point(gridCols[c].getX() + gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                         Circle cl = clbox[r][c];
                         cl.setX(lx + (xArea * c));
-                        cl.setY(ly + (yArea * r));
+                        cl.setY(ly + (((yArea-10) * r)/2)-10);
                         Imgproc.circle(frame, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius, new Scalar(0, 139, 139), 2, Core.LINE_AA);
                     }
                 }
                 //5 绘制轮廓
-                for (int i = 0, len = list.size(); i < len; i++) {
+               /* for (int i = 0, len = list.size(); i < len; i++) {
                     Imgproc.drawContours(frame, list, i, new Scalar(0, 255, 0), 1);
-                }
+                }*/
 
                 return frame;
             }
@@ -733,14 +737,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             int xDelta = cl.getxDelta();
                             int y = cl.getY();
                             int yDelta = cl.getyDelta();
+                            //bgr
                             double[] color = image.get(x + xDelta, y + yDelta);
                             RGB rgb = rgbs[r][c];
                             rgb.setRed(color[0]);
                             rgb.setGreen(color[1]);
-                            rgb.setBlun(color[2]);
+                            rgb.setBlue(color[2]);
                             rgb.setAlpha(color[3]);
                             Paint paint = new Paint();
-                            paint.setARGB((int)color[3],(int)color[0],(int)color[1],(int)color[2]);
+                            paint.setARGB((int)color[3],(int)rgb.getRed(),(int)rgb.getGreen(),(int)rgb.getBlue());
                             paint.setStyle(Paint.Style.STROKE);
                             paint.setStrokeWidth(15);
                             int xArea=svColorPlate.getWidth()/12;

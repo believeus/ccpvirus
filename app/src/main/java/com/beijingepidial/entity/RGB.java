@@ -4,7 +4,7 @@ public class RGB {
     private double alpha;
     private double red;
     private double green;
-    private double blun;
+    private double blue;
 
     public double getAlpha() {
         return alpha;
@@ -30,11 +30,11 @@ public class RGB {
         this.green = green;
     }
 
-    public double getBlun() {
-        return blun;
+    public double getBlue() {
+        return blue;
     }
 
-    public void setBlun(double blun) {
-        this.blun = blun;
+    public void setBlue(double blue) {
+        this.blue = blue;
     }
 }

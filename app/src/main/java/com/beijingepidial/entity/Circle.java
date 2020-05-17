@@ -53,7 +53,8 @@ public class Circle {
     public void xDeltaLow(){
         this.xDelta--;
     }
-    public void yDeltaAdd(){ this.yDelta++;}
+    public void yDeltaAdd(){ this.yDelta++;
+}
     public void yDeltaLow(){
         this.yDelta--;
     }

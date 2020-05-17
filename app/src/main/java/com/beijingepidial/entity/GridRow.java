@@ -10,7 +10,7 @@ public class GridRow {
     public GridRow(String name){
         this.name=name;
         this.xDelta=-5;
-        this.yDelta=55;
+        this.yDelta=40;
     }
     public int getX() {
         return x;
