@@ -170,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // 禁用横屏
+        //拍照时调用声音
         AudioManager meng = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
         int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
         if (volume != 0) {
@@ -233,6 +234,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
         javaCameraView = (JavaCameraView) findViewById(R.id.javaCameraView);
+        javaCameraView.setZOrderOnTop(true);
+        javaCameraView.setZOrderMediaOverlay(true);
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
         javaCameraView.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
             private List<MatOfPoint> list = new ArrayList<MatOfPoint>();
@@ -329,12 +332,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     isClone = true;
                     isReTake = false;
                     findViewById(R.id.btnCatchColor).setEnabled(true);
-                  /* Thread.sleep(10);
+                    findViewById(R.id.LayoutColorPal).setVisibility(View.VISIBLE);
                     SurfaceHolder holder=svColorPlate.getHolder();
                     Canvas canvas = holder.lockCanvas();
                     canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                    holder.unlockCanvasAndPost(canvas);*/
-                    findViewById(R.id.LayoutColorPal).setVisibility(View.VISIBLE);
+                    Paint paint=new Paint();
+                    paint.setTextSize(40);
+                    paint.setColor(Color.WHITE);
+                    paint.setStrokeWidth(5);
+                    canvas.drawText("Dear User ^-^:",60,100,paint);
+                    canvas.drawText("Click 'Catch' Button to get color",60,150,paint);
+                    canvas.drawText("The color will be displayed here",60,200,paint);
+                    holder.unlockCanvasAndPost(canvas);
                     //播放相机拍照的声音
                     if (mediaPlayer != null)
                         mediaPlayer.start();
