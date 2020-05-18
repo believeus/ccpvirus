@@ -1,6 +1,8 @@
 package com.beijingepidial.ccpvirus;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -162,9 +164,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     };
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // 禁用横屏
         AudioManager meng = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
         int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
         if (volume != 0) {
@@ -291,7 +295,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 return frame;
             }
         });
-
         //拍照
         levelView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -732,8 +735,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     isCaptureColor = true;
                     SurfaceHolder holder =svColorPlate.getHolder();
                     Canvas canvas = holder.lockCanvas();
+                    Paint whiteP=new Paint();
+                    whiteP.setStyle(Paint.Style.STROKE);
+                    whiteP.setTextSize(40);
+                    int xArea=svColorPlate.getWidth()/12;
+                    int yArea=svColorPlate.getHeight()/8;
+                    whiteP.setColor(Color.WHITE);
                     for (int r = 0; r < row; r++) {
+                        canvas.drawText(gridRows[r].getName(),10,((xArea-32)*r)+75,whiteP);
                         for (int c = 0; c < col; c++) {
+                            canvas.drawText(gridCols[c].getName(),60+((yArea+23)*c),40,whiteP);
                             Circle cl = clbox[r][c];
                             int x = cl.getX();
                             int xDelta = cl.getxDelta();
@@ -746,12 +757,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             rgb.setBlue(color[2]);
                             rgb.setAlpha(color[3]);
                             Paint paint = new Paint();
-                            paint.setARGB((int)color[3],(int)rgb.getRed(),(int)rgb.getGreen(),(int)rgb.getBlue());
                             paint.setStyle(Paint.Style.STROKE);
                             paint.setStrokeWidth(15);
-                            int xArea=svColorPlate.getWidth()/12;
-                            int yArea=svColorPlate.getHeight()/8;
-                            canvas.drawCircle(30+(xArea*c),30+(yArea*r),10,paint);
+                            paint.setARGB((int)color[3],(int)rgb.getRed(),(int)rgb.getGreen(),(int)rgb.getBlue());
+                            canvas.drawCircle(50+((xArea-5)*c)+25,30+((yArea-5)*r)+35,10,paint);
                         }
                     }
                     holder.unlockCanvasAndPost(canvas);
@@ -765,11 +774,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View v) {
                 isReTake = true;
                 findViewById(R.id.btnCatchColor).setEnabled(false);
-                View view=findViewById(R.id.LayoutColorPal);
-                ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-                layoutParams.height =0;
-                view.setLayoutParams(layoutParams);
-
+                findViewById(R.id.LayoutColorPal).setVisibility(View.GONE);
             }
         });
         findViewById(R.id.btnCellLeft).setOnClickListener(new View.OnClickListener() {
