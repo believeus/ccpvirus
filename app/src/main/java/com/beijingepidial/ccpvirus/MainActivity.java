@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -49,6 +50,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
+    private Scalar scalar=new Scalar(0, 0, 0);
     private JavaCameraView javaCameraView;
     private RGB[][] rgbs;
     private Circle[][] clbox;
@@ -242,7 +244,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         Mat mat = image.clone();
                         for (int r = 0; r < row; r++) {
                             gridRows[r].setX(lx - 30);
-                            gridRows[r].setY(ly + ((((yArea-8) * r))/2));                            Imgproc.putText(mat, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                            gridRows[r].setY(ly + ((((yArea-8) * r))/2));
+                            Imgproc.putText(mat, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                             for (int c = 0; c < col; c++) {
                                 gridCols[c].setX(lx + (xArea * c));
                                 gridCols[c].setY(ly);
@@ -250,9 +253,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                 Circle cl = clbox[r][c];
                                 cl.setX(lx + (xArea * c));
                                 cl.setY(ly + (((yArea-10) * r)/2)-10);
-                                double[] color = image.get(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta());
-                                //Bgr
-                                Scalar scalar=new Scalar(color[0], color[1], color[2]);
+                                double[] color = image.get(cl.getY() + cl.getyDelta(),cl.getX() + cl.getxDelta());
                                 Imgproc.circle(mat, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius,scalar , 2, Core.LINE_AA);
                             }
                         }
@@ -279,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         Circle cl = clbox[r][c];
                         cl.setX(lx + (xArea * c));
                         cl.setY(ly + (((yArea-10) * r)/2)-10);
-                        Imgproc.circle(frame, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius, new Scalar(0, 139, 139), 2, Core.LINE_AA);
+                        Imgproc.circle(frame, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius,scalar, 2, Core.LINE_AA);
                     }
                 }
                 //5 绘制轮廓
@@ -299,6 +300,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 isClone = true;
                 isReTake = false;
                 findViewById(R.id.btnCatchColor).setEnabled(true);
+                findViewById(R.id.LayoutColorPal).setVisibility(View.VISIBLE);
                 //播放相机拍照的声音
                 if (mediaPlayer != null)
                     mediaPlayer.start();
@@ -737,8 +739,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             int xDelta = cl.getxDelta();
                             int y = cl.getY();
                             int yDelta = cl.getyDelta();
-                            //bgr
-                            double[] color = image.get(x + xDelta, y + yDelta);
+                            double[] color = image.get(y + yDelta,x + xDelta);
                             RGB rgb = rgbs[r][c];
                             rgb.setRed(color[0]);
                             rgb.setGreen(color[1]);
@@ -764,6 +765,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View v) {
                 isReTake = true;
                 findViewById(R.id.btnCatchColor).setEnabled(false);
+                View view=findViewById(R.id.LayoutColorPal);
+                ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+                layoutParams.height =0;
+                view.setLayoutParams(layoutParams);
+
             }
         });
         findViewById(R.id.btnCellLeft).setOnClickListener(new View.OnClickListener() {

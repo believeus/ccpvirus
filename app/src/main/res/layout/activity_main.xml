@@ -159,7 +159,7 @@
                         android:layout_toRightOf="@+id/RlMoving"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        app:layout_widthPercent="30%"
+                        app:layout_widthPercent="45%"
                         app:layout_heightPercent="100%">
                         <Button
                             android:id="@+id/btnHeightMax"
@@ -167,14 +167,14 @@
                             android:layout_alignParentLeft="true"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            app:layout_widthPercent="50%"
+                            app:layout_widthPercent="35%"
                             app:layout_heightPercent="50%"
                             android:text="↕" />
                         <Button
                             android:id="@+id/btnWidthMax"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
-                            app:layout_widthPercent="50%"
+                            app:layout_widthPercent="35%"
                             app:layout_heightPercent="50%"
                             android:layout_alignParentBottom="true"
                             android:layout_alignParentLeft="true"
@@ -185,24 +185,24 @@
                             android:layout_height="0dp"
                             android:layout_alignParentRight="true"
                             android:layout_alignParentBottom="true"
-                            app:layout_widthPercent="50%"
+                            app:layout_widthPercent="65%"
                             app:layout_heightPercent="50%"
-                            android:text="W↓" />
+                            android:text="width-min" />
                         <Button
                             android:id="@+id/btnHeightMin"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             android:layout_alignParentRight="true"
                             android:layout_alignParentTop="true"
-                            app:layout_widthPercent="50%"
+                            app:layout_widthPercent="65%"
                             app:layout_heightPercent="50%"
-                            android:text="H↓" />
+                            android:text="height-min" />
                     </android.support.percent.PercentRelativeLayout>
                     <android.support.percent.PercentRelativeLayout
                         android:layout_toRightOf="@+id/RLzoom"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
-                        app:layout_widthPercent="40%"
+                        app:layout_widthPercent="25%"
                         app:layout_heightPercent="100%">
                         <Button
                             android:id="@+id/btnCatchColor"
@@ -225,21 +225,27 @@
                             android:text="@string/retake" />
                     </android.support.percent.PercentRelativeLayout>
                 </android.support.percent.PercentRelativeLayout>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/color_palette"/>
+
                 <android.support.percent.PercentRelativeLayout
+                    android:id="@+id/LayoutColorPal"
                     android:layout_width="match_parent"
                     android:layout_height="120dp"
+                    android:visibility="gone"
+                    android:layout_weight="1"
                     android:gravity="center">
+                    <TextView
+                        android:id="@+id/tvColorPal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentTop="true"
+                        android:text="@string/color_palette"/>
                     <SurfaceView
                         android:id="@+id/svColorPlate"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
                         app:layout_heightPercent="100%"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentTop="true"
+                        android:layout_below="@+id/tvColorPal"
                         app:layout_widthPercent="98%" />
 
                 </android.support.percent.PercentRelativeLayout>
@@ -444,7 +450,7 @@
                             android:layout_toRightOf="@+id/edtRowDelta"
                             app:layout_widthPercent="18.5%"
                             app:layout_heightPercent="100%"
-                            android:text="Mix"/>
+                            android:text="Max"/>
                         <Button
                             android:id="@+id/btnMixColDelta"
                             android:layout_width="0dp"

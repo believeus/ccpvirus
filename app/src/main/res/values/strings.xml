@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">ccpvirus</string>
     <string name="catch_picture">Catch picture</string>
-    <string name="catch_color">Catch Color</string>
+    <string name="catch_color">Catch</string>
     <string name="Circle_size">Setting Circle size</string>
     <string name="Rectancle_size">Setting rectangle size and orientation</string>
     <string name="Setting_Rows">Set the number of rows</string>
