@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -207,6 +208,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         spCellRow.setAdapter(rowAdapter);
         spCellCol.setAdapter(colAdapter);
         edtCol = (EditText) findViewById(R.id.edtCol);
+        svColorPlate.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                Canvas canvas = holder.lockCanvas();
+                Paint paint=new Paint();
+                paint.setTextSize(40);
+                paint.setColor(Color.WHITE);
+                paint.setStrokeWidth(5);
+                canvas.drawText("Dear User ^-^:",60,100,paint);
+                canvas.drawText("Click 'Catch' Button to get color",60,150,paint);
+                canvas.drawText("The color will be displayed here",60,200,paint);
+                holder.unlockCanvasAndPost(canvas);
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+
+            }
+        });
         javaCameraView = (JavaCameraView) findViewById(R.id.javaCameraView);
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
         javaCameraView.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
@@ -299,14 +324,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         levelView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isTakePhoto = true;
-                isClone = true;
-                isReTake = false;
-                findViewById(R.id.btnCatchColor).setEnabled(true);
-                findViewById(R.id.LayoutColorPal).setVisibility(View.VISIBLE);
-                //播放相机拍照的声音
-                if (mediaPlayer != null)
-                    mediaPlayer.start();
+                try{
+                    isTakePhoto = true;
+                    isClone = true;
+                    isReTake = false;
+                    findViewById(R.id.btnCatchColor).setEnabled(true);
+                  /* Thread.sleep(10);
+                    SurfaceHolder holder=svColorPlate.getHolder();
+                    Canvas canvas = holder.lockCanvas();
+                    canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                    holder.unlockCanvasAndPost(canvas);*/
+                    findViewById(R.id.LayoutColorPal).setVisibility(View.VISIBLE);
+                    //播放相机拍照的声音
+                    if (mediaPlayer != null)
+                        mediaPlayer.start();
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
 
             }
         });
@@ -735,6 +770,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     isCaptureColor = true;
                     SurfaceHolder holder =svColorPlate.getHolder();
                     Canvas canvas = holder.lockCanvas();
+                    canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
                     Paint whiteP=new Paint();
                     whiteP.setStyle(Paint.Style.STROKE);
                     whiteP.setTextSize(40);
@@ -774,6 +810,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View v) {
                 isReTake = true;
                 findViewById(R.id.btnCatchColor).setEnabled(false);
+                SurfaceHolder holder=svColorPlate.getHolder();
+                Canvas canvas = holder.lockCanvas();
+                Paint paint=new Paint();
+                paint.setTextSize(40);
+                paint.setColor(Color.WHITE);
+                paint.setStrokeWidth(5);
+                canvas.drawText("Dear User ^-^:",60,100,paint);
+                canvas.drawText("Click 'Catch' Button to get color",60,150,paint);
+                canvas.drawText("The color will be displayed here",60,200,paint);
+                holder.unlockCanvasAndPost(canvas);
                 findViewById(R.id.LayoutColorPal).setVisibility(View.GONE);
             }
         });
