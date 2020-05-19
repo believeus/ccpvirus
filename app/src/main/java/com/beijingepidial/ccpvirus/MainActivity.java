@@ -3,12 +3,10 @@ package com.beijingepidial.ccpvirus;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -22,13 +20,13 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.beijingepidial.entity.Circle;
 import com.beijingepidial.entity.GridCol;
@@ -46,6 +44,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,7 +52,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
-    private Scalar scalar=new Scalar(0, 0, 0);
+    private Scalar scalar = new Scalar(0, 0, 0);
     private JavaCameraView javaCameraView;
     private RGB[][] rgbs;
     private Circle[][] clbox;
@@ -95,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private boolean isClone;
     private boolean isTakePhoto;
     private boolean isReTake;
-    private boolean isCaptureColor;
+    private boolean isAuto;
     private Spinner spCellRow;
     private Spinner spCellCol;
     private MediaPlayer mediaPlayer;
@@ -125,8 +124,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.ly = 50;
         this.rx = 50;
         this.ry = 50;
-        this.isCaptureColor = false;
-        this.isTakePhoto = false;
         this.col = gridCols.length;
         this.row = gridRows.length;
         for (int r = 0; r < row; r++) {
@@ -213,13 +210,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 Canvas canvas = holder.lockCanvas();
-                Paint paint=new Paint();
+                Paint paint = new Paint();
                 paint.setTextSize(40);
                 paint.setColor(Color.WHITE);
                 paint.setStrokeWidth(5);
-                canvas.drawText("Dear User ^-^:",60,100,paint);
-                canvas.drawText("Click 'Catch' Button to get color",60,150,paint);
-                canvas.drawText("The color will be displayed here",60,200,paint);
+                canvas.drawText("Dear User ^-^:", 60, 100, paint);
+                canvas.drawText("Click 'Catch' Button to get color", 60, 150, paint);
+                canvas.drawText("The color will be displayed here", 60, 200, paint);
                 holder.unlockCanvasAndPost(canvas);
             }
 
@@ -273,25 +270,60 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
                 if (!isReTake) {
                     if (isTakePhoto) {
-                        Mat mat = image.clone();
-                        for (int r = 0; r < row; r++) {
-                            gridRows[r].setX(lx - 30);
-                            gridRows[r].setY(ly + ((((yArea-8) * r))/2));
-                            Imgproc.putText(mat, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
-                            for (int c = 0; c < col; c++) {
-                                gridCols[c].setX(lx + (xArea * c));
-                                gridCols[c].setY(ly);
-                                Imgproc.putText(mat, gridCols[c].getName(), new Point(gridCols[c].getX() + gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
-                                Circle cl = clbox[r][c];
-                                cl.setX(lx + (xArea * c));
-                                cl.setY(ly + (((yArea-10) * r)/2)-10);
-                                double[] color = image.get(cl.getY() + cl.getyDelta(),cl.getX() + cl.getxDelta());
-                                Imgproc.circle(mat, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius,scalar , 2, Core.LINE_AA);
+                        Mat imgClone = image.clone();
+                        if (isAuto) {
+                            //提取出红色
+                            Mat dst=new Mat();
+                            Mat hsv=new Mat();
+                            //红色蒙版
+                            Mat rmask01=new Mat();
+                            Mat rmask02=new Mat();
+                            Mat rmask=new Mat();
+                            //蓝色蒙版
+                            Mat bmask=new Mat();
+                            //黄色蒙版
+                            Mat ymask=new Mat();
+                            //红蓝蒙版
+                            Mat rbmask=new Mat();
+                            //红黄蓝蒙版
+                            Mat rybmask=new Mat();
+                            Imgproc.cvtColor(imgClone, hsv, Imgproc.COLOR_RGB2HSV);
+                            //begin：获取蓝色
+                            Core.inRange(hsv,new Scalar(95,43,46),new Scalar(130,255,255),bmask);
+                            //获取黄色
+                            Core.inRange(hsv,new Scalar(11,43,46),new Scalar(34,255,255),ymask);
+                            //Begin:获取红色
+                            Core.inRange(hsv,new Scalar(0,43,46),new Scalar(10,255,255),rmask01);
+                            Core.inRange(hsv,new Scalar(156,43,46),new Scalar(180,255,255),rmask02);
+                            //生成红色蒙版
+                            Core.bitwise_or(rmask01,rmask02,rmask);
+                            //红蓝蒙版
+                            Core.bitwise_or(bmask,rmask,rbmask);
+                            //生成红黄蓝蒙版
+                            Core.bitwise_or(ymask,rbmask,rybmask);
+                            //获取红色和蓝色
+                            Core.bitwise_and(imgClone,imgClone,dst,rybmask);
+                            return dst;
+                        } else {
+                            for (int r = 0; r < row; r++) {
+                                gridRows[r].setX(lx - 30);
+                                gridRows[r].setY(ly + ((((yArea - 8) * r)) / 2));
+                                Imgproc.putText(imgClone, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                                for (int c = 0; c < col; c++) {
+                                    gridCols[c].setX(lx + (xArea * c));
+                                    gridCols[c].setY(ly);
+                                    Imgproc.putText(imgClone, gridCols[c].getName(), new Point(gridCols[c].getX() + gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                                    Circle cl = clbox[r][c];
+                                    cl.setX(lx + (xArea * c));
+                                    cl.setY(ly + (((yArea - 10) * r) / 2) - 10);
+                                    double[] color = image.get(cl.getY() + cl.getyDelta(), cl.getX() + cl.getxDelta());
+                                    Imgproc.circle(imgClone, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius, scalar, 2, Core.LINE_AA);
+                                }
                             }
                         }
                         //绘制一个上下左右居中的矩形
-                        Imgproc.rectangle(mat, new Point(lx, ly), new Point(w - rx, (h/2) - ry), new Scalar(0, 139, 139), 5);
-                        return mat;
+                        Imgproc.rectangle(imgClone, new Point(lx, ly), new Point(w - rx, (h / 2) - ry), new Scalar(0, 139, 139), 5);
+                        return imgClone;
                     }
                 }
                 final Mat frame = inputFrame.rgba();
@@ -299,11 +331,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 //Imgproc.Canny(gary, edges, 50, 500, 3, false);
                 list.clear();
                 //绘制一个上下左右居中的矩形
-                Imgproc.rectangle(frame, new Point(lx, ly), new Point(w - rx, (h/2) - ry), new Scalar(0, 139, 139), 5);
+                Imgproc.rectangle(frame, new Point(lx, ly), new Point(w - rx, (h / 2) - ry), new Scalar(0, 139, 139), 5);
                 //Imgproc.findContours(edges, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
                 for (int r = 0; r < row; r++) {
                     gridRows[r].setX(lx - 30);
-                    gridRows[r].setY(ly + ((((yArea-8) * r))/2));
+                    gridRows[r].setY(ly + ((((yArea - 8) * r)) / 2));
                     Imgproc.putText(frame, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                     for (int c = 0; c < col; c++) {
                         gridCols[c].setX(lx + (xArea * c));
@@ -311,8 +343,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         Imgproc.putText(frame, gridCols[c].getName(), new Point(gridCols[c].getX() + gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
                         Circle cl = clbox[r][c];
                         cl.setX(lx + (xArea * c));
-                        cl.setY(ly + (((yArea-10) * r)/2)-10);
-                        Imgproc.circle(frame, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius,scalar, 2, Core.LINE_AA);
+                        cl.setY(ly + (((yArea - 10) * r) / 2) - 10);
+                        Imgproc.circle(frame, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius, scalar, 2, Core.LINE_AA);
                     }
                 }
                 //5 绘制轮廓
@@ -327,28 +359,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         levelView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try{
+                try {
                     isTakePhoto = true;
                     isClone = true;
                     isReTake = false;
                     findViewById(R.id.btnCatchColor).setEnabled(true);
                     findViewById(R.id.LayoutColorPal).setVisibility(View.VISIBLE);
-                    SurfaceHolder holder=svColorPlate.getHolder();
+                    SurfaceHolder holder = svColorPlate.getHolder();
                     Canvas canvas = holder.lockCanvas();
                     canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                    Paint paint=new Paint();
+                    Paint paint = new Paint();
                     paint.setTextSize(40);
                     paint.setColor(Color.WHITE);
                     paint.setStrokeWidth(5);
-                    canvas.drawText("Dear User ^-^:",60,100,paint);
-                    canvas.drawText("Click 'Catch' Button to get color",60,150,paint);
-                    canvas.drawText("The color will be displayed here",60,200,paint);
+                    canvas.drawText("Dear User ^-^:", 60, 100, paint);
+                    canvas.drawText("Click 'Catch' Button to get color", 60, 150, paint);
+                    canvas.drawText("The color will be displayed here", 60, 200, paint);
                     holder.unlockCanvasAndPost(canvas);
                     //播放相机拍照的声音
                     if (mediaPlayer != null)
                         mediaPlayer.start();
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -776,26 +808,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onClick(View v) {
                 try {
-                    isCaptureColor = true;
-                    SurfaceHolder holder =svColorPlate.getHolder();
+                    SurfaceHolder holder = svColorPlate.getHolder();
                     Canvas canvas = holder.lockCanvas();
                     canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-                    Paint whiteP=new Paint();
+                    Paint whiteP = new Paint();
                     whiteP.setStyle(Paint.Style.STROKE);
                     whiteP.setTextSize(40);
-                    int xArea=svColorPlate.getWidth()/12;
-                    int yArea=svColorPlate.getHeight()/8;
+                    int xArea = svColorPlate.getWidth() / 12;
+                    int yArea = svColorPlate.getHeight() / 8;
                     whiteP.setColor(Color.WHITE);
                     for (int r = 0; r < row; r++) {
-                        canvas.drawText(gridRows[r].getName(),10,((xArea-32)*r)+75,whiteP);
+                        canvas.drawText(gridRows[r].getName(), 10, ((xArea - 32) * r) + 75, whiteP);
                         for (int c = 0; c < col; c++) {
-                            canvas.drawText(gridCols[c].getName(),60+((yArea+23)*c),40,whiteP);
+                            canvas.drawText(gridCols[c].getName(), 60 + ((yArea + 23) * c), 40, whiteP);
                             Circle cl = clbox[r][c];
                             int x = cl.getX();
                             int xDelta = cl.getxDelta();
                             int y = cl.getY();
                             int yDelta = cl.getyDelta();
-                            double[] color = image.get(y + yDelta,x + xDelta);
+                            double[] color = image.get(y + yDelta, x + xDelta);
                             RGB rgb = rgbs[r][c];
                             rgb.setRed(color[0]);
                             rgb.setGreen(color[1]);
@@ -804,8 +835,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             Paint paint = new Paint();
                             paint.setStyle(Paint.Style.STROKE);
                             paint.setStrokeWidth(15);
-                            paint.setARGB((int)color[3],(int)rgb.getRed(),(int)rgb.getGreen(),(int)rgb.getBlue());
-                            canvas.drawCircle(50+((xArea-5)*c)+25,30+((yArea-5)*r)+35,10,paint);
+                            paint.setARGB((int) color[3], (int) rgb.getRed(), (int) rgb.getGreen(), (int) rgb.getBlue());
+                            canvas.drawCircle(50 + ((xArea - 5) * c) + 25, 30 + ((yArea - 5) * r) + 35, 10, paint);
                         }
                     }
                     holder.unlockCanvasAndPost(canvas);
@@ -819,15 +850,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View v) {
                 isReTake = true;
                 findViewById(R.id.btnCatchColor).setEnabled(false);
-                SurfaceHolder holder=svColorPlate.getHolder();
+                SurfaceHolder holder = svColorPlate.getHolder();
                 Canvas canvas = holder.lockCanvas();
-                Paint paint=new Paint();
+                Paint paint = new Paint();
                 paint.setTextSize(40);
                 paint.setColor(Color.WHITE);
                 paint.setStrokeWidth(5);
-                canvas.drawText("Dear User ^-^:",60,100,paint);
-                canvas.drawText("Click 'Catch' Button to get color",60,150,paint);
-                canvas.drawText("The color will be displayed here",60,200,paint);
+                canvas.drawText("Dear User ^-^:", 60, 100, paint);
+                canvas.drawText("Click 'Catch' Button to get color", 60, 150, paint);
+                canvas.drawText("The color will be displayed here", 60, 200, paint);
                 holder.unlockCanvasAndPost(canvas);
                 findViewById(R.id.LayoutColorPal).setVisibility(View.GONE);
             }
@@ -862,10 +893,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 int r = (spCellRow.getSelectedItem().toString().charAt(0)) - 64 - 1;
                 int c = Integer.valueOf(spCellCol.getSelectedItem().toString()).intValue() - 1;
                 clbox[r][c].yDeltaAdd();
-
             }
         });
-
+        ((CheckBox) findViewById(R.id.ckAuto)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) isAuto = isChecked;
+            }
+        });
     }
 
     @Override

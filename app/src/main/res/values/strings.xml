@@ -17,4 +17,6 @@
     <string name="vertical">vertical</string>
     <string name="horizontal">horizontal</string>
     <string name="color_palette">Color palette</string>
+    <string name="automatic">Automatic</string>
+    <string name="manual">manual</string>
 </resources>
