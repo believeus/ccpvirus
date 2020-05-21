@@ -15,7 +15,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -25,13 +25,16 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.beijingepidial.entity.Circle;
 import com.beijingepidial.entity.GridCol;
 import com.beijingepidial.entity.GridRow;
 import com.beijingepidial.entity.RGB;
+import com.innovattic.rangeseekbar.RangeSeekBar;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -52,6 +55,21 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
+    private int cbthold;
+    private SeekBar sbCBthold;
+    private int bpthold;
+    private SeekBar sbBPthold;
+    //橙色到黄色阈值范围
+    private int oythold;
+    private SeekBar sbOYthold;
+    //黄色到绿色的阈值范围
+    private SeekBar sbYGthold;
+    private int ygthold;
+    //红到橙的阈值范围
+    private SeekBar sbROthold;
+    private int othold;
+
+    private int rpthold;
     private Scalar scalar = new Scalar(0, 0, 0);
     private JavaCameraView javaCameraView;
     private RGB[][] rgbs;
@@ -177,6 +195,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //保持螢幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
+        //获得进度条的初始值
+        sbYGthold=(SeekBar)findViewById(R.id.sbYGthold);
+        sbCBthold=(SeekBar)findViewById(R.id.sbCBthold);
+        sbBPthold=(SeekBar)findViewById(R.id.sbBPthold);
+        sbOYthold=(SeekBar)findViewById(R.id.sbOYthold);
+        sbROthold=(SeekBar)findViewById(R.id.sbROthold);
+        oythold=sbOYthold.getProgress();
+        ygthold=sbYGthold.getProgress();
+        cbthold=sbCBthold.getProgress();
+        bpthold=sbBPthold.getProgress();
+        othold =sbROthold.getProgress();
+        ((TextView)findViewById(R.id.tvBlue2Purple)).setTextColor(Color.HSVToColor(new float[]{bpthold,43,46}));
+        ((TextView)findViewById(R.id.tvYellow2Green)).setTextColor(Color.HSVToColor(new float[]{ygthold,43,46}));
+        ((TextView)findViewById(R.id.tvOrange2Yellow)).setTextColor(Color.HSVToColor(new float[]{oythold,43,46}));
+        ((TextView)findViewById(R.id.tvCyan2Blue)).setTextColor(Color.HSVToColor(new float[]{cbthold,43,46}));
+        ((TextView)findViewById(R.id.tvRed2Orange)).setTextColor(Color.HSVToColor(new float[]{othold,43,46}));
         //Begin:传感器
         levelView = (LevelView) findViewById(R.id.gv_hv);
         tvVert = (TextView) findViewById(R.id.tvv_vertical);
@@ -194,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         spColNumLeftRight = (Spinner) findViewById(R.id.spColNumLeftRight);
         spCellRow = (Spinner) findViewById(R.id.spCellRow);
         spCellCol = (Spinner) findViewById(R.id.spCellCol);
-        ArrayAdapter rowAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(new String[]{"A", "B", "C", "D", "E", "F", "G", "H"}));
+        final ArrayAdapter rowAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(new String[]{"A", "B", "C", "D", "E", "F", "G", "H"}));
         rowAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ArrayAdapter colAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Arrays.asList(new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}));
         colAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -206,6 +240,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         spCellRow.setAdapter(rowAdapter);
         spCellCol.setAdapter(colAdapter);
         edtCol = (EditText) findViewById(R.id.edtCol);
+
         svColorPlate.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
@@ -288,13 +323,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             //红黄蓝蒙版
                             Mat rybmask=new Mat();
                             Imgproc.cvtColor(imgClone, hsv, Imgproc.COLOR_RGB2HSV);
+                            //获取红橙
+                            Core.inRange(hsv,new Scalar(0,43,46),new Scalar(othold,255,255),rmask01);
+                            //获取橙到黄
+                            Core.inRange(hsv,new Scalar(26,43,46),new Scalar(oythold,255,255),ymask);
+                            //获取黄到绿
+                            Core.inRange(hsv,new Scalar(oythold,43,46),new Scalar(oythold,255,255),ymask);
                             //begin：获取蓝色
-                            Core.inRange(hsv,new Scalar(95,43,46),new Scalar(130,255,255),bmask);
-                            //获取黄色
-                            Core.inRange(hsv,new Scalar(11,43,46),new Scalar(34,255,255),ymask);
-                            //Begin:获取红色
-                            Core.inRange(hsv,new Scalar(0,43,46),new Scalar(10,255,255),rmask01);
-                            Core.inRange(hsv,new Scalar(156,43,46),new Scalar(180,255,255),rmask02);
+                            Core.inRange(hsv,new Scalar(cbthold,43,46),new Scalar(bpthold,255,255),bmask);
+
+
+
+                            Core.inRange(hsv,new Scalar(156,43,46),new Scalar(rpthold,255,255),rmask02);
                             //生成红色蒙版
                             Core.bitwise_or(rmask01,rmask02,rmask);
                             //红蓝蒙版
@@ -901,6 +941,118 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if (isChecked) isAuto = isChecked;
             }
         });
+        sbOYthold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                oythold=progress;
+                String text=oythold+":Orange ⇄ Yellow:"+oythold;
+                ((TextView)findViewById(R.id.tvOrange2Yellow)).setTextColor(Color.HSVToColor(new float[]{oythold,43,46}));
+                ((TextView)findViewById(R.id.tvOrange2Yellow)).setText(String.valueOf(text));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        sbYGthold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                ygthold=progress;
+                String text=ygthold+":Yellow ⇄ Green:"+ygthold;
+                ((TextView)findViewById(R.id.tvYellow2Green)).setTextColor(Color.HSVToColor(new float[]{ygthold,43,46}));
+                ((TextView)findViewById(R.id.tvYellow2Green)).setText(String.valueOf(text));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        sbCBthold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                cbthold=progress;
+                String text=progress+":Cyan⇄Blue:"+progress;
+                ((TextView)findViewById(R.id.tvCyan2Blue)).setText(text); //43-255 46-255
+                ((TextView)findViewById(R.id.tvCyan2Blue)).setTextColor(Color.HSVToColor(new float[]{cbthold,43,46}));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        sbBPthold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                bpthold=progress;
+                String text=progress+":Blue⇄Purple:"+progress;
+                ((TextView)findViewById(R.id.tvBlue2Purple)).setText(text);
+                ((TextView)findViewById(R.id.tvBlue2Purple)).setTextColor(Color.HSVToColor(new float[]{bpthold,43,46}));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        sbROthold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                othold =progress;
+                String text=progress+":Red⇄Orange:"+progress;
+                ((TextView)findViewById(R.id.tvRed2Orange)).setText(text);
+                ((TextView)findViewById(R.id.tvRed2Orange)).setTextColor(Color.HSVToColor(new float[]{othold,43,46}));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        ((RangeSeekBar)findViewById(R.id.skA)).setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
+            @Override
+            public void onStartedSeeking() {
+
+            }
+
+            @Override
+            public void onStoppedSeeking() {
+
+            }
+
+            @Override
+            public void onValueChanged(int min, int max) {
+                Toast.makeText(MainActivity.this,"min:"+min+" max:"+max,Toast.LENGTH_LONG).show();
+            }
+        });
+
     }
 
     @Override

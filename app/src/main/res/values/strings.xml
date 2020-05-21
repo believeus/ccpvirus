@@ -19,4 +19,10 @@
     <string name="color_palette">Color palette</string>
     <string name="automatic">Automatic</string>
     <string name="manual">manual</string>
+    <string name="orange2yellow">11:Orange ⇄ Yellow:11</string>
+    <string name="yellow2green">40:Yellow ⇄ Green:40</string>
+    <string name="cyan2blue">78:Cyan⇄Blue:78</string>
+    <string name="blue2purple">120:Blue⇄Purple:120</string>
+    <string name="red2orange">6:Red⇄Orange:6</string>
+    <string name="red">165:Purple⇄Red:165</string>
 </resources>
