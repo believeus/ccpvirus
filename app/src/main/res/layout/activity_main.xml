@@ -104,17 +104,20 @@
                 android:id="@+id/ckAuto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:enabled="false"
                 android:text="@string/automatic"/>
             <CheckBox
                 android:id="@+id/ckManual"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:enabled="false"
                 android:text="@string/manual"/>
         </LinearLayout>
 
-        <androidx.percentlayout.widget.PercentRelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
             <FrameLayout
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent">
@@ -133,143 +136,63 @@
                     app:rsb_initialMaxThumbValue="20"
                     app:rsb_max="180"/>
             </FrameLayout>
-
-        </androidx.percentlayout.widget.PercentRelativeLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <androidx.percentlayout.widget.PercentRelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <LinearLayout
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
+            <FrameLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+                <com.duan.colorpicker.ColorPickerView
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    app:indicatorEnable="false"
+                    app:indicatorColor="#fff"
+                    app:orientation="horizontal" />
+                <com.innovattic.rangeseekbar.RangeSeekBar
+                    android:id="@+id/skB"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_widthPercent="100%"
-                    android:layout_width="0dp"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/tvRed2Orange"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:textColor="#FF6100"
-                        android:text="@string/red2orange"/>
-                    <SeekBar
-                        android:id="@+id/sbROthold"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:progress="6"
-                        android:min="1"
-                        android:max="25"
-                        android:thumb="@drawable/shape_red_circle"/>
-                </LinearLayout>
-
-            </androidx.percentlayout.widget.PercentRelativeLayout>
-            <androidx.percentlayout.widget.PercentRelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <LinearLayout
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentLeft="true"
+                    app:rsb_minRange="2"
+                    app:rsb_sidePadding="10dp"
+                    app:rsb_initialMinThumbValue="156"
+                    app:rsb_initialMaxThumbValue="180"
+                    app:rsb_max="180"/>
+            </FrameLayout>
+            <FrameLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+                <com.duan.colorpicker.ColorPickerView
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    app:indicatorEnable="false"
+                    app:indicatorColor="#fff"
+                    app:orientation="horizontal" />
+                <com.innovattic.rangeseekbar.RangeSeekBar
+                    android:id="@+id/skC"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_widthPercent="50%"
-                    android:layout_width="0dp"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/tvOrange2Yellow"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:textColor="#FF6100"
-                        android:text="@string/orange2yellow"/>
-                    <SeekBar
-                        android:id="@+id/sbOYthold"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:progress="20"
-                        android:min="11"
-                        android:max="34"
-                        android:thumb="@drawable/shape_yellow_circle"/>
-                </LinearLayout>
-                <LinearLayout
-                    app:layout_widthPercent="50%"
+                    app:rsb_minRange="2"
+                    app:rsb_sidePadding="10dp"
+                    app:rsb_initialMinThumbValue="20"
+                    app:rsb_initialMaxThumbValue="30"
+                    app:rsb_max="180"/>
+            </FrameLayout>
+            <FrameLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+                <com.duan.colorpicker.ColorPickerView
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    app:indicatorEnable="false"
+                    app:indicatorColor="#fff"
+                    app:orientation="horizontal" />
+                <com.innovattic.rangeseekbar.RangeSeekBar
+                    android:id="@+id/skD"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/tvYellow2Green"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:textColor="#FF6100"
-                        android:text="@string/yellow2green"/>
-                    <SeekBar
-                        android:id="@+id/sbYGthold"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:progress="40"
-                        android:min="35"
-                        android:max="77"
-                        android:thumb="@drawable/shape_yellow_circle"/>
-                </LinearLayout>
-            </androidx.percentlayout.widget.PercentRelativeLayout>
-            <androidx.percentlayout.widget.PercentRelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <LinearLayout
-                    app:layout_widthPercent="50%"
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentLeft="true"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/tvCyan2Blue"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:textColor="#FF6100"
-                        android:text="@string/cyan2blue"/>
-                    <SeekBar
-                        android:id="@+id/sbCBthold"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:progress="90"
-                        android:min="78"
-                        android:max="124"
-                        android:thumb="@drawable/shape_blue_circle"/>
-                </LinearLayout>
-                <LinearLayout
-                    app:layout_widthPercent="50%"
-                    android:layout_height="wrap_content"
-                    android:layout_width="0dp"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/tvBlue2Purple"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:textColor="#8A2BE2"
-                        android:text="@string/blue2purple"/>
-                    <SeekBar
-                        android:id="@+id/sbBPthold"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:progress="120"
-                        android:min="125"
-                        android:max="180"
-                        android:thumb="@drawable/shape_blue_circle"/>
-                </LinearLayout>
-            </androidx.percentlayout.widget.PercentRelativeLayout>
-
+                    app:rsb_minRange="2"
+                    app:rsb_sidePadding="10dp"
+                    app:rsb_initialMinThumbValue="75"
+                    app:rsb_initialMaxThumbValue="115"
+                    app:rsb_max="180"/>
+            </FrameLayout>
         </LinearLayout>
         <ScrollView
             android:layout_width="match_parent"

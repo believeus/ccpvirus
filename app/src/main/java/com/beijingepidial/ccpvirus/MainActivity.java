@@ -15,7 +15,9 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -25,10 +27,8 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.beijingepidial.entity.Circle;
 import com.beijingepidial.entity.GridCol;
@@ -55,21 +55,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
-    private int cbthold;
-    private SeekBar sbCBthold;
-    private int bpthold;
-    private SeekBar sbBPthold;
-    //橙色到黄色阈值范围
-    private int oythold;
-    private SeekBar sbOYthold;
-    //黄色到绿色的阈值范围
-    private SeekBar sbYGthold;
-    private int ygthold;
-    //红到橙的阈值范围
-    private SeekBar sbROthold;
-    private int othold;
-
-    private int rpthold;
+    private  List<Mat> masks = new ArrayList<Mat>();
+    private List<List<Scalar>> scalars = new ArrayList<List<Scalar>>();
+    private boolean stop;
+    private Mat imat;
     private Scalar scalar = new Scalar(0, 0, 0);
     private JavaCameraView javaCameraView;
     private RGB[][] rgbs;
@@ -112,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private boolean isClone;
     private boolean isTakePhoto;
     private boolean isReTake;
-    private boolean isAuto;
+    private boolean isAutoPick;
     private Spinner spCellRow;
     private Spinner spCellCol;
     private MediaPlayer mediaPlayer;
@@ -195,22 +184,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //保持螢幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
-        //获得进度条的初始值
-        sbYGthold=(SeekBar)findViewById(R.id.sbYGthold);
-        sbCBthold=(SeekBar)findViewById(R.id.sbCBthold);
-        sbBPthold=(SeekBar)findViewById(R.id.sbBPthold);
-        sbOYthold=(SeekBar)findViewById(R.id.sbOYthold);
-        sbROthold=(SeekBar)findViewById(R.id.sbROthold);
-        oythold=sbOYthold.getProgress();
-        ygthold=sbYGthold.getProgress();
-        cbthold=sbCBthold.getProgress();
-        bpthold=sbBPthold.getProgress();
-        othold =sbROthold.getProgress();
-        ((TextView)findViewById(R.id.tvBlue2Purple)).setTextColor(Color.HSVToColor(new float[]{bpthold,43,46}));
-        ((TextView)findViewById(R.id.tvYellow2Green)).setTextColor(Color.HSVToColor(new float[]{ygthold,43,46}));
-        ((TextView)findViewById(R.id.tvOrange2Yellow)).setTextColor(Color.HSVToColor(new float[]{oythold,43,46}));
-        ((TextView)findViewById(R.id.tvCyan2Blue)).setTextColor(Color.HSVToColor(new float[]{cbthold,43,46}));
-        ((TextView)findViewById(R.id.tvRed2Orange)).setTextColor(Color.HSVToColor(new float[]{othold,43,46}));
         //Begin:传感器
         levelView = (LevelView) findViewById(R.id.gv_hv);
         tvVert = (TextView) findViewById(R.id.tvv_vertical);
@@ -290,6 +263,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             @Override
             public Mat onCameraFrame(final CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+                //区间移动时,stop为false,禁止是为true
+                if (stop) return imat;
                 //w=1080
                 final int w = MainActivity.this.width = inputFrame.rgba().cols();
                 //h=1440
@@ -306,44 +281,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if (!isReTake) {
                     if (isTakePhoto) {
                         Mat imgClone = image.clone();
-                        if (isAuto) {
-                            //提取出红色
-                            Mat dst=new Mat();
-                            Mat hsv=new Mat();
-                            //红色蒙版
-                            Mat rmask01=new Mat();
-                            Mat rmask02=new Mat();
-                            Mat rmask=new Mat();
-                            //蓝色蒙版
-                            Mat bmask=new Mat();
-                            //黄色蒙版
-                            Mat ymask=new Mat();
-                            //红蓝蒙版
-                            Mat rbmask=new Mat();
-                            //红黄蓝蒙版
-                            Mat rybmask=new Mat();
-                            Imgproc.cvtColor(imgClone, hsv, Imgproc.COLOR_RGB2HSV);
-                            //获取红橙
-                            Core.inRange(hsv,new Scalar(0,43,46),new Scalar(othold,255,255),rmask01);
-                            //获取橙到黄
-                            Core.inRange(hsv,new Scalar(26,43,46),new Scalar(oythold,255,255),ymask);
-                            //获取黄到绿
-                            Core.inRange(hsv,new Scalar(oythold,43,46),new Scalar(oythold,255,255),ymask);
-                            //begin：获取蓝色
-                            Core.inRange(hsv,new Scalar(cbthold,43,46),new Scalar(bpthold,255,255),bmask);
-
-
-
-                            Core.inRange(hsv,new Scalar(156,43,46),new Scalar(rpthold,255,255),rmask02);
-                            //生成红色蒙版
-                            Core.bitwise_or(rmask01,rmask02,rmask);
-                            //红蓝蒙版
-                            Core.bitwise_or(bmask,rmask,rbmask);
-                            //生成红黄蓝蒙版
-                            Core.bitwise_or(ymask,rbmask,rybmask);
-                            //获取红色和蓝色
-                            Core.bitwise_and(imgClone,imgClone,dst,rybmask);
-                            return dst;
+                        if (isAutoPick) {
+                            masks.clear();
+                            Mat hmat = new Mat();
+                            Imgproc.cvtColor(imgClone, hmat, Imgproc.COLOR_RGB2HSV);
+                            for (int i = 0; i < scalars.size(); i++) {
+                                List<Scalar> scalar = scalars.get(i);
+                                Mat mask = new Mat();
+                                Core.inRange(hmat, scalar.get(0), scalar.get(1), mask);
+                                masks.add(i, mask);
+                                if (i > 0) {
+                                    Core.bitwise_or(masks.get(i - 1),  masks.get(i), mask);
+                                }
+                            }
+                            Core.bitwise_and(imgClone, imgClone, hmat, masks.get(masks.size()-1));
+                            imat = hmat;
+                            stop = true;
+                            return hmat;
                         } else {
                             for (int r = 0; r < row; r++) {
                                 gridRows[r].setX(lx - 30);
@@ -403,6 +357,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     isTakePhoto = true;
                     isClone = true;
                     isReTake = false;
+                    ((CheckBox) findViewById(R.id.ckAuto)).setEnabled(true);
+                    ((CheckBox) findViewById(R.id.ckManual)).setEnabled(true);
                     findViewById(R.id.btnCatchColor).setEnabled(true);
                     findViewById(R.id.LayoutColorPal).setVisibility(View.VISIBLE);
                     SurfaceHolder holder = svColorPlate.getHolder();
@@ -889,6 +845,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onClick(View v) {
                 isReTake = true;
+                stop = false;
+                ((CheckBox) findViewById(R.id.ckAuto)).setEnabled(false);
+                ((CheckBox) findViewById(R.id.ckManual)).setEnabled(false);
                 findViewById(R.id.btnCatchColor).setEnabled(false);
                 SurfaceHolder holder = svColorPlate.getHolder();
                 Canvas canvas = holder.lockCanvas();
@@ -938,121 +897,130 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ((CheckBox) findViewById(R.id.ckAuto)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) isAuto = isChecked;
+                if (isChecked) isAutoPick = isChecked;
             }
         });
-        sbOYthold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                oythold=progress;
-                String text=oythold+":Orange ⇄ Yellow:"+oythold;
-                ((TextView)findViewById(R.id.tvOrange2Yellow)).setTextColor(Color.HSVToColor(new float[]{oythold,43,46}));
-                ((TextView)findViewById(R.id.tvOrange2Yellow)).setText(String.valueOf(text));
+
+        ((RangeSeekBar) findViewById(R.id.skA)).setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
+            private List<Scalar> obj = new ArrayList<Scalar>();
+
+            {
+                obj.add(0, new Scalar(5, 43, 46));
+                obj.add(1, new Scalar(20, 255, 255));
+                scalars.add(0,obj);
             }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+            private int min;
+            private int max;
 
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-        sbYGthold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                ygthold=progress;
-                String text=ygthold+":Yellow ⇄ Green:"+ygthold;
-                ((TextView)findViewById(R.id.tvYellow2Green)).setTextColor(Color.HSVToColor(new float[]{ygthold,43,46}));
-                ((TextView)findViewById(R.id.tvYellow2Green)).setText(String.valueOf(text));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-        sbCBthold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                cbthold=progress;
-                String text=progress+":Cyan⇄Blue:"+progress;
-                ((TextView)findViewById(R.id.tvCyan2Blue)).setText(text); //43-255 46-255
-                ((TextView)findViewById(R.id.tvCyan2Blue)).setTextColor(Color.HSVToColor(new float[]{cbthold,43,46}));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-        sbBPthold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                bpthold=progress;
-                String text=progress+":Blue⇄Purple:"+progress;
-                ((TextView)findViewById(R.id.tvBlue2Purple)).setText(text);
-                ((TextView)findViewById(R.id.tvBlue2Purple)).setTextColor(Color.HSVToColor(new float[]{bpthold,43,46}));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-        sbROthold.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                othold =progress;
-                String text=progress+":Red⇄Orange:"+progress;
-                ((TextView)findViewById(R.id.tvRed2Orange)).setText(text);
-                ((TextView)findViewById(R.id.tvRed2Orange)).setTextColor(Color.HSVToColor(new float[]{othold,43,46}));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-        ((RangeSeekBar)findViewById(R.id.skA)).setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
             @Override
             public void onStartedSeeking() {
-
+                stop = false;
             }
 
             @Override
             public void onStoppedSeeking() {
-
+                obj.clear();
+                obj.add(0, new Scalar(min, 43, 46));
+                obj.add(1, new Scalar(max, 255, 255));
             }
 
             @Override
             public void onValueChanged(int min, int max) {
-                Toast.makeText(MainActivity.this,"min:"+min+" max:"+max,Toast.LENGTH_LONG).show();
+                this.max = max;
+                this.min = min;
             }
         });
+        ((RangeSeekBar) findViewById(R.id.skB)).setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
+            private List<Scalar> obj = new ArrayList<Scalar>();
 
+            {
+                obj.add(0, new Scalar(156, 43, 46));
+                obj.add(1, new Scalar(180, 255, 255));
+                scalars.add(1,obj);
+            }
+
+            private int min;
+            private int max;
+
+            @Override
+            public void onStartedSeeking() {
+                stop = false;
+            }
+
+            @Override
+            public void onStoppedSeeking() {
+                obj.clear();
+                obj.add(0, new Scalar(min, 43, 46));
+                obj.add(1, new Scalar(max, 255, 255));
+            }
+
+            @Override
+            public void onValueChanged(int min, int max) {
+                this.max = max;
+                this.min = min;
+            }
+        });
+        ((RangeSeekBar) findViewById(R.id.skC)).setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
+            private List<Scalar> obj = new ArrayList<Scalar>();
+
+            {
+                obj.add(0, new Scalar(20, 43, 46));
+                obj.add(1, new Scalar(30, 255, 255));
+                scalars.add(2,obj);
+            }
+
+            private int min;
+            private int max;
+
+            @Override
+            public void onStartedSeeking() {
+                stop = false;
+            }
+
+            @Override
+            public void onStoppedSeeking() {
+                obj.clear();
+                obj.add(0, new Scalar(min, 43, 46));
+                obj.add(1, new Scalar(max, 255, 255));
+            }
+
+            @Override
+            public void onValueChanged(int min, int max) {
+                this.max = max;
+                this.min = min;
+            }
+        });
+        ((RangeSeekBar) findViewById(R.id.skD)).setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
+            private List<Scalar> obj = new ArrayList<Scalar>();
+
+            {
+                obj.add(0, new Scalar(75, 43, 46));
+                obj.add(1, new Scalar(115, 255, 255));
+                scalars.add(3,obj);
+            }
+
+            private int min;
+            private int max;
+
+            @Override
+            public void onStartedSeeking() {
+                stop = false;
+            }
+
+            @Override
+            public void onStoppedSeeking() {
+                obj.clear();
+                obj.add(0, new Scalar(min, 43, 46));
+                obj.add(1, new Scalar(max, 255, 255));
+            }
+
+            @Override
+            public void onValueChanged(int min, int max) {
+                this.max = max;
+                this.min = min;
+            }
+        });
     }
 
     @Override
