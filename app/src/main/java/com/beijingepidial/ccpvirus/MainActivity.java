@@ -18,6 +18,8 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
+import android.os.Message;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -27,6 +29,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -44,20 +47,29 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
-    private  List<Mat> masks = new ArrayList<Mat>();
+    private List<Mat> fmasks = new ArrayList<Mat>();
+    private List<Mat> smasks = new ArrayList<Mat>();
     private List<List<Scalar>> scalars = new ArrayList<List<Scalar>>();
+    private List<Circle> circles = new ArrayList<Circle>();
+    private LinearLayout lysetting;
+    private boolean ismanual;
     private boolean stop;
+    private boolean iterate;
     private Mat imat;
     private Scalar scalar = new Scalar(0, 0, 0);
     private JavaCameraView javaCameraView;
@@ -99,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private int height;
     private boolean init;
     private boolean isClone;
-    private boolean isTakePhoto;
+    private boolean takePhoto;
     private boolean isReTake;
     private boolean isAutoPick;
     private Spinner spCellRow;
@@ -119,6 +131,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private LevelView levelView;
     private TextView tvHorz;
     private TextView tvVert;
+    private Handler handle = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            if (msg.what == 1) {
+                findViewById(R.id.lysetting).setVisibility(View.VISIBLE);
+            }
+            String text = String.valueOf(msg.obj);
+            ((TextView) findViewById(R.id.tvmsg)).setText(text);
+            return false;
+        }
+    });
 
     //End:传感器
     public MainActivity() {
@@ -127,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.gridCols = new GridCol[12];
         this.gridRows = new GridRow[8];
         this.init = true;
+        this.isClone = true;
         this.lx = 50;
         this.ly = 50;
         this.rx = 50;
@@ -243,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         javaCameraView.setZOrderMediaOverlay(true);
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
         javaCameraView.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
-            private List<MatOfPoint> list = new ArrayList<MatOfPoint>();
+            private List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 
             @Override
             public void onCameraViewStarted(int width, int height) {
@@ -274,92 +298,189 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if (init)
                     MainActivity.this.yArea = (h - ry - ly) / row;
                 init = false;
-                if (isClone) {
-                    image = inputFrame.rgba().clone();
-                    isClone = false;
-                }
-                if (!isReTake) {
-                    if (isTakePhoto) {
-                        Mat imgClone = image.clone();
-                        if (isAutoPick) {
-                            masks.clear();
-                            Mat hmat = new Mat();
-                            Imgproc.cvtColor(imgClone, hmat, Imgproc.COLOR_RGB2HSV);
-                            for (int i = 0; i < scalars.size(); i++) {
-                                List<Scalar> scalar = scalars.get(i);
-                                Mat mask = new Mat();
-                                Core.inRange(hmat, scalar.get(0), scalar.get(1), mask);
-                                masks.add(i, mask);
-                                if (i > 0) {
-                                    Core.bitwise_or(masks.get(i - 1),  masks.get(i), mask);
-                                }
+                image = inputFrame.rgba().clone();
+                Mat imgClone = image.clone();
+                if (isAutoPick) {
+                    //边界检测
+                    if (takePhoto) {
+                        circles.clear();
+                        contours.clear();
+                        Mat imatClone = imat.clone();
+                        Imgproc.cvtColor(imat, imat, Imgproc.COLOR_RGB2GRAY);
+                        Imgproc.GaussianBlur(imat, imat, new Size(11, 11), 0);
+                        Imgproc.Canny(imat, imat, 20, 160, 3, false);
+                        //RETR_EXTERNAL只检测外围轮廓
+                        Imgproc.findContours(imat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+                        for (int i = 0, flen = contours.size(); i < flen; i++) {
+                            Imgproc.drawContours(imat, contours, i, new Scalar(0, 255, 0), 1);
+                            MatOfPoint2f point2f = new MatOfPoint2f(contours.get(i).toArray());
+                            Point center = new Point();
+                            float[] radius = new float[1];
+                            //获取点集最小圆
+                            Imgproc.minEnclosingCircle(point2f, center, radius);
+                            int r = (int) radius[0];
+                            if (r <= 6 || r > 30) {
+                                continue;
                             }
-                            Core.bitwise_and(imgClone, imgClone, hmat, masks.get(masks.size()-1));
-                            imat = hmat;
-                            stop = true;
-                            return hmat;
-                        } else {
-                            for (int r = 0; r < row; r++) {
-                                gridRows[r].setX(lx - 30);
-                                gridRows[r].setY(ly + ((((yArea - 8) * r)) / 2));
-                                Imgproc.putText(imgClone, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
-                                for (int c = 0; c < col; c++) {
-                                    gridCols[c].setX(lx + (xArea * c));
-                                    gridCols[c].setY(ly);
-                                    Imgproc.putText(imgClone, gridCols[c].getName(), new Point(gridCols[c].getX() + gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
-                                    Circle cl = clbox[r][c];
-                                    cl.setX(lx + (xArea * c));
-                                    cl.setY(ly + (((yArea - 10) * r) / 2) - 10);
-                                    double[] color = image.get(cl.getY() + cl.getyDelta(), cl.getX() + cl.getxDelta());
-                                    Imgproc.circle(imgClone, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius, scalar, 2, Core.LINE_AA);
+                            Circle circle = new Circle();
+                            circle.id = i;
+                            circle.x = ((int) center.x);
+                            circle.y = ((int) center.y);
+                            circle.radius = r;
+                            circles.add(circle);
+
+                        }
+                        int nsize = Integer.valueOf(((EditText) findViewById(R.id.edtGridsize)).getText().toString());
+                        if (circles.size() != nsize) {
+                            Message msg = new Message();
+                            msg.obj = "Recognized SIZE：" + circles.size();
+                            handle.sendMessage(msg);
+                            iterate = true;
+                            takePhoto = false;
+                            return imatClone;
+                        }
+                        Message msg = new Message();
+                        msg.obj = "Recognized Num：" + circles.size();
+                        handle.sendMessage(msg);
+                        for (int i = 0; i < circles.size(); i++) {
+                            Circle c = circles.get(i);
+                            Imgproc.circle(imgClone, new Point(c.x, c.y), c.radius, new Scalar(255, 0, 0), 2, 8);//绘制圆
+                            Imgproc.putText(imgClone, String.valueOf(i), new Point(c.x, c.y), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 3);
+                        }
+
+                        Collections.sort(circles, new Comparator<Circle>() {
+                            @Override
+                            public int compare(Circle o1, Circle o2) {
+                                return o1.x - o2.x;
+                            }
+                        });
+                        Circle[][] cbox = new Circle[8][circles.size() / 8];
+                        //每一列取8个
+                        for (int i = 0, len = circles.size() / 8; i < len; i++) {
+                            List<Circle> cs = circles.subList(i * 8, 7 + (i * 8) + 1);
+                            Collections.sort(cs, new Comparator<Circle>() {
+                                @Override
+                                public int compare(Circle o1, Circle o2) {
+                                    return o1.y - o2.y;
                                 }
+                            });
+                            for (int j = 0; j < 8; j++) {
+                                cbox[j][i] = cs.get(j);
                             }
                         }
-                        //绘制一个上下左右居中的矩形
-                        Imgproc.rectangle(imgClone, new Point(lx, ly), new Point(w - rx, (h / 2) - ry), new Scalar(0, 139, 139), 5);
-                        return imgClone;
+                        try {
+                            SurfaceHolder holder = svColorPlate.getHolder();
+                            Canvas canvas = holder.lockCanvas();
+                            canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+                            Paint whiteP = new Paint();
+                            whiteP.setStyle(Paint.Style.STROKE);
+                            whiteP.setTextSize(40);
+                            int xArea = svColorPlate.getWidth() / 12;
+                            int yArea = svColorPlate.getHeight() / 8;
+                            whiteP.setColor(Color.WHITE);
+                            for (int r = 0; r < cbox.length; r++) {
+                                canvas.drawText(gridRows[r].getName(), 10, ((xArea - 32) * r) + 75, whiteP);
+                                for (int c = 0; c < cbox[r].length; c++) {
+                                    canvas.drawText(gridCols[c].getName(), 60 + ((yArea + 23) * c), 40, whiteP);
+                                    Circle cl = cbox[r][c];
+                                    double[] color = image.get(cl.y, cl.x);
+                                    RGB rgb = rgbs[r][c];
+                                    rgb.setRed(color[0]);
+                                    rgb.setGreen(color[1]);
+                                    rgb.setBlue(color[2]);
+                                    rgb.setAlpha(color[3]);
+                                    Paint paint = new Paint();
+                                    paint.setStyle(Paint.Style.STROKE);
+                                    paint.setStrokeWidth(15);
+                                    paint.setARGB((int) color[3], (int) rgb.getRed(), (int) rgb.getGreen(), (int) rgb.getBlue());
+                                    canvas.drawCircle(50 + ((xArea - 5) * c) + 25, 30 + ((yArea - 5) * r) + 35, 10, paint);
+                                }
+                            }
+                            holder.unlockCanvasAndPost(canvas);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        clbox=cbox;
+                        stop = true;
+                        iterate = false;
+                        takePhoto = false;
+                        imat = imgClone;
+                        return imat;
                     }
-                }
-                final Mat frame = inputFrame.rgba();
-                Imgproc.cvtColor(frame, gary, Imgproc.COLOR_RGB2GRAY);
-                //Imgproc.Canny(gary, edges, 50, 500, 3, false);
-                list.clear();
-                //绘制一个上下左右居中的矩形
-                Imgproc.rectangle(frame, new Point(lx, ly), new Point(w - rx, (h / 2) - ry), new Scalar(0, 139, 139), 5);
-                //Imgproc.findContours(edges, list, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-                for (int r = 0; r < row; r++) {
-                    gridRows[r].setX(lx - 30);
-                    gridRows[r].setY(ly + ((((yArea - 8) * r)) / 2));
-                    Imgproc.putText(frame, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
-                    for (int c = 0; c < col; c++) {
-                        gridCols[c].setX(lx + (xArea * c));
-                        gridCols[c].setY(ly);
-                        Imgproc.putText(frame, gridCols[c].getName(), new Point(gridCols[c].getX() + gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
-                        Circle cl = clbox[r][c];
-                        cl.setX(lx + (xArea * c));
-                        cl.setY(ly + (((yArea - 10) * r) / 2) - 10);
-                        Imgproc.circle(frame, new Point(cl.getX() + cl.getxDelta(), cl.getY() + cl.getyDelta()), radius, scalar, 2, Core.LINE_AA);
+                    //颜色提取
+                    Mat hmat = new Mat();
+                    Imgproc.cvtColor(imgClone, hmat, Imgproc.COLOR_RGB2HSV);
+                    for (int i = 0, len = scalars.size(); i < len; i++) {
+                        List<Scalar> scalar = scalars.get(i);
+                        fmasks.add(i, new Mat());
+                        Core.inRange(hmat, scalar.get(0), scalar.get(1), fmasks.get(i));
+                        if (i > 0) {
+                            smasks.add((i - 1), new Mat());
+                            if (i == 1) {
+                                Core.bitwise_or(fmasks.get(i - 1), fmasks.get(i), smasks.get(i - 1));
+                            } else if (i > 1) {
+                                Core.bitwise_or(smasks.get(i - 2), fmasks.get(i), smasks.get(i - 1));
+                            }
+                        }
                     }
+                    int fLen = fmasks.size();
+                    int sLen = smasks.size();
+                    Core.bitwise_and(imgClone, imgClone, hmat, fLen == 1 ? fmasks.get(fLen - 1) : smasks.get(sLen - 1));
+                    imat = hmat.clone();
+                    //绘制一个上下左右居中的矩形
+                    Imgproc.rectangle(hmat, new Point(lx, ly), new Point(w - rx, (h / 2) - ry), new Scalar(0, 139, 139), 5);
+                    for (int r = 0; r < row; r++) {
+                        gridRows[r].setX(lx - 30);
+                        gridRows[r].setY(ly + ((((yArea - 8) * r)) / 2));
+                        Imgproc.putText(hmat, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                        for (int c = 0; c < col; c++) {
+                            gridCols[c].setX(lx + (xArea * c));
+                            gridCols[c].setY(ly);
+                            Imgproc.putText(hmat, gridCols[c].getName(), new Point(gridCols[c].getX() + gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                        }
+                    }
+                    smasks.clear();
+                    fmasks.clear();
+                    if (iterate) takePhoto = true;
+                    return hmat;
+                } else {
+                    for (int r = 0; r < row; r++) {
+                        gridRows[r].setX(lx - 30);
+                        gridRows[r].setY(ly + ((((yArea - 8) * r)) / 2));
+                        Imgproc.putText(imgClone, gridRows[r].getName(), new Point(gridRows[r].getX() + gridRows[r].getxDelta(), gridRows[r].getY() + gridRows[r].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                        for (int c = 0; c < col; c++) {
+                            gridCols[c].setX(lx + (xArea * c));
+                            gridCols[c].setY(ly);
+                            Imgproc.putText(imgClone, gridCols[c].getName(), new Point(gridCols[c].getX() + gridCols[c].getxDelta(), gridCols[c].getY() + gridCols[c].getyDelta()), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 5);
+                            if (ismanual) {
+                                Circle cl = clbox[r][c];
+                                cl.x = (lx + (xArea * c));
+                                cl.y = (ly + (((yArea - 10) * r) / 2) - 10);
+                                double[] color = image.get(cl.y + cl.yDelta, cl.x + cl.xDelta);
+                                Imgproc.circle(imgClone, new Point(cl.x + cl.xDelta, cl.y + cl.yDelta), radius, scalar, 2, Core.LINE_AA);
+                            }
+                        }
+                    }
+                    //绘制一个上下左右居中的矩形
+                    Imgproc.rectangle(imgClone, new Point(lx, ly), new Point(w - rx, (h / 2) - ry), new Scalar(0, 139, 139), 5);
+                    return imgClone;
                 }
-                //5 绘制轮廓
-               /* for (int i = 0, len = list.size(); i < len; i++) {
-                    Imgproc.drawContours(frame, list, i, new Scalar(0, 255, 0), 1);
-                }*/
-
-                return frame;
             }
+
         });
         //拍照
         levelView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    isTakePhoto = true;
+                    handle.sendEmptyMessage(1);
+                    takePhoto = true;
                     isClone = true;
                     isReTake = false;
                     ((CheckBox) findViewById(R.id.ckAuto)).setEnabled(true);
-                    ((CheckBox) findViewById(R.id.ckManual)).setEnabled(true);
                     findViewById(R.id.btnCatchColor).setEnabled(true);
+                    findViewById(R.id.btnReTake).setEnabled(true);
                     findViewById(R.id.LayoutColorPal).setVisibility(View.VISIBLE);
                     SurfaceHolder holder = svColorPlate.getHolder();
                     Canvas canvas = holder.lockCanvas();
@@ -813,16 +934,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     int xArea = svColorPlate.getWidth() / 12;
                     int yArea = svColorPlate.getHeight() / 8;
                     whiteP.setColor(Color.WHITE);
-                    for (int r = 0; r < row; r++) {
+
+                    for (int r = 0; r < clbox.length; r++) {
                         canvas.drawText(gridRows[r].getName(), 10, ((xArea - 32) * r) + 75, whiteP);
-                        for (int c = 0; c < col; c++) {
+                        for (int c = 0; c < clbox[r].length; c++) {
                             canvas.drawText(gridCols[c].getName(), 60 + ((yArea + 23) * c), 40, whiteP);
                             Circle cl = clbox[r][c];
-                            int x = cl.getX();
-                            int xDelta = cl.getxDelta();
-                            int y = cl.getY();
-                            int yDelta = cl.getyDelta();
-                            double[] color = image.get(y + yDelta, x + xDelta);
+                            int x = cl.x;
+                            int xDelta = cl.xDelta;
+                            int y = cl.y;
+                            int yDelta = cl.yDelta;
+                            double[] color = image.get(isAutoPick?y:y + yDelta, isAutoPick?x:x + xDelta);
                             RGB rgb = rgbs[r][c];
                             rgb.setRed(color[0]);
                             rgb.setGreen(color[1]);
@@ -846,9 +968,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             public void onClick(View v) {
                 isReTake = true;
                 stop = false;
+                findViewById(R.id.lysetting).setVisibility(View.GONE);
                 ((CheckBox) findViewById(R.id.ckAuto)).setEnabled(false);
-                ((CheckBox) findViewById(R.id.ckManual)).setEnabled(false);
                 findViewById(R.id.btnCatchColor).setEnabled(false);
+                findViewById(R.id.btnReTake).setEnabled(false);
                 SurfaceHolder holder = svColorPlate.getHolder();
                 Canvas canvas = holder.lockCanvas();
                 Paint paint = new Paint();
@@ -898,6 +1021,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) isAutoPick = isChecked;
+                stop = false;
             }
         });
 
@@ -907,7 +1031,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             {
                 obj.add(0, new Scalar(5, 43, 46));
                 obj.add(1, new Scalar(20, 255, 255));
-                scalars.add(0,obj);
+                scalars.add(0, obj);
             }
 
             private int min;
@@ -920,9 +1044,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             @Override
             public void onStoppedSeeking() {
-                obj.clear();
-                obj.add(0, new Scalar(min, 43, 46));
-                obj.add(1, new Scalar(max, 255, 255));
+                obj.get(0).set(new double[]{min, 43, 46});
+                obj.get(1).set(new double[]{max, 255, 255});
             }
 
             @Override
@@ -937,7 +1060,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             {
                 obj.add(0, new Scalar(156, 43, 46));
                 obj.add(1, new Scalar(180, 255, 255));
-                scalars.add(1,obj);
+                scalars.add(1, obj);
             }
 
             private int min;
@@ -950,9 +1073,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             @Override
             public void onStoppedSeeking() {
-                obj.clear();
-                obj.add(0, new Scalar(min, 43, 46));
-                obj.add(1, new Scalar(max, 255, 255));
+                obj.get(0).set(new double[]{min, 43, 46});
+                obj.get(1).set(new double[]{max, 255, 255});
             }
 
             @Override
@@ -967,7 +1089,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             {
                 obj.add(0, new Scalar(20, 43, 46));
                 obj.add(1, new Scalar(30, 255, 255));
-                scalars.add(2,obj);
+                scalars.add(2, obj);
             }
 
             private int min;
@@ -980,9 +1102,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             @Override
             public void onStoppedSeeking() {
-                obj.clear();
-                obj.add(0, new Scalar(min, 43, 46));
-                obj.add(1, new Scalar(max, 255, 255));
+                obj.get(0).set(new double[]{min, 43, 46});
+                obj.get(1).set(new double[]{max, 255, 255});
             }
 
             @Override
@@ -997,7 +1118,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             {
                 obj.add(0, new Scalar(75, 43, 46));
                 obj.add(1, new Scalar(115, 255, 255));
-                scalars.add(3,obj);
+                scalars.add(3, obj);
             }
 
             private int min;
@@ -1010,9 +1131,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             @Override
             public void onStoppedSeeking() {
-                obj.clear();
-                obj.add(0, new Scalar(min, 43, 46));
-                obj.add(1, new Scalar(max, 255, 255));
+                obj.get(0).set(new double[]{min, 43, 46});
+                obj.get(1).set(new double[]{max, 255, 255});
             }
 
             @Override

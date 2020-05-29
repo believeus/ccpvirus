@@ -17,7 +17,7 @@
     <string name="vertical">vertical</string>
     <string name="horizontal">horizontal</string>
     <string name="color_palette">Color palette</string>
-    <string name="automatic">Auto-Pick</string>
+    <string name="automatic">AUTO-PICK</string>
     <string name="manual">manual</string>
     <string name="orange2yellow">11:Orange ⇄ Yellow:11</string>
     <string name="yellow2green">40:Yellow ⇄ Green:40</string>
