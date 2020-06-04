@@ -1,7 +1,5 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <item name="NAME" type="id"/>
-    <item name="BARCODE" type="id"/>
+    <item name="name" type="id"/>
+    <item name="barcode" type="id"/>
     <item name="scantime" type="id"/>
-    <item name="ROW" type="id"/>
-    <item name="COL" type="id"/>
 </resources>
