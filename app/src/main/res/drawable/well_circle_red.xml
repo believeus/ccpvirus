@@ -2,13 +2,8 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="true">
         <shape android:shape="rectangle">
-            <solid android:color="@color/rsb_trackDefaultColor"/>
+            <solid android:color="@color/colorAccent"/>
             <corners android:radius="30dip" />
-        </shape>
-    </item>
-    <item android:state_pressed="true">
-        <shape android:shape="rectangle">
-            <corners android:radius="2dip" />
         </shape>
     </item>
 </selector>

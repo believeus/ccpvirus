@@ -1,58 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
-
+    android:layout_height="wrap_content">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:gravity="bottom"
-            android:text="BARCODE:" />
-        <EditText
-            android:id="@+id/etbarcode"
-            android:layout_width="160dp"
-            android:layout_height="45dp" />
-        <Button
-            android:id="@+id/btnPlateScan"
-            android:layout_width="wrap_content"
-            android:layout_height="35dp"
-            android:text="scan"
-            android:textSize="12dp" />
-    </LinearLayout>
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <GridLayout
-            android:id="@+id/gridlayout"
-            android:layout_width="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:columnCount="8"
-            android:rowCount="12" />
-    </ScrollView>
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
-            android:layout_toLeftOf="@+id/btnNext"
-            android:text="Save" />
-
+            android:gravity="center"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textSize="18dp"
+                android:text="Plate Reader"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="14dp"
+                android:text="Clinical Diagnostics"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="14dp"
+                android:text="For use with HKG epiTherapeutics"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="14dp"
+                android:text="Detection kit"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="70dp"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:text="BARCODE:" />
+            <EditText
+                android:id="@+id/etbarcode"
+                android:background="@drawable/edit_border"
+                android:layout_width="160dp"
+                android:textSize="16dp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:layout_height="25dp" />
+            <Button
+                android:id="@+id/btnPlateScan"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:text="scan"
+                android:textColor="#ffffff"
+                android:background="@drawable/button"
+                android:textSize="12dp" />
+        </LinearLayout>
+        <RelativeLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <GridLayout
+                android:background="@drawable/plate_border"
+                android:id="@+id/gridlayout"
+                android:layout_centerHorizontal="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:columnCount="8"
+                android:rowCount="12" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
         <Button
             android:id="@+id/btnNext"
-            android:enabled="false"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_width="100dp"
-            android:layout_height="50dp"
+            android:background="@drawable/button"
+            android:layout_centerHorizontal="true"
+            android:enabled="true"
+            android:textStyle="bold"
+            android:textColor="#ffffff"
+            android:layout_width="300dp"
+            android:layout_height="35dp"
             android:text="Next" />
     </RelativeLayout>
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

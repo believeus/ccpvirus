@@ -12,4 +12,6 @@
     <color name="laser_color">#0F0</color>
     <color name="corner_color">#00FF00</color>
     <!-- QRCode scanner color end -->
+    <color name="well_font_color">#4d4d4d</color>
+    <color name="well_font_white">#ffffff</color>
 </resources>

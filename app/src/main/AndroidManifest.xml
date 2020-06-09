@@ -27,16 +27,18 @@
         android:screenOrientation="portrait"
         tools:replace="screenOrientation"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".PlateActivity" >
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:name=".MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.google.zxing.activity.CaptureActivity"/>
+        <activity android:name=".PlateActivity"/>
+        <activity android:name=".CamaraActivity" />
+        <activity android:name="com.google.zxing.activity.CaptureActivity"/>
     </application>
 
 </manifest>
