@@ -2,6 +2,7 @@ package com.beijingepidial.ccpvirus;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -15,6 +16,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -356,7 +358,7 @@ public class CamaraActivity extends AppCompatActivity implements SensorEventList
                                     rgb.setBlue(color[2]);
                                     rgb.setAlpha(color[3]);
                                     String hex = String.format("#%02x%02x%02x", (int) color[0], (int) color[1], (int) color[2]);
-                                    String name = rowname[r] + (c+1);
+                                    String name = rowname[r] + (c + 1);
                                     HashMap<String, String> mxc = new HashMap<>();
                                     mxc.put(name, hex);
                                     mrc.put(name, mxc);
@@ -494,22 +496,24 @@ public class CamaraActivity extends AppCompatActivity implements SensorEventList
                                 }
                             }
                             Iterator<HashMap<String, String>> iterator = mrc.values().iterator();
-                            while(iterator.hasNext()){
+                            while (iterator.hasNext()) {
                                 HashMap<String, String> mnb = iterator.next();
-                                for (Iterator it=mnb.keySet().iterator();it.hasNext();){
-                                    String name = (String)it.next();
+                                for (Iterator it = mnb.keySet().iterator(); it.hasNext(); ) {
+                                    String name = (String) it.next();
                                     Well well = new Well();
                                     well.name = name;
                                     well.color = mnb.get(name);
-                                    well.barcode="";
-                                    well.scantime=0;
+                                    well.barcode = "";
+                                    well.scantime = 0;
                                     jsonObj.put(name, new JSONObject(new Gson().toJson(well).toString()));
                                 }
                             }
 
                             client.newCall(new Request.Builder().url(url + "plate/save.jhtml").post(new FormBody.Builder().add("barcode", barcode).add("data", jsonObj.toString()).build()).build()).
                                     execute();//发送请求
-                            setResult(Variables.REQ_QR_CODE);
+                            Bundle bundle = new Bundle();
+                            bundle.putString(Variables.INTENT_EXTRA_KEY_QR_SCAN, barcode);
+                            setResult(RESULT_OK, new Intent().putExtras(bundle));
                             finish();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -552,7 +556,7 @@ public class CamaraActivity extends AppCompatActivity implements SensorEventList
                             rgb.setBlue(color[2]);
                             rgb.setAlpha(color[3]);
                             String hex = String.format("#%02x%02x%02x", (int) color[0], (int) color[1], (int) color[2]);
-                            String name = rowname[r] + (c+1);
+                            String name = rowname[r] + (c + 1);
                             HashMap<String, String> mcx = new HashMap<>();
                             mcx.put(name, hex);
                             mrc.put(name, mcx);

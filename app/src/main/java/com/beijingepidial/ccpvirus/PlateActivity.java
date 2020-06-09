@@ -203,6 +203,31 @@ public class PlateActivity extends AppCompatActivity {
         return true;
     }
 
+    private void scan(String barcode) {
+        ((EditText) findViewById(R.id.etbarcode)).setText(barcode);
+        new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] params) {
+                try {
+                    Properties properties = new Properties();
+                    properties.load(PlateActivity.this.getAssets().open("project.properties"));
+                    String url = properties.getProperty("url");
+                    String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
+                    OkHttpClient client = new OkHttpClient();
+                    RequestBody body = new FormBody.Builder().add("barcode", barcode).build();
+                    Request request = new Request.Builder().url(url + "plate/findData.jhtml").post(body).build();
+                    Response response = client.newCall(request).execute();//发送请求
+                    Message msg = new Message();
+                    msg.obj = response.body().string();
+                    handler.sendMessage(msg);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        }.execute();
+    }
+
     @Override
     protected void onActivityResult(final int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
@@ -210,28 +235,10 @@ public class PlateActivity extends AppCompatActivity {
             final String barcode = bundle.getString(Variables.INTENT_EXTRA_KEY_QR_SCAN);
             switch (requestCode) {
                 case Variables.REQ_QR_CODE:
-                    ((EditText) findViewById(R.id.etbarcode)).setText(barcode);
-                    new AsyncTask() {
-                        @Override
-                        protected Object doInBackground(Object[] params) {
-                            try {
-                                Properties properties = new Properties();
-                                properties.load(PlateActivity.this.getAssets().open("project.properties"));
-                                String url = properties.getProperty("url");
-                                String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
-                                OkHttpClient client = new OkHttpClient();
-                                RequestBody body = new FormBody.Builder().add("barcode", barcode).build();
-                                Request request = new Request.Builder().url(url + "plate/findData.jhtml").post(body).build();
-                                Response response = client.newCall(request).execute();//发送请求
-                                Message msg = new Message();
-                                msg.obj = response.body().string();
-                                handler.sendMessage(msg);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            return null;
-                        }
-                    }.execute();
+                    scan(barcode);
+                    break;
+                case Variables.SCAN_PLATE_WELL:
+                    scan(barcode);
                     break;
                 //点击well扫描二维码
                 default:
