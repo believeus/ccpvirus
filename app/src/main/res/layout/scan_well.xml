@@ -107,8 +107,9 @@
                 android:layout_height="35dp"
                 android:textSize="14dp"
                 android:inputType="number"
+                android:enabled="false"
                 android:gravity="center"
-                android:text="96"/>
+                android:text="1"/>
             <TextView
                 android:id="@+id/tvmsg"
                 android:layout_width="match_parent"
@@ -150,48 +151,7 @@
                     </androidx.percentlayout.widget.PercentRelativeLayout>
                 </androidx.percentlayout.widget.PercentFrameLayout>
 
-                <LinearLayout
-                    android:id="@+id/lysetting"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone">
-                    <androidx.percentlayout.widget.PercentRelativeLayout
-                        android:id="@+id/LayoutColorPal"
-                        android:layout_width="match_parent"
-                        android:layout_height="225dp"
-                        android:layout_weight="1"
-                        android:gravity="center">
-                        <TextView
-                            android:id="@+id/tvColorPal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentLeft="true"
-                            android:layout_alignParentTop="true"
-                            android:text="@string/color_palette"/>
-                        <LinearLayout
-                            android:layout_below="@+id/tvColorPal"
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            app:layout_heightPercent="100%"
-                            app:layout_widthPercent="98%"
-                            android:layout_centerHorizontal="true"
-                            android:orientation="vertical">
-                            <SurfaceView
-                                android:id="@+id/svColorPlate"
-                                android:layout_width="match_parent"
-                                android:layout_height="160dp" />
-                            <Button
-                                android:id="@+id/btnSave"
-                                android:background="@drawable/button"
-                                android:textStyle="bold"
-                                android:textColor="#ffffff"
-                                android:layout_width="match_parent"
-                                android:layout_height="40dp"
-                                android:text="SAVE" />
-                        </LinearLayout>
-                    </androidx.percentlayout.widget.PercentRelativeLayout>
-                </LinearLayout>
+
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

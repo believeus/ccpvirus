@@ -93,7 +93,7 @@
             android:textColor="#ffffff"
             android:layout_width="300dp"
             android:layout_height="35dp"
-            android:text="Next" />
+            android:text="SCAN PLATE" />
     </RelativeLayout>
     </LinearLayout>
 </ScrollView>

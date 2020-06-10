@@ -36,6 +36,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="ScanwellActivity"/>
         <activity android:name=".PlateActivity"/>
         <activity android:name=".CamaraActivity" />
         <activity android:name="com.google.zxing.activity.CaptureActivity"/>

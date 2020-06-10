@@ -158,6 +158,20 @@ public class PlateActivity extends AppCompatActivity {
                         menu.add(0, 1, 0, "BARCODE:" + btn.getTag(R.id.barcode).toString());
                         String scantime = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss").format(new Date(Long.valueOf(btn.getTag(R.id.scantime).toString()).longValue()));
                         menu.add(0, 1, 1, "SCANDATE:" + scantime);
+                        MenuItem cItem = menu.add(0, 1, 2, "SCANCOLOR");
+                        cItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem item) {
+                                String name = String.valueOf(btn.getText());
+                                Intent intent = new Intent(PlateActivity.this, ScanwellActivity.class);
+                                Bundle bundle=new Bundle();
+                                bundle.putString("barcode",btn.getTag(R.id.barcode).toString());
+                                bundle.putString("name", name);
+                                intent.putExtras(bundle);
+                                startActivityForResult(intent, Variables.SCAN_PLATE_WELL);
+                                return false;
+                            }
+                        });
 
                     }
                 });
@@ -233,79 +247,72 @@ public class PlateActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
             final String barcode = bundle.getString(Variables.INTENT_EXTRA_KEY_QR_SCAN);
-            switch (requestCode) {
-                case Variables.REQ_QR_CODE:
-                    scan(barcode);
-                    break;
-                case Variables.SCAN_PLATE_WELL:
-                    scan(barcode);
-                    break;
-                //点击well扫描二维码
-                default:
-                    new AsyncTask<String, Void, String>() {
-                        Handler handler = new Handler(new Handler.Callback() {
-                            @Override
-                            public boolean handleMessage(Message msg) {
-                                Well well = (Well) msg.obj;
-                                Button btn = (Button) findViewById(requestCode);
-                                String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
-                                if (StringUtils.isNotEmpty(well.color) && StringUtils.isNotEmpty(well.barcode)) {
-                                    btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_white));
-                                    Drawable drw = btn.getBackground();
-                                    drw.setColorFilter(Color.parseColor(well.color), PorterDuff.Mode.SRC_IN);
-                                } else {
-                                    btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_red));
-                                }
-                                btn.setTextColor(getResources().getColor(R.color.well_font_white));
-                                btn.setTag(R.id.barcode, barcode);
-                                btn.setTag(R.id.scantime, well.scantime);
-                                return false;
-                            }
-                        });
-
+            if (requestCode == Variables.REQ_QR_CODE || requestCode == Variables.SCAN_PLATE_WELL)
+                scan(barcode);
+            else {
+                new AsyncTask<String, Void, String>() {
+                    Handler handler = new Handler(new Handler.Callback() {
                         @Override
-                        protected String doInBackground(String... strings) {
-                            try {
-                                if (StringUtils.isEmpty(barcode)) {
-                                    Toast.makeText(PlateActivity.this, "Please scan the plate barcode", Toast.LENGTH_LONG).show();
-                                    return "ERROR";
-                                }
-                                OkHttpClient client = new OkHttpClient();
-                                Properties properties = new Properties();
-                                properties.load(PlateActivity.this.getAssets().open("project.properties"));
-                                String url = properties.getProperty("url");
-                                String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
-                                String v = client.newCall(new Request.Builder().url(url + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
-                                JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
-
-                                Button btn = (Button) findViewById(requestCode);
-                                Well well = new Well();
-                                well.name = btn.getTag(R.id.name).toString();
-                                well.scantime = System.currentTimeMillis();
-                                well.barcode = barcode;
-                                if (bv != null && bv.has(String.valueOf(btn.getTag(R.id.name)))) {
-                                    JSONObject oo = new JSONObject(bv.getString(String.valueOf(btn.getTag(R.id.name))));
-                                    if (StringUtils.isNotEmpty(oo.getString("color"))) {
-                                        well.color = oo.getString("color");
-                                    } else well.color = "";
-                                } else well.color = "";
-
-                                wells.put(well.name, well);
-                                Gson gson = new Gson();
-                                String data = gson.toJson(wells);
-                                RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", data).build();
-                                Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
-                                client.newCall(request).execute();//发送请求
-                                Message message = new Message();
-                                message.obj = well;
-                                handler.sendMessage(message);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                        public boolean handleMessage(Message msg) {
+                            Well well = (Well) msg.obj;
+                            Button btn = (Button) findViewById(requestCode);
+                            String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
+                            if (StringUtils.isNotEmpty(well.color) && StringUtils.isNotEmpty(well.barcode)) {
+                                btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_white));
+                                Drawable drw = btn.getBackground();
+                                drw.setColorFilter(Color.parseColor(well.color), PorterDuff.Mode.SRC_IN);
+                            } else {
+                                btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_red));
                             }
-                            return "SUCCESS";
+                            btn.setTextColor(getResources().getColor(R.color.well_font_white));
+                            btn.setTag(R.id.barcode, barcode);
+                            btn.setTag(R.id.scantime, well.scantime);
+                            return false;
                         }
-                    }.execute();
-                    break;
+                    });
+
+                    @Override
+                    protected String doInBackground(String... strings) {
+                        try {
+                            if (StringUtils.isEmpty(barcode)) {
+                                Toast.makeText(PlateActivity.this, "Please scan the plate barcode", Toast.LENGTH_LONG).show();
+                                return "ERROR";
+                            }
+                            OkHttpClient client = new OkHttpClient();
+                            Properties properties = new Properties();
+                            properties.load(PlateActivity.this.getAssets().open("project.properties"));
+                            String url = properties.getProperty("url");
+                            String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
+                            String v = client.newCall(new Request.Builder().url(url + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
+                            JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
+
+                            Button btn = (Button) findViewById(requestCode);
+                            Well well = new Well();
+                            well.name = btn.getTag(R.id.name).toString();
+                            well.scantime = System.currentTimeMillis();
+                            well.barcode = barcode;
+                            if (bv != null && bv.has(String.valueOf(btn.getTag(R.id.name)))) {
+                                JSONObject oo = new JSONObject(bv.getString(String.valueOf(btn.getTag(R.id.name))));
+                                if (StringUtils.isNotEmpty(oo.getString("color"))) {
+                                    well.color = oo.getString("color");
+                                } else well.color = "";
+                            } else well.color = "";
+
+                            wells.put(well.name, well);
+                            Gson gson = new Gson();
+                            String data = gson.toJson(wells);
+                            RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", data).build();
+                            Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
+                            client.newCall(request).execute();//发送请求
+                            Message message = new Message();
+                            message.obj = well;
+                            handler.sendMessage(message);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        return "SUCCESS";
+                    }
+                }.execute();
             }
         }
         super.onActivityResult(requestCode, resultCode, data);

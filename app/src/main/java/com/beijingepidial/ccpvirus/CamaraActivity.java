@@ -135,6 +135,10 @@ public class CamaraActivity extends AppCompatActivity implements SensorEventList
 
     //End:传感器
     public CamaraActivity() {
+        List<Scalar> obj = new ArrayList<Scalar>();
+        obj.add(0, new Scalar(0, 43, 46));
+        obj.add(1, new Scalar(180, 255, 255));
+        scalars.add(0, obj);
         isScan = true;
         rgbs = new RGB[8][12];
         this.clbox = new Circle[8][12];
@@ -596,122 +600,6 @@ public class CamaraActivity extends AppCompatActivity implements SensorEventList
         });
 
 
-        ((RangeSeekBar) findViewById(R.id.skA)).setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
-            private List<Scalar> obj = new ArrayList<Scalar>();
-
-            {
-                obj.add(0, new Scalar(5, 43, 46));
-                obj.add(1, new Scalar(20, 255, 255));
-                scalars.add(0, obj);
-            }
-
-            private int min;
-            private int max;
-
-            @Override
-            public void onStartedSeeking() {
-                stop = false;
-            }
-
-            @Override
-            public void onStoppedSeeking() {
-                obj.get(0).set(new double[]{min, 43, 46});
-                obj.get(1).set(new double[]{max, 255, 255});
-            }
-
-            @Override
-            public void onValueChanged(int min, int max) {
-                this.max = max;
-                this.min = min;
-            }
-        });
-        ((RangeSeekBar) findViewById(R.id.skB)).setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
-            private List<Scalar> obj = new ArrayList<Scalar>();
-
-            {
-                obj.add(0, new Scalar(156, 43, 46));
-                obj.add(1, new Scalar(180, 255, 255));
-                scalars.add(1, obj);
-            }
-
-            private int min;
-            private int max;
-
-            @Override
-            public void onStartedSeeking() {
-                stop = false;
-            }
-
-            @Override
-            public void onStoppedSeeking() {
-                obj.get(0).set(new double[]{min, 43, 46});
-                obj.get(1).set(new double[]{max, 255, 255});
-            }
-
-            @Override
-            public void onValueChanged(int min, int max) {
-                this.max = max;
-                this.min = min;
-            }
-        });
-        ((RangeSeekBar) findViewById(R.id.skC)).setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
-            private List<Scalar> obj = new ArrayList<Scalar>();
-
-            {
-                obj.add(0, new Scalar(20, 43, 46));
-                obj.add(1, new Scalar(30, 255, 255));
-                scalars.add(2, obj);
-            }
-
-            private int min;
-            private int max;
-
-            @Override
-            public void onStartedSeeking() {
-                stop = false;
-            }
-
-            @Override
-            public void onStoppedSeeking() {
-                obj.get(0).set(new double[]{min, 43, 46});
-                obj.get(1).set(new double[]{max, 255, 255});
-            }
-
-            @Override
-            public void onValueChanged(int min, int max) {
-                this.max = max;
-                this.min = min;
-            }
-        });
-        ((RangeSeekBar) findViewById(R.id.skD)).setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
-            private List<Scalar> obj = new ArrayList<Scalar>();
-
-            {
-                obj.add(0, new Scalar(75, 43, 46));
-                obj.add(1, new Scalar(115, 255, 255));
-                scalars.add(3, obj);
-            }
-
-            private int min;
-            private int max;
-
-            @Override
-            public void onStartedSeeking() {
-                stop = false;
-            }
-
-            @Override
-            public void onStoppedSeeking() {
-                obj.get(0).set(new double[]{min, 43, 46});
-                obj.get(1).set(new double[]{max, 255, 255});
-            }
-
-            @Override
-            public void onValueChanged(int min, int max) {
-                this.max = max;
-                this.min = min;
-            }
-        });
     }
 
     @Override
