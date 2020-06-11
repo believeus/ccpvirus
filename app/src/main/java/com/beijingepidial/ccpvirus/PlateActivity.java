@@ -71,6 +71,7 @@ public class PlateActivity extends AppCompatActivity {
                     wells.put(name, well);
                     btn.setTag(R.id.barcode, well.barcode);
                     btn.setTag(R.id.scantime, well.scantime);
+                    btn.setTag(R.id.color,well.color);
                     //有barcode没有颜色
                     if (StringUtils.isNotEmpty(well.barcode) && StringUtils.isEmpty(well.color)) {
                         btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_red));
@@ -165,6 +166,7 @@ public class PlateActivity extends AppCompatActivity {
                                 String name = String.valueOf(btn.getText());
                                 Intent intent = new Intent(PlateActivity.this, ScanwellActivity.class);
                                 Bundle bundle=new Bundle();
+                                bundle.putString("color",btn.getTag(R.id.color).toString());
                                 bundle.putString("barcode",btn.getTag(R.id.barcode).toString());
                                 bundle.putString("name", name);
                                 intent.putExtras(bundle);
@@ -267,6 +269,7 @@ public class PlateActivity extends AppCompatActivity {
                             btn.setTextColor(getResources().getColor(R.color.well_font_white));
                             btn.setTag(R.id.barcode, barcode);
                             btn.setTag(R.id.scantime, well.scantime);
+                            btn.setTag(R.id.color,well.color);
                             return false;
                         }
                     });

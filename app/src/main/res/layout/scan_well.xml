@@ -94,12 +94,13 @@
         </RelativeLayout>
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="35dp"
             android:orientation="horizontal">
             <TextView
                 android:layout_width="80dp"
                 android:layout_height="match_parent"
                 android:gravity="center"
+                android:layout_gravity="center"
                 android:text="PICK-SIZE:"/>
             <EditText
                 android:id="@+id/edtGridsize"
@@ -107,13 +108,18 @@
                 android:layout_height="35dp"
                 android:textSize="14dp"
                 android:inputType="number"
+                android:layout_gravity="center"
                 android:enabled="false"
                 android:gravity="center"
                 android:text="1"/>
-            <TextView
-                android:id="@+id/tvmsg"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"/>
+            <Button
+                android:id="@+id/btnpause"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_width="100dp"
+                android:textSize="10dp"
+                android:layout_height="35dp"
+                android:text="Pause" />
         </LinearLayout>
         <ScrollView
             android:layout_width="match_parent"
@@ -122,6 +128,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/tvmsg"
+                        android:background="@drawable/plate_border"
+                        android:padding="8dp"
+                        android:visibility="gone"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
+                    <TextView
+                        android:id="@+id/tvradius"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Circle radius:10~25"/>
+                    <com.innovattic.rangeseekbar.RangeSeekBar
+                        android:id="@+id/sbarRadius"
+                        android:background="@color/rsb_trackDefaultColor"
+                        app:rsb_trackColor="#000000"
+                        app:rsb_trackSelectedColor="#0071bc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:rsb_minRange="8"
+                        app:rsb_sidePadding="10dp"
+                        app:rsb_initialMinThumbValue="10"
+                        app:rsb_initialMaxThumbValue="25"
+                        app:rsb_max="50"/>
+                </LinearLayout>
+
                 <androidx.percentlayout.widget.PercentFrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="50dp">
@@ -132,6 +168,7 @@
                         app:layout_heightPercent="100%">
                         <Button
                             android:id="@+id/btnCatchColor"
+                            android:enabled="false"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_widthPercent="50%"
@@ -141,6 +178,7 @@
                             android:text="@string/catch_color" />
                         <Button
                             android:id="@+id/btnReTake"
+                            android:enabled="false"
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             app:layout_widthPercent="50%"
@@ -150,7 +188,88 @@
                             android:text="@string/retake" />
                     </androidx.percentlayout.widget.PercentRelativeLayout>
                 </androidx.percentlayout.widget.PercentFrameLayout>
-
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <androidx.percentlayout.widget.PercentRelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="25dp">
+                        <TextView
+                            app:layout_heightPercent="100%"
+                            app:layout_widthPercent="50%"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentLeft="true"
+                            android:gravity="center"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:text="Before Color"/>
+                        <TextView
+                            app:layout_heightPercent="100%"
+                            app:layout_widthPercent="50%"
+                            android:layout_alignParentTop="true"
+                            android:layout_alignParentRight="true"
+                            android:gravity="center"
+                            android:textStyle="bold"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:text="After Color"/>
+                    </androidx.percentlayout.widget.PercentRelativeLayout>
+                    <androidx.percentlayout.widget.PercentRelativeLayout
+                        android:id="@+id/LayoutColorPal"
+                        android:layout_width="match_parent"
+                        android:layout_height="225dp"
+                        android:layout_weight="1"
+                        android:gravity="center">
+                        <LinearLayout
+                            android:layout_below="@+id/tvColorPal"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            app:layout_heightPercent="100%"
+                            app:layout_widthPercent="98%"
+                            android:layout_centerHorizontal="true"
+                            android:orientation="vertical">
+                            <androidx.percentlayout.widget.PercentRelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="160dp">
+                                <Button
+                                    android:id="@+id/btnOriName"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentLeft="true"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    android:textSize="80dp"
+                                    android:textColor="#FFFFFF"
+                                    android:textStyle="bold"
+                                    android:gravity="center"
+                                    app:layout_heightPercent="100%"
+                                    app:layout_widthPercent="50%"/>
+                                <Button
+                                    android:id="@+id/btnCorName"
+                                    android:textColor="#000000"
+                                    android:textStyle="bold"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_alignParentRight="true"
+                                    android:textSize="80dp"
+                                    android:gravity="center"
+                                    android:layout_width="0dp"
+                                    android:layout_height="0dp"
+                                    app:layout_heightPercent="100%"
+                                    app:layout_widthPercent="50%"/>
+                        </androidx.percentlayout.widget.PercentRelativeLayout>
+                            <Button
+                                android:id="@+id/btnSave"
+                                android:background="@drawable/button"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                android:textColor="#ffffff"
+                                android:layout_width="match_parent"
+                                android:layout_height="40dp"
+                                android:text="SAVE" />
+                        </LinearLayout>
+                    </androidx.percentlayout.widget.PercentRelativeLayout>
+                </LinearLayout>
 
             </LinearLayout>
         </ScrollView>

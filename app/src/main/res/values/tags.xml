@@ -2,4 +2,5 @@
     <item name="name" type="id"/>
     <item name="barcode" type="id"/>
     <item name="scantime" type="id"/>
+    <item name="color" type="id"/>
 </resources>

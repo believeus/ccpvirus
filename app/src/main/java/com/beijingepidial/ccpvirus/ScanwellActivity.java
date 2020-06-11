@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -18,10 +19,12 @@ import android.os.Message;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.beijingepidial.entity.Circle;
+import com.innovattic.rangeseekbar.RangeSeekBar;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -52,8 +55,10 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class ScanwellActivity extends AppCompatActivity implements SensorEventListener {
+    private StringBuilder sb = new StringBuilder();
+    private int radiusmin = 10;
+    private int radiusmax = 25;
     private boolean isClone;
-    private Map<String, HashMap<String, String>> mrc = new HashMap<String, HashMap<String, String>>();
     private List<Mat> fmasks = new ArrayList<Mat>();
     private List<Mat> smasks = new ArrayList<Mat>();
     private List<List<Scalar>> scalars = new ArrayList<List<Scalar>>();
@@ -61,9 +66,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
     private boolean stop;
     private boolean iterate;
     private Mat imat;
-    private Scalar scalar = new Scalar(0, 0, 0);
     private JavaCameraView javaCameraView;
-    private SurfaceView svColorPlate;
 
     private Mat image;
     private Mat gary;
@@ -88,11 +91,29 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
     private LevelView levelView;
     private TextView tvHorz;
     private TextView tvVert;
+    private static final int IDENTIFY = 0;
+    private static final int BTNCOLOR = 1;
+    private static final int STOP=3;
     private Handler handle = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            String text = String.valueOf(msg.obj);
-            ((TextView) findViewById(R.id.tvmsg)).setText(text);
+            switch (msg.what) {
+                case IDENTIFY:
+                    String text = String.valueOf(msg.obj);
+                    ((TextView) findViewById(R.id.tvmsg)).setText(text);
+                    break;
+                case BTNCOLOR:
+                    Button btn = (Button) findViewById(R.id.btnCorName);
+                    btn.setBackgroundColor(Color.parseColor(String.valueOf(msg.obj)));
+                    btn.setTextColor(Color.parseColor("#FFFFFF"));
+                    break;
+                case STOP:
+                    findViewById(R.id.btnCatchColor).setEnabled(true);
+                    findViewById(R.id.btnReTake).setEnabled(true);
+                    findViewById(R.id.btnpause).setEnabled(false);
+                    break;
+            }
+
             return false;
         }
     });
@@ -128,7 +149,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // 禁用横屏
         //拍照时调用声音
-        AudioManager meng = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        final AudioManager meng = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
         int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
         if (volume != 0) {
             Uri uri = Uri.parse("file:///system/media/audio/ui/camera_click.ogg");
@@ -137,6 +158,15 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         //保持螢幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.scan_well);
+        Bundle bundle = getIntent().getExtras();
+        String name = bundle.getString("name");
+        String color = bundle.getString("color");
+        Button btnOriName = (Button) findViewById(R.id.btnOriName);
+        btnOriName.setText(name);
+        btnOriName.setBackgroundColor(Color.parseColor(color));
+        Button btnCorName = (Button) findViewById(R.id.btnCorName);
+        btnCorName.setText(name);
+        btnCorName.setBackgroundColor(Color.parseColor("#FFFFFF"));
         //Begin:传感器
         levelView = (LevelView) findViewById(R.id.gv_hv);
         tvVert = (TextView) findViewById(R.id.tvv_vertical);
@@ -179,7 +209,6 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                     if (takePhoto) {
                         circles.clear();
                         contours.clear();
-                        mrc.clear();
                         Mat imatClone = imat.clone();
                         Imgproc.cvtColor(imat, imat, Imgproc.COLOR_RGB2GRAY);
                         Imgproc.GaussianBlur(imat, imat, new Size(11, 11), 0);
@@ -195,35 +224,33 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                             //获取点集最小圆
                             Imgproc.minEnclosingCircle(point2f, center, radius);
                             int r = (int) radius[0];
-                            if (r <= 6 || r > 40) {
+                            if (r < radiusmin || r > radiusmax) {
                                 continue;
                             }
+                            sb.append(r).append(":");
                             Circle circle = new Circle();
                             circle.id = i;
                             circle.x = ((int) center.x);
                             circle.y = ((int) center.y);
                             circle.radius = r;
                             circles.add(circle);
-
                         }
                         if (circles.size() != 1) {
-                            Message msg = new Message();
-                            msg.obj = "Recognized SIZE：" + circles.size();
-                            handle.sendMessage(msg);
+                            Message message = new Message();
+                            message.what = IDENTIFY;
+                            message.obj = "Recognizing size:" + (circles.size()+1) + "\nRadius:" + sb.toString();
+                            handle.sendMessage(message);
+                            sb.delete(0, sb.length());
                             iterate = true;
                             takePhoto = false;
                             return imatClone;
                         }
-                        Message msg = new Message();
-                        msg.obj = "Recognized Num：" + circles.size();
-                        handle.sendMessage(msg);
+                        handle.sendEmptyMessage(STOP);
                         for (int i = 0; i < circles.size(); i++) {
                             Circle c = circles.get(i);
                             Imgproc.circle(imgClone, new Point(c.x, c.y), c.radius, new Scalar(255, 0, 0), 2, 8);//绘制圆
                             Imgproc.putText(imgClone, String.valueOf(i), new Point(c.x, c.y), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 3);
                         }
-
-
                         stop = true;
                         iterate = false;
                         takePhoto = false;
@@ -264,12 +291,12 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
             @Override
             public void onClick(View v) {
                 try {
-                    handle.sendEmptyMessage(1);
                     takePhoto = true;
                     isClone = true;
                     isReTake = false;
                     findViewById(R.id.btnCatchColor).setEnabled(true);
                     findViewById(R.id.btnReTake).setEnabled(true);
+                    findViewById(R.id.tvmsg).setVisibility(View.VISIBLE);
                     //播放相机拍照的声音
                     if (mediaPlayer != null)
                         mediaPlayer.start();
@@ -278,7 +305,30 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                 }
             }
         });
+        findViewById(R.id.btnpause).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stop = stop ? false : true;
+                String vb = ((Button) findViewById(R.id.btnpause)).getText().toString();
+                ((Button) findViewById(R.id.btnpause)).setText(vb.equals("start") ? "pause" : "start");
+            }
+        });
         findViewById(R.id.btnCatchColor).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                findViewById(R.id.btnSave).setVisibility(View.VISIBLE);
+                findViewById(R.id.tvmsg).setVisibility(View.VISIBLE);
+                Circle cl = circles.get(0);
+                double[] rgb = image.get(cl.y, cl.x);
+                String color = String.format("#%02x%02x%02x", (int) rgb[0], (int) rgb[1], (int) rgb[2]);
+                Message msg = new Message();
+                msg.what = BTNCOLOR;
+                msg.obj = color;
+                handle.sendMessage(msg);
+
+            }
+        });
+        findViewById(R.id.btnSave).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new AsyncTask() {
@@ -300,7 +350,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                             if (bv != null && bv.has(name)) {
                                 JSONObject oo = new JSONObject(bv.getString(name));
                                 oo.put("color", color);
-                                bv.put(name,oo);
+                                bv.put(name, oo);
                                 RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", bv.toString()).build();
                                 Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
                                 client.newCall(request).execute();//发送请求
@@ -323,11 +373,38 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         findViewById(R.id.btnReTake).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                findViewById(R.id.btnCatchColor).setEnabled(false);
+                findViewById(R.id.btnReTake).setEnabled(false);
+                findViewById(R.id.btnSave).setVisibility(View.GONE);
+                Button btn = (Button) findViewById(R.id.btnCorName);
+                btn.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                btn.setTextColor(Color.parseColor("#000000"));
                 isReTake = true;
                 stop = false;
             }
         });
+        ((RangeSeekBar) findViewById(R.id.sbarRadius)).setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
+            private int min = 10;
+            private int max = 25;
 
+            @Override
+            public void onStartedSeeking() {
+
+            }
+
+            @Override
+            public void onStoppedSeeking() {
+                ScanwellActivity.this.radiusmin = min;
+                ScanwellActivity.this.radiusmax = max;
+            }
+
+            @Override
+            public void onValueChanged(int min, int max) {
+                this.min = min;
+                this.max = max;
+                ((TextView) findViewById(R.id.tvradius)).setText("Circle radius:" + min + "~" + max);
+            }
+        });
 
     }
 
