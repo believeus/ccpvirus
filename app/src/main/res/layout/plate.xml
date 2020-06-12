@@ -72,6 +72,7 @@
             android:layout_height="wrap_content">
             <GridLayout
                 android:background="@drawable/plate_border"
+                android:padding="5dp"
                 android:id="@+id/gridlayout"
                 android:layout_centerHorizontal="true"
                 android:layout_width="wrap_content"

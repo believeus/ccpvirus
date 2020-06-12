@@ -390,6 +390,8 @@ public class CamaraActivity extends AppCompatActivity implements SensorEventList
                     for (int i = 0, len = scalars.size(); i < len; i++) {
                         List<Scalar> scalar = scalars.get(i);
                         fmasks.add(i, new Mat());
+                        //先把图片转成hsv模式，然后再判断
+                        //inRange 这个方法，判断输入的mat每个像素是否在范围内，如果在就返回白色，不在返回黑色，最后会输出一个黑白的mat图片。
                         Core.inRange(hmat, scalar.get(0), scalar.get(1), fmasks.get(i));
                         if (i > 0) {
                             smasks.add((i - 1), new Mat());
