@@ -30,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -129,11 +128,11 @@ public class PlateActivity extends AppCompatActivity {
                         char tba = vb[0].charAt(0);//字符
                         int nab = Integer.valueOf(va[1]);//数字
                         int nbb = Integer.valueOf(vb[1]);//数字
-                        //H8~A12
-                        for (int i = 0; i < Math.abs(nab - nbb + 1); i++) {
-                            for (int j = 0; j < Math.abs(taa - tba - 1); j++) {
+                        //框选两个手指选择的行与列
+                        for (int i = 0; i < (nab > nbb ? Math.abs(nab - nbb + 1) : Math.abs(nab - nbb - 1)); i++) {
+                            for (int j = 0; j < (taa < tba ? Math.abs(taa - tba - 1) : Math.abs(taa - tba + 1)); j++) {
                                 int v = taa > tba ? tba : taa;//B
-                                String vi = String.valueOf(((char) (v + j))) + (nbb + i);
+                                String vi = String.valueOf(((char) (v + j))) + (nab > nbb?(nbb + i):(nbb - i));
                                 Button mbv = mcbox.get(vi);
                                 if (StringUtils.isEmpty(mbv.getTag(R.id.barcode).toString())) {
                                     click.put(vi, mbv);
