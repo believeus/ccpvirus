@@ -3,4 +3,5 @@
     <item name="barcode" type="id"/>
     <item name="scantime" type="id"/>
     <item name="color" type="id"/>
+    <item name="isclick" type="id"/>
 </resources>

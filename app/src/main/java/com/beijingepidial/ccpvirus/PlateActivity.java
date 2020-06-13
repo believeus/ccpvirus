@@ -58,6 +58,45 @@ public class PlateActivity extends AppCompatActivity {
     private Map<String, Well> wells = new HashMap<String, Well>();
     private Map<String, Button> mcbox = new HashMap<String, Button>();
     private Handler handler = new Handler(new Handler.Callback() {
+        private void loadColor(Button mbv) {
+            String barcode = mbv.getTag(R.id.barcode).toString();
+            String name = mbv.getText().toString();
+            String color = mbv.getTag(R.id.color).toString();
+            mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_dash));
+            if (StringUtils.isEmpty(barcode)) {
+                //没barcode有颜色
+                if (StringUtils.isNotEmpty(color)) {
+                    if (!Boolean.valueOf(mbv.getTag(R.id.isclick).toString())) {//取消选中
+                        mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_rect_white));
+                    }
+                    mbv.getBackground().setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_IN);
+                } else {
+                    if (!Boolean.valueOf(mbv.getTag(R.id.isclick).toString())) {
+                        mbv.setBackgroundColor(R.drawable.well_setting);
+                        mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well));
+                    }
+                }
+            } else if (StringUtils.isNotEmpty(barcode)) {
+                //有barcode有颜色
+                if (StringUtils.isNotEmpty(color)) {
+                    if (!Boolean.valueOf(mbv.getTag(R.id.isclick).toString())) {
+                        mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_white));
+                    } else {
+                        mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_dash));
+                    }
+                    mbv.getBackground().setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_IN);
+                    //有barcode没color
+                } else {
+                    if (!Boolean.valueOf(mbv.getTag(R.id.isclick).toString())) {
+                        mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_dash));
+                    } else {
+                        mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_red));
+                    }
+                    mbv.getBackground().setColorFilter(Color.parseColor("#D81B60"), PorterDuff.Mode.SRC_IN);
+                }
+            }
+        }
+
         private void loadData(String body) throws Exception {
             JSONObject jsonObj = new JSONObject(new JSONObject(body).getString("data"));
             Iterator<String> keys = jsonObj.keys();
@@ -132,24 +171,25 @@ public class PlateActivity extends AppCompatActivity {
                         for (int i = 0; i < (nab > nbb ? Math.abs(nab - nbb + 1) : Math.abs(nab - nbb - 1)); i++) {
                             for (int j = 0; j < (taa < tba ? Math.abs(taa - tba - 1) : Math.abs(taa - tba + 1)); j++) {
                                 int v = taa > tba ? tba : taa;//B
-                                String vi = String.valueOf(((char) (v + j))) + (nab > nbb?(nbb + i):(nbb - i));
+                                String vi = String.valueOf(((char) (v + j))) + (nab > nbb ? (nbb + i) : (nbb - i));
                                 Button mbv = mcbox.get(vi);
+                                mbv.setTag(R.id.isclick, true);
                                 if (StringUtils.isEmpty(mbv.getTag(R.id.barcode).toString())) {
                                     click.put(vi, mbv);
                                 }
-                                mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_dash));
-                                if (StringUtils.isEmpty(mbv.getTag(R.id.barcode).toString()) && StringUtils.isNotEmpty(mbv.getTag(R.id.color).toString())) {
-                                    mbv.getBackground().setColorFilter(Color.parseColor(mbv.getTag(R.id.color).toString()), PorterDuff.Mode.SRC_IN);
-                                } else if (StringUtils.isNotEmpty(mbv.getTag(R.id.barcode).toString()) && StringUtils.isNotEmpty(mbv.getTag(R.id.color).toString())) {
-                                    mbv.getBackground().setColorFilter(Color.parseColor(mbv.getTag(R.id.color).toString()), PorterDuff.Mode.SRC_IN);
-                                } else if (StringUtils.isNotEmpty(mbv.getTag(R.id.barcode).toString()) && StringUtils.isEmpty(mbv.getTag(R.id.color).toString())) {
-                                    mbv.getBackground().setColorFilter(Color.parseColor("#D81B60"), PorterDuff.Mode.SRC_IN);
-                                }
+                                loadColor(mbv);
                             }
                         }
                         break;
                     case 1:
                         loadData(msg.obj.toString());
+                        break;
+                    case 2:
+                        Button bv = mcbox.get(msg.obj.toString().replace("@", ""));
+                        boolean isClick = Boolean.valueOf(bv.getTag(R.id.isclick).toString()) ? false : true;
+                        bv.setTag(R.id.isclick, isClick);
+                        loadColor(bv);
+                        findViewById(R.id.btnNext).setVisibility(View.VISIBLE);
                         break;
                 }
 
@@ -213,6 +253,7 @@ public class PlateActivity extends AppCompatActivity {
                 btn.setText(name);
                 final int id = View.generateViewId();
                 btn.setId(id);
+                btn.setTag(R.id.isclick, false);
                 btn.setTag(R.id.name, name);
                 btn.setTag(R.id.barcode, "");
                 btn.setTag(R.id.color, "");
@@ -230,7 +271,12 @@ public class PlateActivity extends AppCompatActivity {
                                 handler.sendEmptyMessage(0);
                                 break;
                             case MotionEvent.ACTION_UP:
-                                if (!stack.isEmpty()) stack.pop();
+                                if (!stack.isEmpty()) {
+                                    Message m = new Message();
+                                    m.what = 2;
+                                    m.obj = stack.pop();
+                                    handler.sendMessage(m);
+                                }
                                 break;
                         }
                         return false;
