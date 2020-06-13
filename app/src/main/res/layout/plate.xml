@@ -82,20 +82,32 @@
         </RelativeLayout>
         <RelativeLayout
             android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="10dp">
-        <Button
-            android:id="@+id/btnNext"
-            android:visibility="gone"
-            android:background="@drawable/button"
-            android:layout_centerHorizontal="true"
-            android:enabled="true"
-            android:textStyle="bold"
-            android:textColor="#ffffff"
-            android:layout_width="300dp"
-            android:layout_height="35dp"
-            android:text="SCAN PLATE" />
-    </RelativeLayout>
+            <Button
+                android:id="@+id/btnNext"
+                android:background="@drawable/btn_unabled"
+                android:enabled="true"
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:layout_width="200dp"
+                android:layout_height="35dp"
+                android:text="SCAN PLATE" />
+            <Button
+                android:id="@+id/btnRefresh"
+                android:textStyle="bold"
+                android:enabled="false"
+                android:textColor="#ffffff"
+                android:layout_width="100dp"
+                android:layout_height="35dp"
+                android:background="@drawable/btn_unabled"
+                android:text="Reflesh"/>
+            </LinearLayout>
+        </RelativeLayout>
     </LinearLayout>
 </ScrollView>

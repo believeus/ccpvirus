@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,7 +38,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -51,16 +49,15 @@ import okhttp3.Response;
 
 public class PlateActivity extends AppCompatActivity {
     private String body;
-    private Map<String, Button> click = new HashMap<String, Button>();
+    private Map<String, Button> mulbtn = new HashMap<String, Button>();
+    private Map<String, Button> sglbtn = new HashMap<String, Button>();
     // request参数
     private Stack<String> stack = new Stack<String>();
-    private Map<RectF, Button> rects = new HashMap<RectF, Button>();
     private Map<String, Well> wells = new HashMap<String, Well>();
     private Map<String, Button> mcbox = new HashMap<String, Button>();
     private Handler handler = new Handler(new Handler.Callback() {
         private void loadColor(Button mbv) {
             String barcode = mbv.getTag(R.id.barcode).toString();
-            String name = mbv.getText().toString();
             String color = mbv.getTag(R.id.color).toString();
             mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_dash));
             if (StringUtils.isEmpty(barcode)) {
@@ -135,20 +132,35 @@ public class PlateActivity extends AppCompatActivity {
         public boolean handleMessage(Message msg) {
             try {
                 switch (msg.what) {
-                    case 0:
-                        if (stack.size() == 1) {
-                            Iterator<Button> iterator = click.values().iterator();
-                            while (iterator.hasNext()) {
-                                Button vb = iterator.next();
-                                vb.setBackgroundColor(R.drawable.well_setting);
-                                vb.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well));
-                                iterator.remove();
-                                findViewById(R.id.btnNext).setVisibility(View.GONE);
-                            }
-                            loadData(body);
-                            return true;
+                    case -1:
+                        //还原单选的按钮
+                        for (Iterator<Button> it = sglbtn.values().iterator(); it.hasNext();) {
+                            Button bn = it.next();
+                            bn.setBackgroundColor(R.drawable.well_setting);
+                            bn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well));
+                            it.remove();
                         }
+                        //还原两指选取的按钮
+                        for (Iterator<Button> it = mulbtn.values().iterator(); it.hasNext(); ) {
+                            Button vb = it.next();
+                            vb.setBackgroundColor(R.drawable.well_setting);
+                            vb.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well));
+                            it.remove();
+                        }
+                        //重新加载数据
+                        loadData(PlateActivity.this.body);
+                        findViewById(R.id.btnNext).setEnabled(false);
+                        findViewById(R.id.btnNext).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.btn_unabled));
+                        findViewById(R.id.btnRefresh).setEnabled(false);
+                        findViewById(R.id.btnRefresh).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.btn_unabled));
+                        break;
+                    //多选
+                    case 0:
                         if (stack.size() != 2) return false;
+                        findViewById(R.id.btnNext).setEnabled(true);
+                        findViewById(R.id.btnNext).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.button));
+                        findViewById(R.id.btnRefresh).setEnabled(true);
+                        findViewById(R.id.btnRefresh).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.button));
                         if (StringUtils.isEmpty(((EditText) findViewById(R.id.etbarcode)).getText().toString())) {
                             Toast toast = Toast.makeText(PlateActivity.this, "Please scan the Plate barcode!", Toast.LENGTH_LONG);
                             Display display = getWindowManager().getDefaultDisplay();
@@ -175,7 +187,7 @@ public class PlateActivity extends AppCompatActivity {
                                 Button mbv = mcbox.get(vi);
                                 mbv.setTag(R.id.isclick, true);
                                 if (StringUtils.isEmpty(mbv.getTag(R.id.barcode).toString())) {
-                                    click.put(vi, mbv);
+                                    mulbtn.put(vi, mbv);
                                 }
                                 loadColor(mbv);
                             }
@@ -184,12 +196,18 @@ public class PlateActivity extends AppCompatActivity {
                     case 1:
                         loadData(msg.obj.toString());
                         break;
+                    //单选
                     case 2:
-                        Button bv = mcbox.get(msg.obj.toString().replace("@", ""));
+                        findViewById(R.id.btnNext).setEnabled(true);
+                        findViewById(R.id.btnNext).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.button));
+                        findViewById(R.id.btnRefresh).setEnabled(true);
+                        findViewById(R.id.btnRefresh).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.button));
+                        String vt = msg.obj.toString().replace("@", "");
+                        Button bv = mcbox.get(vt);
+                        sglbtn.put(vt, bv);
                         boolean isClick = Boolean.valueOf(bv.getTag(R.id.isclick).toString()) ? false : true;
                         bv.setTag(R.id.isclick, isClick);
                         loadColor(bv);
-                        findViewById(R.id.btnNext).setVisibility(View.VISIBLE);
                         break;
                 }
 
@@ -201,9 +219,17 @@ public class PlateActivity extends AppCompatActivity {
     });
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.plate);
+        findViewById(R.id.btnRefresh).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                findViewById(R.id.btnRefresh).setEnabled(false);
+                findViewById(R.id.btnRefresh).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.btn_unabled));
+                handler.sendEmptyMessage(-1);
+            }
+        });
         findViewById(R.id.btnNext).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
