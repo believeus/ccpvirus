@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.Toast;
@@ -33,15 +32,12 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.Stack;
 
 import androidx.annotation.Nullable;
@@ -55,18 +51,76 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class PlateActivity extends AppCompatActivity {
+    private String body;
+    private Map<String, Button> click = new HashMap<String, Button>();
     // request参数
     private Stack<String> stack = new Stack<String>();
     private Map<RectF, Button> rects = new HashMap<RectF, Button>();
     private Map<String, Well> wells = new HashMap<String, Well>();
     private Map<String, Button> mcbox = new HashMap<String, Button>();
     private Handler handler = new Handler(new Handler.Callback() {
+        private void loadData(String body) throws Exception {
+            JSONObject jsonObj = new JSONObject(new JSONObject(body).getString("data"));
+            Iterator<String> keys = jsonObj.keys();
+            while (keys.hasNext()) {
+                String name = keys.next();
+                JSONObject plate = jsonObj.getJSONObject(name);
+                Button btn = mcbox.get(name);
+                Well well = new Well();
+                well.name = name;
+                well.barcode = plate.getString("barcode");
+                well.scantime = plate.getLong("scantime");
+                well.color = plate.getString("color");
+                wells.put(name, well);
+                btn.setTag(R.id.barcode, well.barcode);
+                btn.setTag(R.id.scantime, well.scantime);
+                btn.setTag(R.id.color, well.color);
+                //有barcode没有颜色
+                if (StringUtils.isNotEmpty(well.barcode) && StringUtils.isEmpty(well.color)) {
+                    btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_red));
+                    //有颜色没有barcode,显示成正方形
+                } else if (StringUtils.isEmpty(well.barcode) && StringUtils.isNotEmpty(well.color)) {
+                    btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_rect_white));
+                    btn.setBackgroundColor(Color.parseColor(well.color));
+                    //有颜色有barcode,显示成圆形
+                } else if (StringUtils.isNotEmpty(well.barcode) && StringUtils.isNotEmpty(well.color)) {
+                    btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_white));
+                    Drawable drw = btn.getBackground();
+                    drw.setColorFilter(Color.parseColor(well.color), PorterDuff.Mode.SRC_IN);
+
+                }
+                btn.setTextColor(getResources().getColor(R.color.well_font_white));
+            }
+        }
+
         @Override
         public boolean handleMessage(Message msg) {
             try {
                 switch (msg.what) {
                     case 0:
+                        if (stack.size() == 1) {
+                            Iterator<Button> iterator = click.values().iterator();
+                            while (iterator.hasNext()) {
+                                Button vb = iterator.next();
+                                vb.setBackgroundColor(R.drawable.well_setting);
+                                vb.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well));
+                                iterator.remove();
+                                findViewById(R.id.btnNext).setVisibility(View.GONE);
+                            }
+                            loadData(body);
+                            return true;
+                        }
                         if (stack.size() != 2) return false;
+                        if (StringUtils.isEmpty(((EditText) findViewById(R.id.etbarcode)).getText().toString())) {
+                            Toast toast = Toast.makeText(PlateActivity.this, "Please scan the Plate barcode!", Toast.LENGTH_LONG);
+                            Display display = getWindowManager().getDefaultDisplay();
+                            // 获取屏幕高度
+                            int height = display.getHeight();
+                            toast.setGravity(Gravity.TOP, 0, height / 4);
+                            toast.show();
+                            return false;
+                        }
+                        findViewById(R.id.btnNext).setVisibility(View.VISIBLE);
                         String v1 = stack.pop();
                         String v2 = stack.pop();
                         String[] va = v1.split("@");
@@ -75,48 +129,28 @@ public class PlateActivity extends AppCompatActivity {
                         char tba = vb[0].charAt(0);//字符
                         int nab = Integer.valueOf(va[1]);//数字
                         int nbb = Integer.valueOf(vb[1]);//数字
-                        if (nab == nbb) {
-                            for (int i = 0; i < Math.abs(taa - tba); i++) {
-                                int v = taa > tba ? tba : taa;
-                                String vi = String.valueOf(((char) (v + i))) + nbb;
-                                Button btn = mcbox.get(vi);
-                                btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_dash));
+                        //H8~A12
+                        for (int i = 0; i < Math.abs(nab - nbb + 1); i++) {
+                            for (int j = 0; j < Math.abs(taa - tba - 1); j++) {
+                                int v = taa > tba ? tba : taa;//B
+                                String vi = String.valueOf(((char) (v + j))) + (nbb + i);
+                                Button mbv = mcbox.get(vi);
+                                if (StringUtils.isEmpty(mbv.getTag(R.id.barcode).toString())) {
+                                    click.put(vi, mbv);
+                                }
+                                mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_dash));
+                                if (StringUtils.isEmpty(mbv.getTag(R.id.barcode).toString()) && StringUtils.isNotEmpty(mbv.getTag(R.id.color).toString())) {
+                                    mbv.getBackground().setColorFilter(Color.parseColor(mbv.getTag(R.id.color).toString()), PorterDuff.Mode.SRC_IN);
+                                } else if (StringUtils.isNotEmpty(mbv.getTag(R.id.barcode).toString()) && StringUtils.isNotEmpty(mbv.getTag(R.id.color).toString())) {
+                                    mbv.getBackground().setColorFilter(Color.parseColor(mbv.getTag(R.id.color).toString()), PorterDuff.Mode.SRC_IN);
+                                } else if (StringUtils.isNotEmpty(mbv.getTag(R.id.barcode).toString()) && StringUtils.isEmpty(mbv.getTag(R.id.color).toString())) {
+                                    mbv.getBackground().setColorFilter(Color.parseColor("#D81B60"), PorterDuff.Mode.SRC_IN);
+                                }
                             }
                         }
-                        Toast.makeText(PlateActivity.this, v1 + ":" + v2, Toast.LENGTH_SHORT).show();
                         break;
                     case 1:
-                        JSONObject jsonObj = new JSONObject(new JSONObject(msg.obj.toString()).getString("data"));
-                        Iterator<String> keys = jsonObj.keys();
-                        while (keys.hasNext()) {
-                            String name = keys.next();
-                            JSONObject plate = jsonObj.getJSONObject(name);
-                            Button btn = mcbox.get(name);
-                            Well well = new Well();
-                            well.name = name;
-                            well.barcode = plate.getString("barcode");
-                            well.scantime = plate.getLong("scantime");
-                            well.color = plate.getString("color");
-                            wells.put(name, well);
-                            btn.setTag(R.id.barcode, well.barcode);
-                            btn.setTag(R.id.scantime, well.scantime);
-                            btn.setTag(R.id.color, well.color);
-                            //有barcode没有颜色
-                            if (StringUtils.isNotEmpty(well.barcode) && StringUtils.isEmpty(well.color)) {
-                                btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_red));
-                                //有颜色没有barcode,显示成正方形
-                            } else if (StringUtils.isEmpty(well.barcode) && StringUtils.isNotEmpty(well.color)) {
-                                btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_rect_white));
-                                btn.setBackgroundColor(Color.parseColor(well.color));
-                                //有颜色有barcode,显示成圆形
-                            } else if (StringUtils.isNotEmpty(well.barcode) && StringUtils.isNotEmpty(well.color)) {
-                                btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_white));
-                                Drawable drw = btn.getBackground();
-                                drw.setColorFilter(Color.parseColor(well.color), PorterDuff.Mode.SRC_IN);
-
-                            }
-                            btn.setTextColor(getResources().getColor(R.color.well_font_white));
-                        }
+                        loadData(msg.obj.toString());
                         break;
                 }
 
@@ -181,6 +215,8 @@ public class PlateActivity extends AppCompatActivity {
                 final int id = View.generateViewId();
                 btn.setId(id);
                 btn.setTag(R.id.name, name);
+                btn.setTag(R.id.barcode, "");
+                btn.setTag(R.id.color, "");
                 btn.setTextSize(10);
                 btn.setRotation(90);
                 btn.setTextColor(getResources().getColor(R.color.well_font_color));
@@ -243,7 +279,7 @@ public class PlateActivity extends AppCompatActivity {
                                 return true;
                             }
                         });
-                        if (btn.getTag(R.id.barcode) != null) {
+                        if (StringUtils.isNotEmpty(btn.getTag(R.id.barcode).toString())) {
                             menu.add(0, 1, 1, "Scan color").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                                 @Override
                                 public boolean onMenuItemClick(MenuItem item) {
@@ -300,7 +336,7 @@ public class PlateActivity extends AppCompatActivity {
                     Response response = client.newCall(request).execute();//发送请求
                     Message msg = new Message();
                     msg.what = 1;
-                    msg.obj = response.body().string();
+                    msg.obj = PlateActivity.this.body = response.body().string();
                     handler.sendMessage(msg);
                 } catch (Exception e) {
                     e.printStackTrace();
