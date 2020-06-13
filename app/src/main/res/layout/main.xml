@@ -1,159 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/plate"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:gravity="center"
         android:orientation="vertical">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textStyle="bold"
+            android:text="Plate Reader"
             android:textSize="18dp"
-            android:text="Plate Reader"/>
+            android:textStyle="bold" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textSize="14dp"
-            android:text="Clinical Diagnostics"/>
+            android:text="Clinical Diagnostics"
+            android:textSize="14dp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textSize="14dp"
-            android:text="For use with HKG epiTherapeutics"/>
+            android:text="For use with HKG epiTherapeutics"
+            android:textSize="14dp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textSize="14dp"
-            android:text="Detection kit"/>
+            android:text="Detection kit"
+            android:textSize="14dp" />
     </LinearLayout>
+
     <androidx.percentlayout.widget.PercentRelativeLayout
-        android:layout_marginTop="45dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="45dp">
+
         <RelativeLayout
-            android:orientation="vertical"
             android:layout_width="0dp"
-            app:layout_widthPercent="50%"
-            android:layout_alignParentTop="true"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_height="wrap_content">
+            android:layout_alignParentTop="true"
+            android:orientation="vertical"
+            app:layout_widthPercent="50%">
+
             <Button
                 android:id="@+id/btnScan"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/mainscan"
                 android:gravity="center"
-                android:layout_width="80dp"
-                android:layout_height="80dp"/>
+                android:onClick="login" />
+
             <TextView
-                android:layout_marginTop="30dp"
-                android:gravity="center"
-                android:layout_below="@+id/btnScan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Set up New Run"/>
+                android:layout_below="@+id/btnScan"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="Set up New Run" />
         </RelativeLayout>
+
         <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:orientation="horizontal"
-            android:layout_width="0dp"
-            app:layout_widthPercent="50%"
-            android:layout_height="wrap_content">
+            app:layout_widthPercent="50%">
+
             <Button
                 android:id="@+id/btnAnalyze"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/mainanalyze"
-                android:gravity="center"
-                android:layout_width="80dp"
-                android:layout_height="80dp"/>
+                android:gravity="center" />
+
             <TextView
-                android:layout_marginTop="30dp"
-                android:gravity="center"
-                android:layout_below="@+id/btnAnalyze"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Analyze Completed"/>
+                android:layout_below="@+id/btnAnalyze"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="Analyze Completed" />
         </RelativeLayout>
     </androidx.percentlayout.widget.PercentRelativeLayout>
+
     <androidx.percentlayout.widget.PercentRelativeLayout
-        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
         <RelativeLayout
-            android:orientation="vertical"
             android:layout_width="0dp"
-            app:layout_widthPercent="30%"
-            android:layout_alignParentTop="true"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_height="wrap_content">
+            android:layout_alignParentTop="true"
+            android:orientation="vertical"
+            app:layout_widthPercent="30%">
+
             <Button
                 android:id="@+id/btnData"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/data"
-                android:gravity="center"
-                android:layout_width="65dp"
-                android:layout_height="65dp"/>
+                android:gravity="center" />
+
             <TextView
-                android:layout_marginTop="30dp"
-                android:gravity="center"
-                android:layout_below="@+id/btnData"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Export Data"/>
+                android:layout_below="@+id/btnData"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="Export Data" />
         </RelativeLayout>
+
         <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:orientation="horizontal"
-            android:layout_width="0dp"
-            app:layout_widthPercent="40%"
-            android:layout_height="wrap_content">
+            app:layout_widthPercent="40%">
+
             <Button
                 android:id="@+id/btnStatis"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/statistics"
-                android:gravity="center"
-                android:layout_width="65dp"
-                android:layout_height="65dp"/>
+                android:gravity="center" />
+
             <TextView
-                android:layout_marginTop="30dp"
-                android:gravity="center"
-                android:layout_below="@+id/btnStatis"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="View Statistics"/>
+                android:layout_below="@+id/btnStatis"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="View Statistics" />
         </RelativeLayout>
+
         <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:orientation="horizontal"
-            android:layout_width="0dp"
-            app:layout_widthPercent="30%"
-            android:layout_height="wrap_content">
+            app:layout_widthPercent="30%">
+
             <Button
                 android:id="@+id/btnSetting"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/setting"
-                android:gravity="center"
-                android:layout_width="65dp"
-                android:layout_height="65dp"/>
+                android:gravity="center" />
+
             <TextView
-                android:layout_marginTop="30dp"
-                android:gravity="center"
-                android:layout_below="@+id/btnSetting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Setting"/>
+                android:layout_below="@+id/btnSetting"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="Setting" />
         </RelativeLayout>
     </androidx.percentlayout.widget.PercentRelativeLayout>
 </LinearLayout>

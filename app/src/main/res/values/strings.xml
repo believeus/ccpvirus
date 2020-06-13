@@ -25,4 +25,31 @@
     <string name="blue2purple">120:Blue⇄Purple:120</string>
     <string name="red2orange">6:Red⇄Orange:6</string>
     <string name="red">165:Purple⇄Red:165</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="sele">Select assy:</string>
+    <string name="enname">Please enter name.</string>
+    <string name="txet1">Select assay:</string>
+    <string name="text2">Name of technologist:</string>
+    <string name="name">Please enter name.</string>
+    <string name="text3">Date and Time:</string>
+    <string name="Aut">(Automatically delected)</string>
+    <string name="btncan">Cancel</string>
+    <string name="btnnext">Next</string>
+    <string name="host" />
+    <string name="t1">Select assay:</string>
+    <string name="textassay">Select assay:</string>
+    <string name="saplain" />
+    <string name="nameText">Name of technologist:</string>
+    <string name="dataText">Date and Time</string>
+    <string name="deText">(Automatically delected)</string>
+    <string name="btnCancel">Cancel</string>
+    <string name="btnNext">Next</string>
+    <string name="titleSet">Setup New Run</string>
+    <string-array name="spingarr">
+        <item></item>
+        <item>SARS-CoV-2 </item>
+    </string-array>
+    <color name="spingarr">#748751</color>
 </resources>
