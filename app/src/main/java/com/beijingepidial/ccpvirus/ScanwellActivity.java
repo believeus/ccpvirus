@@ -163,7 +163,8 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         String color = bundle.getString("color");
         Button btnOriName = (Button) findViewById(R.id.btnOriName);
         btnOriName.setText(name);
-        btnOriName.setBackgroundColor(Color.parseColor(color));
+        btnOriName.setTextColor(StringUtils.isEmpty(color)?Color.parseColor("#000000"):Color.parseColor("#FFFFFF"));
+        btnOriName.setBackgroundColor(StringUtils.isEmpty(color)?Color.parseColor("#FFFFFF"):Color.parseColor(color));
         Button btnCorName = (Button) findViewById(R.id.btnCorName);
         btnCorName.setText(name);
         btnCorName.setBackgroundColor(Color.parseColor("#FFFFFF"));
