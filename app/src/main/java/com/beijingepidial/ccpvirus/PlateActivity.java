@@ -48,49 +48,40 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class PlateActivity extends AppCompatActivity {
+    private static final int MULCHECK = 0;
+    private static final int RELOAD = -1;
+    private static final int SCANPLATE = 1;
+    private static final int SGLCHECK = 2;
     private String body;
-    private Map<String, Button> mulbtn = new HashMap<String, Button>();
-    private Map<String, Button> sglbtn = new HashMap<String, Button>();
-    // request参数
+    private Map<String, Button> checkbtn = new HashMap<String, Button>();
     private Stack<String> stack = new Stack<String>();
     private Map<String, Well> wells = new HashMap<String, Well>();
-    private Map<String, Button> mcbox = new HashMap<String, Button>();
+    private Map<String, Button> initbox = new HashMap<String, Button>();
     private Handler handler = new Handler(new Handler.Callback() {
         private void loadColor(Button mbv) {
             String barcode = mbv.getTag(R.id.barcode).toString();
             String color = mbv.getTag(R.id.color).toString();
             mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_dash));
+            boolean isCheck = Boolean.valueOf(mbv.getTag(R.id.isCheck).toString());
+            boolean y = checkbtn.isEmpty() ? false : true;
+            findViewById(R.id.btnNext).setVisibility(y ? View.VISIBLE : View.GONE);
             if (StringUtils.isEmpty(barcode)) {
+                //mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, (!isCheck&&StringUtils.isNotEmpty(color))?R.drawable.well_rect_white:R.drawable.well_circle_dash));
                 //没barcode有颜色
                 if (StringUtils.isNotEmpty(color)) {
-                    if (!Boolean.valueOf(mbv.getTag(R.id.isclick).toString())) {//取消选中
+                    if (!isCheck)
                         mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_rect_white));
-                    }
                     mbv.getBackground().setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_IN);
+                    //没barcode没颜色
                 } else {
-                    if (!Boolean.valueOf(mbv.getTag(R.id.isclick).toString())) {
+                    //没选中
+                    if (!isCheck)
                         mbv.setBackgroundColor(R.drawable.well_setting);
-                        mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well));
-                    }
+                    mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, !isCheck ? R.drawable.well : R.drawable.well_circle_dash));
                 }
-            } else if (StringUtils.isNotEmpty(barcode)) {
-                //有barcode有颜色
-                if (StringUtils.isNotEmpty(color)) {
-                    if (!Boolean.valueOf(mbv.getTag(R.id.isclick).toString())) {
-                        mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_white));
-                    } else {
-                        mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_dash));
-                    }
-                    mbv.getBackground().setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_IN);
-                    //有barcode没color
-                } else {
-                    if (!Boolean.valueOf(mbv.getTag(R.id.isclick).toString())) {
-                        mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_dash));
-                    } else {
-                        mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_red));
-                    }
-                    mbv.getBackground().setColorFilter(Color.parseColor("#D81B60"), PorterDuff.Mode.SRC_IN);
-                }
+            } else {
+                mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, !isCheck ? (StringUtils.isNotEmpty(color) ? R.drawable.well_circle_white : R.drawable.well_circle_red) : R.drawable.well_circle_dash));
+                mbv.getBackground().setColorFilter(Color.parseColor(StringUtils.isNotEmpty(color) ? color : "#D81B60"), PorterDuff.Mode.SRC_IN);
             }
         }
 
@@ -100,7 +91,7 @@ public class PlateActivity extends AppCompatActivity {
             while (keys.hasNext()) {
                 String name = keys.next();
                 JSONObject plate = jsonObj.getJSONObject(name);
-                Button btn = mcbox.get(name);
+                Button btn = initbox.get(name);
                 Well well = new Well();
                 well.name = name;
                 well.barcode = plate.getString("barcode");
@@ -110,21 +101,9 @@ public class PlateActivity extends AppCompatActivity {
                 btn.setTag(R.id.barcode, well.barcode);
                 btn.setTag(R.id.scantime, well.scantime);
                 btn.setTag(R.id.color, well.color);
-                //有barcode没有颜色
-                if (StringUtils.isNotEmpty(well.barcode) && StringUtils.isEmpty(well.color)) {
-                    btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_red));
-                    //有颜色没有barcode,显示成正方形
-                } else if (StringUtils.isEmpty(well.barcode) && StringUtils.isNotEmpty(well.color)) {
-                    btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_rect_white));
-                    btn.setBackgroundColor(Color.parseColor(well.color));
-                    //有颜色有barcode,显示成圆形
-                } else if (StringUtils.isNotEmpty(well.barcode) && StringUtils.isNotEmpty(well.color)) {
-                    btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_white));
-                    Drawable drw = btn.getBackground();
-                    drw.setColorFilter(Color.parseColor(well.color), PorterDuff.Mode.SRC_IN);
-
-                }
+                btn.setTag(R.id.isCheck, false);
                 btn.setTextColor(getResources().getColor(R.color.well_font_white));
+                loadColor(btn);
             }
         }
 
@@ -132,45 +111,21 @@ public class PlateActivity extends AppCompatActivity {
         public boolean handleMessage(Message msg) {
             try {
                 switch (msg.what) {
-                    case -1:
+                    case RELOAD:
                         //还原单选的按钮
-                        for (Iterator<Button> it = sglbtn.values().iterator(); it.hasNext();) {
+                        for (Iterator<Button> it = checkbtn.values().iterator(); it.hasNext(); ) {
                             Button bn = it.next();
                             bn.setBackgroundColor(R.drawable.well_setting);
                             bn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well));
                             it.remove();
                         }
-                        //还原两指选取的按钮
-                        for (Iterator<Button> it = mulbtn.values().iterator(); it.hasNext(); ) {
-                            Button vb = it.next();
-                            vb.setBackgroundColor(R.drawable.well_setting);
-                            vb.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well));
-                            it.remove();
-                        }
                         //重新加载数据
                         loadData(PlateActivity.this.body);
-                        findViewById(R.id.btnNext).setEnabled(false);
-                        findViewById(R.id.btnNext).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.btn_unabled));
-                        findViewById(R.id.btnRefresh).setEnabled(false);
-                        findViewById(R.id.btnRefresh).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.btn_unabled));
                         break;
                     //多选
-                    case 0:
+                    case MULCHECK:
                         if (stack.size() != 2) return false;
-                        findViewById(R.id.btnNext).setEnabled(true);
-                        findViewById(R.id.btnNext).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.button));
-                        findViewById(R.id.btnRefresh).setEnabled(true);
-                        findViewById(R.id.btnRefresh).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.button));
-                        if (StringUtils.isEmpty(((EditText) findViewById(R.id.etbarcode)).getText().toString())) {
-                            Toast toast = Toast.makeText(PlateActivity.this, "Please scan the Plate barcode!", Toast.LENGTH_LONG);
-                            Display display = getWindowManager().getDefaultDisplay();
-                            // 获取屏幕高度
-                            int height = display.getHeight();
-                            toast.setGravity(Gravity.TOP, 0, height / 4);
-                            toast.show();
-                            return false;
-                        }
-                        findViewById(R.id.btnNext).setVisibility(View.VISIBLE);
+                        if (alert()) return false;
                         String v1 = stack.pop();
                         String v2 = stack.pop();
                         String[] va = v1.split("@");
@@ -184,29 +139,26 @@ public class PlateActivity extends AppCompatActivity {
                             for (int j = 0; j < (taa < tba ? Math.abs(taa - tba - 1) : Math.abs(taa - tba + 1)); j++) {
                                 int v = taa > tba ? tba : taa;//B
                                 String vi = String.valueOf(((char) (v + j))) + (nab > nbb ? (nbb + i) : (nbb - i));
-                                Button mbv = mcbox.get(vi);
-                                mbv.setTag(R.id.isclick, true);
+                                Button mbv = initbox.get(vi);
+                                mbv.setTag(R.id.isCheck, true);
                                 if (StringUtils.isEmpty(mbv.getTag(R.id.barcode).toString())) {
-                                    mulbtn.put(vi, mbv);
+                                    checkbtn.put(vi, mbv);
                                 }
                                 loadColor(mbv);
                             }
                         }
                         break;
-                    case 1:
+                    case SCANPLATE:
                         loadData(msg.obj.toString());
                         break;
                     //单选
-                    case 2:
-                        findViewById(R.id.btnNext).setEnabled(true);
-                        findViewById(R.id.btnNext).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.button));
-                        findViewById(R.id.btnRefresh).setEnabled(true);
-                        findViewById(R.id.btnRefresh).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.button));
+                    case SGLCHECK:
                         String vt = msg.obj.toString().replace("@", "");
-                        Button bv = mcbox.get(vt);
-                        sglbtn.put(vt, bv);
-                        boolean isClick = Boolean.valueOf(bv.getTag(R.id.isclick).toString()) ? false : true;
-                        bv.setTag(R.id.isclick, isClick);
+                        Button bv = initbox.get(vt);
+                        boolean isCheck = Boolean.valueOf(bv.getTag(R.id.isCheck).toString()) ? false : true;
+                        if (isCheck) checkbtn.put(vt, bv);
+                        else checkbtn.remove(vt);
+                        bv.setTag(R.id.isCheck, isCheck);
                         loadColor(bv);
                         break;
                 }
@@ -218,30 +170,27 @@ public class PlateActivity extends AppCompatActivity {
         }
     });
 
+    private boolean alert() {
+        if (StringUtils.isEmpty(((EditText) findViewById(R.id.etbarcode)).getText().toString())) {
+            Toast toast = Toast.makeText(PlateActivity.this, "Please scan the Plate barcode!", Toast.LENGTH_LONG);
+            Display display = getWindowManager().getDefaultDisplay();
+            // 获取屏幕高度
+            int height = display.getHeight();
+            toast.setGravity(Gravity.TOP, 0, height / 4);
+            toast.show();
+            return true;
+        }
+        return false;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.plate);
-        findViewById(R.id.btnRefresh).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                findViewById(R.id.btnRefresh).setEnabled(false);
-                findViewById(R.id.btnRefresh).setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.btn_unabled));
-                handler.sendEmptyMessage(-1);
-            }
-        });
         findViewById(R.id.btnNext).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (StringUtils.isEmpty(((EditText) findViewById(R.id.etbarcode)).getText().toString())) {
-                    Toast toast = Toast.makeText(PlateActivity.this, "Please scan the Plate barcode!", Toast.LENGTH_LONG);
-                    Display display = getWindowManager().getDefaultDisplay();
-                    // 获取屏幕高度
-                    int height = display.getHeight();
-                    toast.setGravity(Gravity.TOP, 0, height / 4);
-                    toast.show();
-                    return;
-                }
+                if (alert()) return;
                 Intent intent = new Intent(PlateActivity.this, CamaraActivity.class);
                 intent.putExtra("barcode", ((EditText) findViewById(R.id.etbarcode)).getText().toString());
                 startActivityForResult(intent, Variables.SCAN_PLATE_WELL);
@@ -279,7 +228,7 @@ public class PlateActivity extends AppCompatActivity {
                 btn.setText(name);
                 final int id = View.generateViewId();
                 btn.setId(id);
-                btn.setTag(R.id.isclick, false);
+                btn.setTag(R.id.isCheck, false);
                 btn.setTag(R.id.name, name);
                 btn.setTag(R.id.barcode, "");
                 btn.setTag(R.id.color, "");
@@ -291,15 +240,16 @@ public class PlateActivity extends AppCompatActivity {
                 btn.setOnTouchListener(new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
+
                         switch (event.getAction()) {
                             case MotionEvent.ACTION_DOWN:
                                 stack.push(String.valueOf(vname.get(c) + "@" + r));
-                                handler.sendEmptyMessage(0);
+                                handler.sendEmptyMessage(MULCHECK);
                                 break;
                             case MotionEvent.ACTION_UP:
                                 if (!stack.isEmpty()) {
                                     Message m = new Message();
-                                    m.what = 2;
+                                    m.what = SGLCHECK;
                                     m.obj = stack.pop();
                                     handler.sendMessage(m);
                                 }
@@ -311,27 +261,11 @@ public class PlateActivity extends AppCompatActivity {
                 btn.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                     @Override
                     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                        if (StringUtils.isEmpty(((EditText) findViewById(R.id.etbarcode)).getText().toString())) {
-                            Toast toast = Toast.makeText(PlateActivity.this, "Please scan the Plate barcode!", Toast.LENGTH_LONG);
-                            Display display = getWindowManager().getDefaultDisplay();
-                            // 获取屏幕高度
-                            int height = display.getHeight();
-                            toast.setGravity(Gravity.TOP, 0, height / 4);
-                            toast.show();
-                            return;
-                        }
+                        if (alert()) return;
                         menu.add(0, 1, 0, "Scan barcode").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                             @Override
                             public boolean onMenuItemClick(MenuItem item) {
-                                if (StringUtils.isEmpty(((EditText) findViewById(R.id.etbarcode)).getText().toString())) {
-                                    Toast toast = Toast.makeText(PlateActivity.this, "Please scan the Plate barcode!", Toast.LENGTH_LONG);
-                                    Display display = getWindowManager().getDefaultDisplay();
-                                    // 获取屏幕高度
-                                    int height = display.getHeight();
-                                    toast.setGravity(Gravity.TOP, 0, height / 4);
-                                    toast.show();
-                                    return true;
-                                }
+                                if (alert()) return false;
                                 // 申请相机权限
                                 if (ActivityCompat.checkSelfPermission(PlateActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                                     // 申请权限
@@ -365,10 +299,17 @@ public class PlateActivity extends AppCompatActivity {
                                     return false;
                                 }
                             });
-                            menu.add(0, 1, 3, "Barcode:" + btn.getTag(R.id.barcode).toString());
+                            menu.add(0, 1, 2, "Barcode:" + btn.getTag(R.id.barcode).toString());
                             String scantime = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss").format(new Date(Long.valueOf(btn.getTag(R.id.scantime).toString()).longValue()));
-                            menu.add(0, 1, 4, "Scan time:" + scantime);
+                            menu.add(0, 1, 3, "Scan time:" + scantime);
                         }
+                        menu.add(0, 1, 4, "Reload").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem item) {
+                                handler.sendEmptyMessage(RELOAD);
+                                return false;
+                            }
+                        });
                     }
                 });
 
@@ -381,7 +322,7 @@ public class PlateActivity extends AppCompatActivity {
                 params.height = 100;
                 params.setGravity(Gravity.CENTER);
                 gridlayout.addView(btn, params);
-                mcbox.put(name, btn);
+                initbox.put(name, btn);
             }
         }
     }
@@ -406,7 +347,7 @@ public class PlateActivity extends AppCompatActivity {
                     Request request = new Request.Builder().url(url + "plate/findData.jhtml").post(body).build();
                     Response response = client.newCall(request).execute();//发送请求
                     Message msg = new Message();
-                    msg.what = 1;
+                    msg.what = SCANPLATE;
                     msg.obj = PlateActivity.this.body = response.body().string();
                     handler.sendMessage(msg);
                 } catch (Exception e) {
@@ -450,10 +391,7 @@ public class PlateActivity extends AppCompatActivity {
                     @Override
                     protected String doInBackground(String... strings) {
                         try {
-                            if (StringUtils.isEmpty(barcode)) {
-                                Toast.makeText(PlateActivity.this, "Please scan the plate barcode", Toast.LENGTH_LONG).show();
-                                return "ERROR";
-                            }
+                            if (alert()) return "NULL";
                             OkHttpClient client = new OkHttpClient();
                             Properties properties = new Properties();
                             properties.load(PlateActivity.this.getAssets().open("project.properties"));

@@ -91,22 +91,13 @@
             android:layout_marginTop="10dp">
             <Button
                 android:id="@+id/btnNext"
-                android:background="@drawable/btn_unabled"
-                android:enabled="true"
+                android:background="@drawable/button"
+                android:visibility="gone"
                 android:textStyle="bold"
                 android:textColor="#ffffff"
-                android:layout_width="200dp"
+                android:layout_width="250dp"
                 android:layout_height="35dp"
-                android:text="SCAN PLATE" />
-            <Button
-                android:id="@+id/btnRefresh"
-                android:textStyle="bold"
-                android:enabled="false"
-                android:textColor="#ffffff"
-                android:layout_width="100dp"
-                android:layout_height="35dp"
-                android:background="@drawable/btn_unabled"
-                android:text="Reflesh"/>
+                android:text="SCAN COLOR" />
             </LinearLayout>
         </RelativeLayout>
     </LinearLayout>
