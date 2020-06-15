@@ -4,7 +4,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -16,14 +18,17 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.beijingepidial.entity.Circle;
+import com.beijingepidial.entity.Well;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.innovattic.rangeseekbar.RangeSeekBar;
 
 import org.apache.commons.lang3.StringUtils;
@@ -43,9 +48,8 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,6 +59,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class ScanwellActivity extends AppCompatActivity implements SensorEventListener {
+    private SurfaceView svBeforeColor;
+    private SurfaceView svAfterColor;
     private StringBuilder sb = new StringBuilder();
     private int radiusmin = 10;
     private int radiusmax = 25;
@@ -93,7 +99,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
     private TextView tvVert;
     private static final int IDENTIFY = 0;
     private static final int BTNCOLOR = 1;
-    private static final int STOP=3;
+    private static final int STOP = 3;
     private Handler handle = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -103,9 +109,9 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                     ((TextView) findViewById(R.id.tvmsg)).setText(text);
                     break;
                 case BTNCOLOR:
-                    Button btn = (Button) findViewById(R.id.btnCorName);
+                   /* Button btn = (Button) findViewById(R.id.btnAfterCol);
                     btn.setBackgroundColor(Color.parseColor(String.valueOf(msg.obj)));
-                    btn.setTextColor(Color.parseColor("#FFFFFF"));
+                    btn.setTextColor(Color.parseColor("#FFFFFF"));*/
                     break;
                 case STOP:
                     findViewById(R.id.btnCatchColor).setEnabled(true);
@@ -158,16 +164,66 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         //保持螢幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.scan_well);
-        Bundle bundle = getIntent().getExtras();
-        String name = bundle.getString("name");
-        String color = bundle.getString("color");
-        Button btnOriName = (Button) findViewById(R.id.btnOriName);
-        btnOriName.setText(name);
-        btnOriName.setTextColor(StringUtils.isEmpty(color)?Color.parseColor("#000000"):Color.parseColor("#FFFFFF"));
-        btnOriName.setBackgroundColor(StringUtils.isEmpty(color)?Color.parseColor("#FFFFFF"):Color.parseColor(color));
-        Button btnCorName = (Button) findViewById(R.id.btnCorName);
-        btnCorName.setText(name);
-        btnCorName.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        svBeforeColor = (SurfaceView) findViewById(R.id.svBeforeCol);
+        svAfterColor = (SurfaceView) findViewById(R.id.svAfterCol);
+
+        SurfaceHolder holder = svBeforeColor.getHolder();
+        holder.addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                Canvas canvas = holder.lockCanvas();
+                Bundle bundle = getIntent().getExtras();
+                List<Well> wells = new Gson().fromJson(bundle.getString("data"), new TypeToken<ArrayList<Well>>() {
+                }.getType());
+                for (Iterator<Well> it = wells.iterator(); it.hasNext(); ) {
+                    Well wl = it.next();
+                    Paint paint = new Paint();
+                    paint.setStrokeWidth(15);
+                    paint.setStyle(Paint.Style.STROKE);
+                    paint.setTextSize(200 / wells.size());
+                    if (wells.size() == 1) {
+                        paint.setColor(StringUtils.isEmpty(wl.color) ? Color.parseColor("#FFFFFF") : Color.parseColor(wl.color));
+                        int w = svBeforeColor.getWidth();
+                        int h = svBeforeColor.getHeight();
+                        // 将坐标原点移到控件中心
+                        canvas.translate(w / 2, h / 2);
+                        // 绘制居中文字
+                        float textWidth = paint.measureText(wl.name);
+                        // 文字baseline在y轴方向的位置
+                        float baseLineY = Math.abs(paint.ascent() + paint.descent()) / 2;
+                        canvas.drawText(wl.name, -textWidth / 2, baseLineY, paint);
+                        canvas.drawText(wl.name, ((w / 2)), h / 2, paint);
+                    }
+                    holder.unlockCanvasAndPost(canvas);
+                }
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+
+            }
+        });
+        Canvas canvas = holder.lockCanvas();
+
+
+       /* if (wells.size() == 1) {
+            findViewById(R.id.btnColorBoard).setVisibility(View.VISIBLE);
+            Well well = wells.get(0);
+            String name = well.name;
+            String color = well.color;
+            Button btnBeforeCol = (Button) findViewById(R.id.btnBeforeCol);
+            btnBeforeCol.setText(name);
+            btnBeforeCol.setTextColor(StringUtils.isEmpty(color) ? Color.parseColor("#FFFFFF") : Color.parseColor("#000000"));
+            btnBeforeCol.setBackgroundColor(StringUtils.isEmpty(color) ? Color.parseColor("#FFFFFF") : Color.parseColor(color));
+            Button btnAfterCol = (Button) findViewById(R.id.btnAfterCol);
+            btnAfterCol.setText(name);
+            btnAfterCol.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        }*/
         //Begin:传感器
         levelView = (LevelView) findViewById(R.id.gv_hv);
         tvVert = (TextView) findViewById(R.id.tvv_vertical);
@@ -239,7 +295,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                         if (circles.size() != 1) {
                             Message message = new Message();
                             message.what = IDENTIFY;
-                            message.obj = "Recognizing size:" + (circles.size()+1) + "\nRadius:" + sb.toString();
+                            message.obj = "Recognizing size:" + (circles.size() + 1) + "\nRadius:" + sb.toString();
                             handle.sendMessage(message);
                             sb.delete(0, sb.length());
                             iterate = true;
@@ -377,9 +433,9 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                 findViewById(R.id.btnCatchColor).setEnabled(false);
                 findViewById(R.id.btnReTake).setEnabled(false);
                 findViewById(R.id.btnSave).setVisibility(View.GONE);
-                Button btn = (Button) findViewById(R.id.btnCorName);
+                /*Button btn = (Button) findViewById(R.id.btnAfterCol);
                 btn.setBackgroundColor(Color.parseColor("#FFFFFF"));
-                btn.setTextColor(Color.parseColor("#000000"));
+                btn.setTextColor(Color.parseColor("#000000"));*/
                 isReTake = true;
                 stop = false;
             }

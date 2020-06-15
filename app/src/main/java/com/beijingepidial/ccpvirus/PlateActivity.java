@@ -28,7 +28,9 @@ import com.google.zxing.activity.CaptureActivity;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -191,8 +193,22 @@ public class PlateActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (alert()) return;
-                Intent intent = new Intent(PlateActivity.this, CamaraActivity.class);
-                intent.putExtra("barcode", ((EditText) findViewById(R.id.etbarcode)).getText().toString());
+                Map<String, List<Well>> m = new HashMap<String, List<Well>>();
+                List<Well> wells=new ArrayList<Well>();
+                Intent intent = new Intent(PlateActivity.this, ScanwellActivity.class);
+                Bundle bundle = new Bundle();
+                for (Iterator<Button> it = checkbtn.values().iterator(); it.hasNext(); ) {
+                    Button bv = it.next();
+                    Well w=new Well();
+                    w.name = String.valueOf(bv.getText().toString());
+                    w.color = StringUtils.isEmpty(bv.getTag(R.id.color).toString()) ? "#FFFFFF" : bv.getTag(R.id.color).toString();
+                    w.barcode = bv.getTag(R.id.barcode).toString();
+                    w.parent=((EditText) findViewById(R.id.etbarcode)).getText().toString();
+                    wells.add(w);
+                }
+                Gson gson=new Gson();
+                bundle.putString("data",gson.toJson(wells));
+                intent.putExtras(bundle);
                 startActivityForResult(intent, Variables.SCAN_PLATE_WELL);
             }
         });
@@ -285,21 +301,6 @@ public class PlateActivity extends AppCompatActivity {
                             }
                         });
                         if (StringUtils.isNotEmpty(btn.getTag(R.id.barcode).toString())) {
-                            menu.add(0, 1, 1, "Scan color").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(MenuItem item) {
-                                    if (alert()) return false;
-                                    String name = String.valueOf(btn.getText());
-                                    Intent intent = new Intent(PlateActivity.this, ScanwellActivity.class);
-                                    Bundle bundle = new Bundle();
-                                    bundle.putString("color", btn.getTag(R.id.color).toString());
-                                    bundle.putString("barcode", btn.getTag(R.id.barcode).toString());
-                                    bundle.putString("name", name);
-                                    intent.putExtras(bundle);
-                                    startActivityForResult(intent, Variables.SCAN_PLATE_WELL);
-                                    return false;
-                                }
-                            });
                             menu.add(0, 1, 2, "Barcode:" + btn.getTag(R.id.barcode).toString());
                             String scantime = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss").format(new Date(Long.valueOf(btn.getTag(R.id.scantime).toString()).longValue()));
                             menu.add(0, 1, 3, "Scan time:" + scantime);

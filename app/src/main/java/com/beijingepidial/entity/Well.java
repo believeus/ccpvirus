@@ -1,6 +1,9 @@
 package com.beijingepidial.entity;
 
-public class Well {
+import java.io.Serializable;
+
+public class Well implements Serializable {
+    public String parent;
     public String name;
     public String barcode;
     public long scantime;
