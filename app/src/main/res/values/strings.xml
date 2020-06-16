@@ -25,4 +25,16 @@
     <string name="blue2purple">120:Blue⇄Purple:120</string>
     <string name="red2orange">6:Red⇄Orange:6</string>
     <string name="red">165:Purple⇄Red:165</string>
+    <string name="planane">Please enter name.</string>
+    <string name="text1">Select assay:</string>
+    <string name="nameof">Name of technologist:</string>
+    <string name="Txtda">Date and Time:</string>
+    <string name="Aut">(Automatically detected)</string>
+    <string name="tn1">Cancel</string>
+    <string name="next">Next</string>
+    <string name="set">Setup New Run</string>
+    <string-array name="spnner">
+        <item></item>
+        <item>SARS-CoV-2</item>
+    </string-array>
 </resources>
