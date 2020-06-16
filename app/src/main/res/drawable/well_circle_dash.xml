@@ -4,7 +4,7 @@
     <!--边框线 dashGap:虚线间隔 dashWidth：虚线宽度-->
     <stroke
         android:width="2dp"
-        android:color="@android:color/darker_gray"
+        android:color="@color/colorAccent"
         android:dashGap="10dp"
         android:dashWidth="5dp" />
     <!--圆角-->

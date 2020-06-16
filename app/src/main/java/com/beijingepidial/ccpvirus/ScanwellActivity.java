@@ -23,6 +23,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.beijingepidial.entity.Circle;
@@ -48,6 +49,8 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -116,7 +119,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                 case STOP:
                     findViewById(R.id.btnCatchColor).setEnabled(true);
                     findViewById(R.id.btnReTake).setEnabled(true);
-                    findViewById(R.id.btnpause).setEnabled(false);
+                    findViewById(R.id.btnPause).setEnabled(false);
                     break;
             }
 
@@ -166,36 +169,69 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         setContentView(R.layout.scan_well);
         svBeforeColor = (SurfaceView) findViewById(R.id.svBeforeCol);
         svAfterColor = (SurfaceView) findViewById(R.id.svAfterCol);
-
+        Bundle bundle = getIntent().getExtras();
+        final List<Well> wells = new Gson().fromJson(bundle.getString("data"), new TypeToken<ArrayList<Well>>() {
+        }.getType());
+        ((TextView) findViewById(R.id.tvPicksize)).setText(String.valueOf(wells.size()));
+        ((EditText) findViewById(R.id.etScansize)).setText(String.valueOf(wells.size()));
         SurfaceHolder holder = svBeforeColor.getHolder();
         holder.addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 Canvas canvas = holder.lockCanvas();
-                Bundle bundle = getIntent().getExtras();
-                List<Well> wells = new Gson().fromJson(bundle.getString("data"), new TypeToken<ArrayList<Well>>() {
-                }.getType());
+                int w = svBeforeColor.getWidth();
+                int h = svBeforeColor.getHeight();
+                if (wells.size() != 1) {
+                    Collections.sort(wells, new Comparator<Well>() {
+                        @Override
+                        public int compare(Well w1, Well w2) {
+                            char m1 = w1.name.replaceAll("[1-9]{1,2}", "").charAt(0);
+                            char m2 = w2.name.replaceAll("[1-9]{1,2}", "").charAt(0);
+                            int v1 = Integer.parseInt(w1.name.replaceAll("[A-H]", ""));
+                            int v2 = Integer.parseInt(w2.name.replaceAll("[A-H]", ""));
+                            if (m1 == m2) return v1 - v2;
+                            if (v1 == v2) return m1 - m2;
+                            return v1 - v2;
+                        }
+                    });
+                }
                 for (Iterator<Well> it = wells.iterator(); it.hasNext(); ) {
                     Well wl = it.next();
                     Paint paint = new Paint();
-                    paint.setStrokeWidth(15);
                     paint.setStyle(Paint.Style.STROKE);
-                    paint.setTextSize(200 / wells.size());
-                    if (wells.size() == 1) {
+                    if (wells.size() != 1) {
+                        int begin = Integer.parseInt(wells.get(0).name.replaceAll("[A-H]", ""));
+                        int end = Integer.parseInt(wells.get(wells.size() - 1).name.replaceAll("[A-H]", ""));
+                        paint.setStrokeWidth(Utils.px4dp(1));
+                        paint.setTextSize(Utils.px4dp(120));
+                        paint.setColor(Color.parseColor("#FFFFFF"));//白色
+                        String[] rowname = {"A", "B", "C", "D", "E", "F", "G", "H"};
+                        String[] colname = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
+                        int xDelta = w / 12;
+                        int yDelta = h / 8;
+                        for (int i = 0; i < rowname.length; i++) {
+                            canvas.drawText(rowname[i], Utils.px4dp(30), Utils.px4dp((i * (yDelta + 100)) + 245), paint);
+                        }
+                        for (int i = begin - 1, j = 0; i < end; i++, j++) {
+                            canvas.drawText(colname[i], Utils.px4dp((j * (xDelta + 150)) + 200), Utils.px4dp(150), paint);
+                        }
+                    } else {
+                        paint.setStrokeWidth(15);
+                        paint.setTextSize(200 / wells.size());
                         paint.setColor(StringUtils.isEmpty(wl.color) ? Color.parseColor("#FFFFFF") : Color.parseColor(wl.color));
-                        int w = svBeforeColor.getWidth();
-                        int h = svBeforeColor.getHeight();
-                        // 将坐标原点移到控件中心
-                        canvas.translate(w / 2, h / 2);
-                        // 绘制居中文字
-                        float textWidth = paint.measureText(wl.name);
-                        // 文字baseline在y轴方向的位置
-                        float baseLineY = Math.abs(paint.ascent() + paint.descent()) / 2;
-                        canvas.drawText(wl.name, -textWidth / 2, baseLineY, paint);
-                        canvas.drawText(wl.name, ((w / 2)), h / 2, paint);
+                        if (wells.size() == 1) {
+                            // 将坐标原点移到控件中心
+                            canvas.translate(w / 2, h / 2);
+                            // 绘制居中文字
+                            float textWidth = paint.measureText(wl.name);
+                            // 文字baseline在y轴方向的位置
+                            float baseLineY = Math.abs(paint.ascent() + paint.descent()) / 2;
+                            canvas.drawText(wl.name, -textWidth / 2, baseLineY, paint);
+                        }
+
                     }
-                    holder.unlockCanvasAndPost(canvas);
                 }
+                holder.unlockCanvasAndPost(canvas);
             }
 
             @Override
@@ -210,20 +246,6 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         });
         Canvas canvas = holder.lockCanvas();
 
-
-       /* if (wells.size() == 1) {
-            findViewById(R.id.btnColorBoard).setVisibility(View.VISIBLE);
-            Well well = wells.get(0);
-            String name = well.name;
-            String color = well.color;
-            Button btnBeforeCol = (Button) findViewById(R.id.btnBeforeCol);
-            btnBeforeCol.setText(name);
-            btnBeforeCol.setTextColor(StringUtils.isEmpty(color) ? Color.parseColor("#FFFFFF") : Color.parseColor("#000000"));
-            btnBeforeCol.setBackgroundColor(StringUtils.isEmpty(color) ? Color.parseColor("#FFFFFF") : Color.parseColor(color));
-            Button btnAfterCol = (Button) findViewById(R.id.btnAfterCol);
-            btnAfterCol.setText(name);
-            btnAfterCol.setBackgroundColor(Color.parseColor("#FFFFFF"));
-        }*/
         //Begin:传感器
         levelView = (LevelView) findViewById(R.id.gv_hv);
         tvVert = (TextView) findViewById(R.id.tvv_vertical);
@@ -351,6 +373,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                     takePhoto = true;
                     isClone = true;
                     isReTake = false;
+                    findViewById(R.id.etScansize).setEnabled(false);
                     findViewById(R.id.btnCatchColor).setEnabled(true);
                     findViewById(R.id.btnReTake).setEnabled(true);
                     findViewById(R.id.tvmsg).setVisibility(View.VISIBLE);
@@ -362,12 +385,13 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                 }
             }
         });
-        findViewById(R.id.btnpause).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnPause).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stop = stop ? false : true;
-                String vb = ((Button) findViewById(R.id.btnpause)).getText().toString();
-                ((Button) findViewById(R.id.btnpause)).setText(vb.equals("start") ? "pause" : "start");
+                findViewById(R.id.etScansize).setEnabled(stop?true:false);
+                String vb = ((Button) findViewById(R.id.btnPause)).getText().toString();
+                ((Button) findViewById(R.id.btnPause)).setText(vb.equals("start") ? "pause" : "start");
             }
         });
         findViewById(R.id.btnCatchColor).setOnClickListener(new View.OnClickListener() {
