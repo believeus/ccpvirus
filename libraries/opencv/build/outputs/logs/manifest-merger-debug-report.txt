@@ -1,33 +1,33 @@
 -- Merging decision tree log ---
 manifest
-ADDED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
-INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
-INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
-INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
-INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
-INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
-INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
+ADDED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
+INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
+INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
+INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
+INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
+INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
+INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:1-8:12
 	package
-		ADDED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:3:7-27
-		INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
-		INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
+		ADDED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:3:7-27
+		INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
+		INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
 	android:versionName
-		ADDED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:5:7-35
-		INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
-		INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
+		ADDED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:5:7-35
+		INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
+		INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
 	xmlns:android
-		ADDED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:11-69
+		ADDED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:2:11-69
 	android:versionCode
-		ADDED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:4:7-34
-		INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
-		INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
+		ADDED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:4:7-34
+		INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
+		INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
 uses-sdk
-ADDED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:7:5-47
-INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:7:5-47
-INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:7:5-47
+ADDED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:7:5-47
+INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:7:5-47
+INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:7:5-47
 	android:targetSdkVersion
-		ADDED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:7:15-44
+		ADDED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:7:15-44
 	android:minSdkVersion
-		INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
-		ADDED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:7:5-47
-		INJECTED from E:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
+		INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
+		ADDED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml:7:5-47
+		INJECTED from D:\usr\local\workspace\ccpvirus\libraries\opencv\AndroidManifest.xml
