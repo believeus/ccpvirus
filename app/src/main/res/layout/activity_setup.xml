@@ -7,49 +7,21 @@
     android:layout_height="wrap_content"
     >
 
-
-    <androidx.percentlayout.widget.PercentRelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginTop="20dp">]
+        android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="61dp"
-            android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="0dp"
-            android:orientation="vertical"
-            app:layout_widthPercent="20%">
-
-            <ImageView
-                android:id="@+id/imgView"
-                android:layout_width="56dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/min" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="0dp"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:orientation="horizontal"
-            app:layout_widthPercent="80%">
-
-            <TextView
-                android:id="@+id/textTitle"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginRight="40dp"
-                android:gravity="center"
-                android:text="@string/textTitle"
-                android:textColor="#D40A0707"
-                android:textSize="28dp" />
-        </RelativeLayout>
-
-    </androidx.percentlayout.widget.PercentRelativeLayout>
+            android:gravity="center"
+            android:text="@string/textTitle"
+            android:textColor="#D4240404"
+            android:textSize="28sp" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -58,42 +30,39 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/textSeleAssay"
             android:layout_width="381dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="@string/textSeleAssay"
             android:textColor="#D4160A0A"
             android:textSize="22dp" />
 
         <Spinner
-            android:id="@+id/spinner"
+            android:id="@+id/spAssay"
             android:layout_width="330dp"
             android:layout_height="45dp"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/my_spinner"
-            android:entries="@array/spnner"
-            android:spinnerMode="dropdown"
             android:dropDownVerticalOffset="45dp"
-            />
+            android:entries="@array/spnner"
+            android:spinnerMode="dropdown" />
 
         <TextView
-            android:id="@+id/TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="15dp"
             android:layout_marginTop="25dp"
             android:text="@string/textNameTlg"
             android:textColor="#D4160303"
             android:textSize="22dp" />
 
         <EditText
-            android:id="@+id/plainPleaseEN"
+            android:id="@+id/etName"
             android:layout_width="330dp"
             android:layout_height="45dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="8dp"
             android:autofillHints=""
             android:background="@drawable/my_text"
@@ -105,20 +74,19 @@
             android:textColorHint="#991A0808" />
 
         <TextView
-            android:id="@+id/textView13"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="15dp"
             android:layout_marginTop="18dp"
             android:text="@string/textDataAD"
             android:textColor="#D40C0404"
             android:textSize="22sp" />
 
         <EditText
-            android:id="@+id/enditAutoDe"
+            android:id="@+id/etDate"
             android:layout_width="330dp"
             android:layout_height="45dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/my_text"
             android:ems="10"
@@ -145,7 +113,7 @@
                 android:id="@+id/btnCancel"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="15dp"
                 android:background="#1D0F0606"
                 android:text="@string/btnCancel"
                 android:textAllCaps="false"
@@ -160,7 +128,7 @@
             android:layout_alignParentRight="true"
             android:gravity="center|left"
             android:orientation="horizontal"
-            app:layout_widthPercent="30%">
+            app:layout_widthPercent="35%">
 
             <Button
                 android:id="@+id/btnNext"
