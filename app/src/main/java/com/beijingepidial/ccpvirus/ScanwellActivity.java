@@ -51,8 +51,10 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -179,57 +181,53 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 Canvas canvas = holder.lockCanvas();
+                Paint paint = new Paint();
+                paint.setStyle(Paint.Style.STROKE);
+                paint.setStrokeWidth(Utils.px2dp(1));
+                paint.setTextSize(Utils.px2dp(120));
+                paint.setColor(Color.parseColor("#FFFFFF"));//白色
                 int w = svBeforeColor.getWidth();
                 int h = svBeforeColor.getHeight();
-                if (wells.size() != 1) {
-                    Collections.sort(wells, new Comparator<Well>() {
-                        @Override
-                        public int compare(Well w1, Well w2) {
-                            char m1 = w1.name.replaceAll("[1-9]{1,2}", "").charAt(0);
-                            char m2 = w2.name.replaceAll("[1-9]{1,2}", "").charAt(0);
-                            int v1 = Integer.parseInt(w1.name.replaceAll("[A-H]", ""));
-                            int v2 = Integer.parseInt(w2.name.replaceAll("[A-H]", ""));
-                            if (m1 == m2) return v1 - v2;
-                            if (v1 == v2) return m1 - m2;
-                            return v1 - v2;
-                        }
-                    });
-                }
-                for (Iterator<Well> it = wells.iterator(); it.hasNext(); ) {
-                    Well wl = it.next();
-                    Paint paint = new Paint();
-                    paint.setStyle(Paint.Style.STROKE);
-                    if (wells.size() != 1) {
-                        int begin = Integer.parseInt(wells.get(0).name.replaceAll("[A-H]", ""));
-                        int end = Integer.parseInt(wells.get(wells.size() - 1).name.replaceAll("[A-H]", ""));
-                        paint.setStrokeWidth(Utils.px4dp(1));
-                        paint.setTextSize(Utils.px4dp(120));
-                        paint.setColor(Color.parseColor("#FFFFFF"));//白色
-                        String[] rowname = {"A", "B", "C", "D", "E", "F", "G", "H"};
-                        String[] colname = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
-                        int xDelta = w / 12;
-                        int yDelta = h / 8;
-                        for (int i = 0; i < rowname.length; i++) {
-                            canvas.drawText(rowname[i], Utils.px4dp(30), Utils.px4dp((i * (yDelta + 100)) + 245), paint);
-                        }
-                        for (int i = begin - 1, j = 0; i < end; i++, j++) {
-                            canvas.drawText(colname[i], Utils.px4dp((j * (xDelta + 150)) + 200), Utils.px4dp(150), paint);
-                        }
-                    } else {
-                        paint.setStrokeWidth(15);
-                        paint.setTextSize(200 / wells.size());
-                        paint.setColor(StringUtils.isEmpty(wl.color) ? Color.parseColor("#FFFFFF") : Color.parseColor(wl.color));
-                        if (wells.size() == 1) {
-                            // 将坐标原点移到控件中心
-                            canvas.translate(w / 2, h / 2);
-                            // 绘制居中文字
-                            float textWidth = paint.measureText(wl.name);
-                            // 文字baseline在y轴方向的位置
-                            float baseLineY = Math.abs(paint.ascent() + paint.descent()) / 2;
-                            canvas.drawText(wl.name, -textWidth / 2, baseLineY, paint);
-                        }
-
+                //从小到大排序
+                Collections.sort(wells, new Comparator<Well>() {
+                    @Override
+                    public int compare(Well w1, Well w2) {
+                        char m1 = w1.name.replaceAll("[1-9]{1,2}", "").charAt(0);
+                        char m2 = w2.name.replaceAll("[1-9]{1,2}", "").charAt(0);
+                        int v1 = Integer.parseInt(w1.name.replaceAll("[A-H]", ""));
+                        int v2 = Integer.parseInt(w2.name.replaceAll("[A-H]", ""));
+                        if (m1 == m2) return v1 - v2;
+                        if (v1 == v2) return m1 - m2;
+                        return v1 - v2;
                     }
+                });
+                int begin = Integer.parseInt(wells.get(0).name.replaceAll("[A-H]", ""));
+                int end = Integer.parseInt(wells.get(wells.size() - 1).name.replaceAll("[A-H]", ""));
+                String[] rowname = {"A", "B", "C", "D", "E", "F", "G", "H"};
+                String[] colname = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
+                int xDelta = w / 12;
+                int yDelta = h / 8;
+                Map<String, Integer> ybox = new HashMap<String, Integer>();
+                Map<String, Integer> xbox = new HashMap<String, Integer>();
+                for (int i = 0; i < rowname.length; i++) {
+                    int y = Utils.px2dp((i * (yDelta + 100)) + 245);
+                    ybox.put(rowname[i], y);
+                    canvas.drawText(rowname[i], Utils.px2dp(30), y, paint);
+                }
+                for (int i = begin - 1, j = 0; i < end; i++, j++) {
+                    int x = Utils.px2dp((j * (xDelta + 150)) + 200);
+                    xbox.put(colname[i], x);
+                    canvas.drawText(colname[i], x, Utils.px2dp(150), paint);
+                }
+                paint.setStrokeWidth(Utils.px2dp(50));
+                for (Iterator<Well> it = wells.iterator(); it.hasNext(); ) {
+                    Well w1 = it.next();
+                    char c = w1.name.replaceAll("[1-9]{1,2}", "").charAt(0);
+                    int v = Integer.parseInt(w1.name.replaceAll("[A-H]", ""));
+                    int y = ybox.get(String.valueOf(c));
+                    int x = xbox.get(String.valueOf(v));
+                    paint.setColor(Color.parseColor(StringUtils.isEmpty(w1.color) ? "#FFFFFF" : w1.color));
+                    canvas.drawCircle(x + Utils.px2dp(30), y - Utils.px2dp(30), 10, paint);
                 }
                 holder.unlockCanvasAndPost(canvas);
             }
@@ -252,7 +250,6 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         tvHorz = (TextView) findViewById(R.id.tvv_horz);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         //End:传感器
-
         javaCameraView = (JavaCameraView) findViewById(R.id.javaCameraView);
         javaCameraView.setZOrderOnTop(true);
         javaCameraView.setZOrderMediaOverlay(true);
@@ -385,107 +382,123 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                 }
             }
         });
-        findViewById(R.id.btnPause).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stop = stop ? false : true;
-                findViewById(R.id.etScansize).setEnabled(stop?true:false);
-                String vb = ((Button) findViewById(R.id.btnPause)).getText().toString();
-                ((Button) findViewById(R.id.btnPause)).setText(vb.equals("start") ? "pause" : "start");
-            }
-        });
-        findViewById(R.id.btnCatchColor).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                findViewById(R.id.btnSave).setVisibility(View.VISIBLE);
-                findViewById(R.id.tvmsg).setVisibility(View.VISIBLE);
-                Circle cl = circles.get(0);
-                double[] rgb = image.get(cl.y, cl.x);
-                String color = String.format("#%02x%02x%02x", (int) rgb[0], (int) rgb[1], (int) rgb[2]);
-                Message msg = new Message();
-                msg.what = BTNCOLOR;
-                msg.obj = color;
-                handle.sendMessage(msg);
 
-            }
-        });
-        findViewById(R.id.btnSave).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AsyncTask() {
+        findViewById(R.id.btnPause).
+
+                setOnClickListener(new View.OnClickListener() {
                     @Override
-                    protected Object doInBackground(Object[] objects) {
-                        try {
-                            Circle cl = circles.get(0);
-                            double[] rgb = image.get(cl.y, cl.x);
-                            String color = String.format("#%02x%02x%02x", (int) rgb[0], (int) rgb[1], (int) rgb[2]);
-                            Bundle bundle = getIntent().getExtras();
-                            String barcode = bundle.getString("barcode");
-                            String name = bundle.getString("name");
-                            OkHttpClient client = new OkHttpClient();
-                            Properties properties = new Properties();
-                            properties.load(ScanwellActivity.this.getAssets().open("project.properties"));
-                            String url = properties.getProperty("url");
-                            String v = client.newCall(new Request.Builder().url(url + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
-                            JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
-                            if (bv != null && bv.has(name)) {
-                                JSONObject oo = new JSONObject(bv.getString(name));
-                                oo.put("color", color);
-                                bv.put(name, oo);
-                                RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", bv.toString()).build();
-                                Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
-                                client.newCall(request).execute();//发送请求
-                                Bundle vbund = new Bundle();
-                                vbund.putString(Variables.INTENT_EXTRA_KEY_QR_SCAN, barcode);
-                                setResult(RESULT_OK, new Intent().putExtras(vbund));
-                                finish();
-                            }
-
-                        } catch (Exception e) {
-
-                        }
-                        return null;
+                    public void onClick(View v) {
+                        stop = stop ? false : true;
+                        findViewById(R.id.etScansize).setEnabled(stop ? true : false);
+                        String vb = ((Button) findViewById(R.id.btnPause)).getText().toString();
+                        ((Button) findViewById(R.id.btnPause)).setText(vb.equals("start") ? "pause" : "start");
                     }
-                }.execute();
+                });
+
+        findViewById(R.id.btnCatchColor).
+
+                setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        findViewById(R.id.btnSave).setVisibility(View.VISIBLE);
+                        findViewById(R.id.tvmsg).setVisibility(View.VISIBLE);
+                        Circle cl = circles.get(0);
+                        double[] rgb = image.get(cl.y, cl.x);
+                        String color = String.format("#%02x%02x%02x", (int) rgb[0], (int) rgb[1], (int) rgb[2]);
+                        Message msg = new Message();
+                        msg.what = BTNCOLOR;
+                        msg.obj = color;
+                        handle.sendMessage(msg);
+
+                    }
+                });
+
+        findViewById(R.id.btnSave).
+
+                setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        new AsyncTask() {
+                            @Override
+                            protected Object doInBackground(Object[] objects) {
+                                try {
+                                    Circle cl = circles.get(0);
+                                    double[] rgb = image.get(cl.y, cl.x);
+                                    String color = String.format("#%02x%02x%02x", (int) rgb[0], (int) rgb[1], (int) rgb[2]);
+                                    Bundle bundle = getIntent().getExtras();
+                                    String barcode = bundle.getString("barcode");
+                                    String name = bundle.getString("name");
+                                    OkHttpClient client = new OkHttpClient();
+                                    Properties properties = new Properties();
+                                    properties.load(ScanwellActivity.this.getAssets().open("project.properties"));
+                                    String url = properties.getProperty("url");
+                                    String v = client.newCall(new Request.Builder().url(url + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
+                                    JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
+                                    if (bv != null && bv.has(name)) {
+                                        JSONObject oo = new JSONObject(bv.getString(name));
+                                        oo.put("color", color);
+                                        bv.put(name, oo);
+                                        RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", bv.toString()).build();
+                                        Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
+                                        client.newCall(request).execute();//发送请求
+                                        Bundle vbund = new Bundle();
+                                        vbund.putString(Variables.INTENT_EXTRA_KEY_QR_SCAN, barcode);
+                                        setResult(RESULT_OK, new Intent().putExtras(vbund));
+                                        finish();
+                                    }
+
+                                } catch (Exception e) {
+
+                                }
+                                return null;
+                            }
+                        }.execute();
 
 
-            }
-        });
-        findViewById(R.id.btnReTake).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                findViewById(R.id.btnCatchColor).setEnabled(false);
-                findViewById(R.id.btnReTake).setEnabled(false);
-                findViewById(R.id.btnSave).setVisibility(View.GONE);
+                    }
+                });
+
+        findViewById(R.id.btnReTake).
+
+                setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        findViewById(R.id.btnCatchColor).setEnabled(false);
+                        findViewById(R.id.btnReTake).setEnabled(false);
+                        findViewById(R.id.btnSave).setVisibility(View.GONE);
                 /*Button btn = (Button) findViewById(R.id.btnAfterCol);
                 btn.setBackgroundColor(Color.parseColor("#FFFFFF"));
                 btn.setTextColor(Color.parseColor("#000000"));*/
-                isReTake = true;
-                stop = false;
-            }
-        });
-        ((RangeSeekBar) findViewById(R.id.sbarRadius)).setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
-            private int min = 10;
-            private int max = 25;
+                        isReTake = true;
+                        stop = false;
+                    }
+                });
+        ((RangeSeekBar)
 
-            @Override
-            public void onStartedSeeking() {
+                findViewById(R.id.sbarRadius)).
 
-            }
+                setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
+                    private int min = 10;
+                    private int max = 25;
 
-            @Override
-            public void onStoppedSeeking() {
-                ScanwellActivity.this.radiusmin = min;
-                ScanwellActivity.this.radiusmax = max;
-            }
+                    @Override
+                    public void onStartedSeeking() {
 
-            @Override
-            public void onValueChanged(int min, int max) {
-                this.min = min;
-                this.max = max;
-                ((TextView) findViewById(R.id.tvradius)).setText("Circle radius:" + min + "~" + max);
-            }
-        });
+                    }
+
+                    @Override
+                    public void onStoppedSeeking() {
+                        ScanwellActivity.this.radiusmin = min;
+                        ScanwellActivity.this.radiusmax = max;
+                    }
+
+                    @Override
+                    public void onValueChanged(int min, int max) {
+                        this.min = min;
+                        this.max = max;
+                        ((TextView) findViewById(R.id.tvradius)).setText("Circle radius:" + min + "~" + max);
+                    }
+                });
 
     }
 
