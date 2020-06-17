@@ -27,11 +27,14 @@ import com.google.zxing.activity.CaptureActivity;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
+import org.opencv.core.Mat;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -127,7 +130,7 @@ public class PlateActivity extends AppCompatActivity {
                     //多选
                     case MULCHECK:
                         if (stack.size() != 2) return false;
-                        if (alert()) return false;
+                        if (alert("Please scan the Plate barcode!")) return false;
                         String v1 = stack.pop();
                         String v2 = stack.pop();
                         String[] va = v1.split("@");
@@ -136,17 +139,25 @@ public class PlateActivity extends AppCompatActivity {
                         char tba = vb[0].charAt(0);//字符
                         int nab = Integer.valueOf(va[1]);//数字
                         int nbb = Integer.valueOf(vb[1]);//数字
-                        //框选两个手指选择的行与列
-                        for (int i = 0; i < (nab > nbb ? Math.abs(nab - nbb + 1) : Math.abs(nab - nbb - 1)); i++) {
-                            for (int j = 0; j < (taa < tba ? Math.abs(taa - tba - 1) : Math.abs(taa - tba + 1)); j++) {
-                                int v = taa > tba ? tba : taa;//B
-                                String vi = String.valueOf(((char) (v + j))) + (nab > nbb ? (nbb + i) : (nbb - i));
-                                Button mbv = initbox.get(vi);
-                                mbv.setTag(R.id.isCheck, true);
-                                if (StringUtils.isEmpty(mbv.getTag(R.id.barcode).toString())) {
+                        if (Math.abs(nab - nbb) > 5) {
+                            Toast toast = Toast.makeText(PlateActivity.this, "In order to ensure the accuracy of the scanned color, choose no more than 6 columns.", Toast.LENGTH_SHORT);
+                            Display display = getWindowManager().getDefaultDisplay();
+                            // 获取屏幕高度
+                            int height = display.getHeight();
+                            toast.setGravity(Gravity.TOP, 0, height / 4);
+                            toast.show();
+                            findViewById(R.id.btnNext).setVisibility(View.GONE);
+                        } else {
+                            //框选两个手指选择的行与列
+                            for (int i = 0; i < (nab > nbb ? Math.abs(nab - nbb + 1) : Math.abs(nab - nbb - 1)); i++) {
+                                for (int j = 0; j < (taa < tba ? Math.abs(taa - tba - 1) : Math.abs(taa - tba + 1)); j++) {
+                                    int v = taa > tba ? tba : taa;//B
+                                    String vi = String.valueOf(((char) (v + j))) + (nab > nbb ? (nbb + i) : (nbb - i));
+                                    Button mbv = initbox.get(vi);
+                                    mbv.setTag(R.id.isCheck, true);
                                     checkbtn.put(vi, mbv);
+                                    loadColor(mbv);
                                 }
-                                loadColor(mbv);
                             }
                         }
                         break;
@@ -161,7 +172,7 @@ public class PlateActivity extends AppCompatActivity {
                         if (isCheck) checkbtn.put(vt, bv);
                         else checkbtn.remove(vt);
                         bv.setTag(R.id.isCheck, isCheck);
-                        loadColor(bv);
+                        if (isValid(checkbtn)) loadColor(bv);
                         break;
                 }
 
@@ -172,9 +183,42 @@ public class PlateActivity extends AppCompatActivity {
         }
     });
 
-    private boolean alert() {
+    private boolean isValid(Map<String, Button> maps) {
+        if (maps.size() > 1) {
+            //从小到大排序
+            List<Object> keys = Arrays.asList(maps.keySet().toArray());
+            Collections.sort(keys, new Comparator<Object>() {
+                @Override
+                public int compare(Object w1, Object w2) {
+                    char m1 = w1.toString().replaceAll("[1-9]{1,2}", "").charAt(0);
+                    char m2 = w2.toString().replaceAll("[1-9]{1,2}", "").charAt(0);
+                    int v1 = Integer.parseInt(w1.toString().replaceAll("[A-H]", ""));
+                    int v2 = Integer.parseInt(w2.toString().replaceAll("[A-H]", ""));
+                    if (m1 == m2) return v1 - v2;
+                    if (v1 == v2) return m1 - m2;
+                    return v1 - v2;
+                }
+            });
+            int begin = Integer.parseInt(keys.get(0).toString().replaceAll("[A-H]", ""));
+            int end = Integer.parseInt(keys.get(keys.size() - 1).toString().replaceAll("[A-H]", ""));
+            if (Math.abs(end - begin) > 5) {
+                Toast toast = Toast.makeText(PlateActivity.this, "In order to ensure the accuracy of the scanned color, choose no more than 6 columns.", Toast.LENGTH_SHORT);
+                Display display = getWindowManager().getDefaultDisplay();
+                // 获取屏幕高度
+                int height = display.getHeight();
+                toast.setGravity(Gravity.TOP, 0, height / 4);
+                toast.show();
+                maps.remove(keys.get(keys.size() - 1).toString());
+                findViewById(R.id.btnNext).setVisibility(View.GONE);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean alert(String msg) {
         if (StringUtils.isEmpty(((EditText) findViewById(R.id.etbarcode)).getText().toString())) {
-            Toast toast = Toast.makeText(PlateActivity.this, "Please scan the Plate barcode!", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(PlateActivity.this, msg, Toast.LENGTH_LONG);
             Display display = getWindowManager().getDefaultDisplay();
             // 获取屏幕高度
             int height = display.getHeight();
@@ -192,22 +236,22 @@ public class PlateActivity extends AppCompatActivity {
         findViewById(R.id.btnNext).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (alert()) return;
+                if (alert("Please scan the Plate barcode!")) return;
                 Map<String, List<Well>> m = new HashMap<String, List<Well>>();
-                List<Well> wells=new ArrayList<Well>();
+                List<Well> wells = new ArrayList<Well>();
                 Intent intent = new Intent(PlateActivity.this, ScanwellActivity.class);
                 Bundle bundle = new Bundle();
                 for (Iterator<Button> it = checkbtn.values().iterator(); it.hasNext(); ) {
                     Button bv = it.next();
-                    Well w=new Well();
+                    Well w = new Well();
                     w.name = String.valueOf(bv.getText().toString());
                     w.color = StringUtils.isEmpty(bv.getTag(R.id.color).toString()) ? "#FFFFFF" : bv.getTag(R.id.color).toString();
                     w.barcode = bv.getTag(R.id.barcode).toString();
-                    w.parent=((EditText) findViewById(R.id.etbarcode)).getText().toString();
+                    w.parent = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
                     wells.add(w);
                 }
-                Gson gson=new Gson();
-                bundle.putString("data",gson.toJson(wells));
+                Gson gson = new Gson();
+                bundle.putString("data", gson.toJson(wells));
                 intent.putExtras(bundle);
                 startActivityForResult(intent, Variables.SCAN_PLATE_WELL);
             }
@@ -277,11 +321,11 @@ public class PlateActivity extends AppCompatActivity {
                 btn.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                     @Override
                     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                        if (alert()) return;
+                        if (alert("Please scan the Plate barcode!")) return;
                         menu.add(0, 1, 0, "Scan barcode").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                             @Override
                             public boolean onMenuItemClick(MenuItem item) {
-                                if (alert()) return false;
+                                if (alert("Please scan the Plate barcode!")) return false;
                                 // 申请相机权限
                                 if (ActivityCompat.checkSelfPermission(PlateActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                                     // 申请权限
@@ -395,7 +439,7 @@ public class PlateActivity extends AppCompatActivity {
                         @Override
                         protected String doInBackground(String... strings) {
                             try {
-                                if (alert()) return "NULL";
+                                if (alert("Please scan the Plate barcode!")) return "NULL";
                                 OkHttpClient client = new OkHttpClient();
                                 Properties properties = new Properties();
                                 properties.load(PlateActivity.this.getAssets().open("project.properties"));
