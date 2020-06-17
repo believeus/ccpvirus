@@ -37,55 +37,63 @@
             android:textSize="14dp"
             android:text="Detection kit"/>
     </LinearLayout>
+
     <androidx.percentlayout.widget.PercentRelativeLayout
-        android:layout_marginTop="45dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="45dp">
+
         <RelativeLayout
-            android:orientation="vertical"
             android:layout_width="0dp"
-            app:layout_widthPercent="50%"
-            android:layout_alignParentTop="true"
+            android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_height="wrap_content">
+            android:layout_alignParentTop="true"
+            android:orientation="vertical"
+            app:layout_widthPercent="50%">
+
             <Button
                 android:id="@+id/btnScan"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/mainscan"
-                android:gravity="center"
-                android:layout_width="80dp"
-                android:layout_height="80dp"/>
+                android:gravity="center" />
+
             <TextView
-                android:layout_marginTop="30dp"
-                android:gravity="center"
-                android:layout_below="@+id/btnScan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Set up New Run"/>
+                android:layout_below="@+id/btnScan"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="Set up New Run" />
         </RelativeLayout>
+
         <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:orientation="horizontal"
-            android:layout_width="0dp"
-            app:layout_widthPercent="50%"
-            android:layout_height="wrap_content">
+            app:layout_widthPercent="50%">
+
             <Button
                 android:id="@+id/btnAnalyze"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:layout_centerInParent="true"
                 android:background="@drawable/mainanalyze"
-                android:gravity="center"
-                android:layout_width="80dp"
-                android:layout_height="80dp"/>
+                android:gravity="center" />
+
             <TextView
-                android:layout_marginTop="30dp"
-                android:gravity="center"
-                android:layout_below="@+id/btnAnalyze"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Analyze Completed"/>
+                android:layout_below="@+id/btnAnalyze"
+                android:layout_marginTop="30dp"
+                android:gravity="center"
+                android:text="Analyze Completed" />
         </RelativeLayout>
     </androidx.percentlayout.widget.PercentRelativeLayout>
+
     <androidx.percentlayout.widget.PercentRelativeLayout
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"

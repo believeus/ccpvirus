@@ -1,156 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    android:orientation="vertical"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".setup">
+    android:layout_height="wrap_content"
+    >
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
+
+    <androidx.percentlayout.widget.PercentRelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="20dp">]
+
+        <RelativeLayout
+            android:layout_width="61dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:orientation="vertical"
+            app:layout_widthPercent="20%">
+
+            <ImageView
+                android:id="@+id/imgView"
+                android:layout_width="56dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/min" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:orientation="horizontal"
+            app:layout_widthPercent="80%">
+
+            <TextView
+                android:id="@+id/textTitle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="40dp"
+                android:gravity="center"
+                android:text="@string/textTitle"
+                android:textColor="#D40A0707"
+                android:textSize="28dp" />
+        </RelativeLayout>
+
+    </androidx.percentlayout.widget.PercentRelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="301dp"
+        android:layout_marginTop="50dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textSeleAssay"
+            android:layout_width="381dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="@string/textSeleAssay"
+            android:textColor="#D4160A0A"
+            android:textSize="22dp" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="330dp"
+            android:layout_height="45dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/my_spinner"
+            android:entries="@array/spnner"
+            android:spinnerMode="dropdown"
+            android:dropDownVerticalOffset="45dp"
+            />
+
+        <TextView
+            android:id="@+id/TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="25dp"
+            android:text="@string/textNameTlg"
+            android:textColor="#D4160303"
+            android:textSize="22dp" />
+
+        <EditText
+            android:id="@+id/plainPleaseEN"
+            android:layout_width="330dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="8dp"
+            android:autofillHints=""
+            android:background="@drawable/my_text"
+            android:ems="10"
+            android:hint="@string/plainPleaseEN"
+            android:inputType="textPersonName"
+            android:paddingLeft="10dp"
+            android:textColor="#99140F0F"
+            android:textColorHint="#991A0808" />
+
+        <TextView
+            android:id="@+id/textView13"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="18dp"
+            android:text="@string/textDataAD"
+            android:textColor="#D40C0404"
+            android:textSize="22sp" />
+
+        <EditText
+            android:id="@+id/enditAutoDe"
+            android:layout_width="330dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/my_text"
+            android:ems="10"
+            android:hint="@string/enditAutoDe"
+            android:inputType="textPersonName"
+            android:paddingLeft="10dp"
+            android:textColor="#99140F0F"
+            android:textColorHint="#991A0808" />
+
+    </LinearLayout>
+
+    <androidx.percentlayout.widget.PercentRelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.04" />
+        android:layout_marginTop="100dp">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.96" />
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_widthPercent="50%">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.05" />
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:background="#1D0F0606"
+                android:text="@string/btnCancel"
+                android:textAllCaps="false"
+                android:textColor="#B31D0505"
+                android:textSize="18sp" />
+        </RelativeLayout>
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/guideline3"
-        app:srcCompat="@drawable/min" />
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:gravity="center|left"
+            android:orientation="horizontal"
+            app:layout_widthPercent="30%">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.18331054" />
+            <Button
+                android:id="@+id/btnNext"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:background="#BF2196F3"
+                android:text="@string/btnNext"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+        </RelativeLayout>
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/text1"
-        android:textColor="#D9201E1E"
-        android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/guideline4" />
-
-    <Spinner
-        android:id="@+id/spinner"
-        android:layout_width="330dp"
-        android:layout_height="43dp"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/my_spinner"
-        android:dropDownVerticalOffset="45dp"
-        android:entries="@array/spnner"
-        android:spinnerMode="dropdown"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
-
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="330dp"
-        android:layout_height="43dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/my_text"
-        android:ems="10"
-        android:hint="@string/planane"
-        android:inputType="textPersonName"
-        android:paddingLeft="5dp"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-    <EditText
-        android:id="@+id/editText2"
-        android:layout_width="330dp"
-        android:layout_height="43dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/my_text"
-        android:ems="10"
-        android:hint="@string/Aut"
-        android:inputType="textPersonName"
-        android:paddingLeft="5dp"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/nameof"
-        android:textColor="#D4241E1E"
-        android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/spinner" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:hint="@string/Txtda"
-        android:textColor="#D40E0909"
-        android:textColorHint="#D40E0404"
-        android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/editText" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="112dp"
-        android:background="#312E2727"
-        android:text="@string/tn1"
-        android:textAllCaps="false"
-        android:textColor="#92292727"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toBottomOf="@+id/editText2" />
-
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="112dp"
-        android:background="#2196F3"
-        android:text="@string/next"
-        android:textAllCaps="false"
-        android:textColor="#E6F7EDED"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toBottomOf="@+id/editText2" />
-
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/set"
-        android:textColor="#D41A1515"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/imageView" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.percentlayout.widget.PercentRelativeLayout>
+</LinearLayout>
