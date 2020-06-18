@@ -232,14 +232,13 @@
                     <androidx.percentlayout.widget.PercentRelativeLayout
                         android:id="@+id/LayoutColorPal"
                         android:layout_width="match_parent"
-                        android:layout_height="225dp"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="center">
                         <LinearLayout
                             android:layout_below="@+id/tvColorPal"
                             android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            app:layout_heightPercent="100%"
+                            android:layout_height="wrap_content"
                             app:layout_widthPercent="98%"
                             android:layout_centerHorizontal="true"
                             android:orientation="vertical">
@@ -264,16 +263,38 @@
                                     app:layout_heightPercent="100%"
                                     app:layout_widthPercent="49%"/>
                             </androidx.percentlayout.widget.PercentRelativeLayout>
-                            <Button
-                                android:id="@+id/btnSave"
-                                android:background="@drawable/button"
-                                android:textStyle="bold"
-                                android:visibility="gone"
-                                android:textColor="#ffffff"
+                            <RelativeLayout
+                                android:id="@+id/llColor"
+                                android:layout_marginTop="10dp"
+                                android:visibility="visible"
                                 android:layout_width="match_parent"
-                                android:layout_height="40dp"
-                                android:text="SAVE" />
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+                                <GridLayout
+                                    android:id="@+id/gridlayout"
+                                    android:layout_marginBottom="10dp"
+                                    android:background="@drawable/plate_border"
+                                    android:layout_centerInParent="true"
+                                    android:padding="5dp"
+                                    android:layout_centerHorizontal="true"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content" />
+                                <Button
+                                    android:id="@+id/btnSave"
+                                    android:layout_centerInParent="true"
+                                    android:layout_below="@+id/gridlayout"
+                                    android:background="@drawable/button"
+                                    android:textStyle="bold"
+                                    android:visibility="gone"
+                                    android:textColor="#ffffff"
+                                    android:layout_width="200dp"
+                                    android:layout_height="40dp"
+                                    android:text="SAVE" />
+                            </RelativeLayout>
                         </LinearLayout>
+
+
                     </androidx.percentlayout.widget.PercentRelativeLayout>
                 </LinearLayout>
 
