@@ -65,8 +65,6 @@ import okhttp3.RequestBody;
 
 public class ScanwellActivity extends AppCompatActivity implements SensorEventListener {
     private int scansize;
-    private Map<String, Integer> ybox = new HashMap<String, Integer>();
-    private Map<String, Integer> xbox = new HashMap<String, Integer>();
     private SurfaceView svBeforeColor;
     private SurfaceView svAfterColor;
     private StringBuilder sb = new StringBuilder();
@@ -106,7 +104,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
     private TextView tvHorz;
     private TextView tvVert;
     private static final int IDENTIFY = 0;
-    private static final int BTNCOLOR = 1;
+    private static final int CATCHCOLOR = 1;
     private static final int STOP = 3;
     private Handler handle = new Handler(new Handler.Callback() {
         @Override
@@ -116,17 +114,47 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                     String text = String.valueOf(msg.obj);
                     ((TextView) findViewById(R.id.tvmsg)).setText(text);
                     break;
-                case BTNCOLOR:
-                    final List<Circle> circles = new Gson().fromJson( String.valueOf(msg.obj), new TypeToken<ArrayList<Circle>>() {
-                    }.getType());
+                case CATCHCOLOR:
+                    Map<String, Integer> ybox = new HashMap<String, Integer>();
+                    Map<String, Integer> xbox = new HashMap<String, Integer>();
                     SurfaceHolder holder = svAfterColor.getHolder();
                     Canvas canvas = holder.lockCanvas();
-                    
-                    //double[] rgb = image.get(cl.y, cl.x);
-                    //String color = String.format("#%02x%02x%02x", (int) rgb[0], (int) rgb[1], (int) rgb[2]);
-                   /* Button btn = (Button) findViewById(R.id.btnAfterCol);
-                    btn.setBackgroundColor(Color.parseColor(String.valueOf(msg.obj)));
-                    btn.setTextColor(Color.parseColor("#FFFFFF"));*/
+                    Paint paint = new Paint();
+                    paint.setStyle(Paint.Style.STROKE);
+                    paint.setStrokeWidth(Utils.px2dp(1));
+                    paint.setTextSize(Utils.px2dp(120));
+                    paint.setColor(Color.parseColor("#FFFFFF"));//白色
+                    int w = svAfterColor.getWidth();
+                    int h = svAfterColor.getHeight();
+                    String[] rowname = {"A", "B", "C", "D", "E", "F", "G", "H"};
+                    String[] colname = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
+                    int xDelta = w / 12;
+                    int yDelta = h / 8;
+                    int begin = Integer.parseInt(circles.get(0).name.replaceAll("[A-H]", ""));
+                    int end = Integer.parseInt(circles.get(circles.size() - 1).name.replaceAll("[A-H]", ""));
+                    for (int i = 0; i < rowname.length; i++) {
+                        int y = Utils.px2dp((i * (yDelta + 100)) + 245);
+                        ybox.put(rowname[i], y);
+                        canvas.drawText(rowname[i], Utils.px2dp(30), y, paint);
+                    }
+                    for (int i = begin - 1, j = 0; i < end; i++, j++) {
+                        int x = Utils.px2dp((j * (xDelta + 150)) + 200);
+                        xbox.put(colname[i], x);
+                        canvas.drawText(colname[i], x, Utils.px2dp(150), paint);
+                    }
+                    paint.setStrokeWidth(Utils.px2dp(50));
+                    for (Iterator<Circle> it=circles.iterator();it.hasNext();){
+                        Circle cl = it.next();
+                        char c = cl.name.replaceAll("[1-9]{1,2}", "").charAt(0);
+                        int v = Integer.parseInt(cl.name.replaceAll("[A-H]", ""));
+                        int y = ybox.get(String.valueOf(c));
+                        int x = xbox.get(String.valueOf(v));
+                        double[] rgb = image.get(cl.y, cl.x);
+                        String color = String.format("#%02x%02x%02x", (int) rgb[0], (int) rgb[1], (int) rgb[2]);
+                        paint.setColor(Color.parseColor(color));
+                        canvas.drawCircle(x + Utils.px2dp(30), y - Utils.px2dp(30), 10, paint);
+                    }
+                    holder.unlockCanvasAndPost(canvas);
                     break;
                 case STOP:
                     findViewById(R.id.btnCatchColor).setEnabled(true);
@@ -187,46 +215,6 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         ((TextView) findViewById(R.id.tvPicksize)).setText(String.valueOf(wells.size()));
         ((EditText) findViewById(R.id.etScansize)).setText(String.valueOf(wells.size()));
         scansize = wells.size();
-        svAfterColor.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                Canvas canvas = holder.lockCanvas();
-                Paint paint = new Paint();
-                paint.setStyle(Paint.Style.STROKE);
-                paint.setStrokeWidth(Utils.px2dp(1));
-                paint.setTextSize(Utils.px2dp(120));
-                paint.setColor(Color.parseColor("#FFFFFF"));//白色
-                int w = svAfterColor.getWidth();
-                int h = svAfterColor.getHeight();
-                String[] rowname = {"A", "B", "C", "D", "E", "F", "G", "H"};
-                String[] colname = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
-                int xDelta = w / 12;
-                int yDelta = h / 8;
-                int begin = Integer.parseInt(wells.get(0).name.replaceAll("[A-H]", ""));
-                int end = Integer.parseInt(wells.get(wells.size() - 1).name.replaceAll("[A-H]", ""));
-                for (int i = 0; i < rowname.length; i++) {
-                    int y = Utils.px2dp((i * (yDelta + 100)) + 245);
-                    ybox.put(rowname[i], y);
-                    canvas.drawText(rowname[i], Utils.px2dp(30), y, paint);
-                }
-                for (int i = begin - 1, j = 0; i < end; i++, j++) {
-                    int x = Utils.px2dp((j * (xDelta + 150)) + 200);
-                    xbox.put(colname[i], x);
-                    canvas.drawText(colname[i], x, Utils.px2dp(150), paint);
-                }
-                holder.unlockCanvasAndPost(canvas);
-            }
-
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-
-            }
-        });
         SurfaceHolder holder = svBeforeColor.getHolder();
         holder.addCallback(new SurfaceHolder.Callback() {
             @Override
@@ -387,9 +375,9 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                         });
                         for (int i = 0; i < circles.size(); i++) {
                             Circle c = circles.get(i);
-                            String name = wells.get(i).name;
+                            c.name=wells.get(i).name;
                             Imgproc.circle(imgClone, new Point(c.x, c.y), c.radius, new Scalar(255, 0, 0), 2, 8);//绘制圆
-                            Imgproc.putText(imgClone,name, new Point(c.x, c.y), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 3);
+                            Imgproc.putText(imgClone,c.name, new Point(c.x, c.y), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 3);
                         }
                         stop = true;
                         iterate = false;
@@ -447,9 +435,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
             }
         });
 
-        findViewById(R.id.btnPause).
-
-                setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnPause).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         stop = stop ? false : true;
@@ -465,7 +451,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                         findViewById(R.id.btnSave).setVisibility(View.VISIBLE);
                         findViewById(R.id.tvmsg).setVisibility(View.VISIBLE);
                         Message msg = new Message();
-                        msg.what = BTNCOLOR;
+                        msg.what = CATCHCOLOR;
                         msg.obj = new Gson().toJson(circles);
                         handle.sendMessage(msg);
 

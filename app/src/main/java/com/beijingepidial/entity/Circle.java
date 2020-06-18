@@ -4,6 +4,7 @@ public class Circle {
     public int id;
     public int x;
     public int y;
+    public String name;
     public int radius;
     public int xDelta;
     public int yDelta;
