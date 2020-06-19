@@ -573,7 +573,6 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                             String url = properties.getProperty("url");
                             String v = client.newCall(new Request.Builder().url(url + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
                             JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
-                            System.out.println("xx:"+(bv != null));
                             if (bv != null) {
                                 Collection<Button> values = checkbtn.isEmpty() ? initbox.values() : checkbtn.values();
                                 for (Iterator<Button> it = values.iterator(); it.hasNext(); ) {

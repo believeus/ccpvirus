@@ -27,9 +27,7 @@ import com.google.zxing.activity.CaptureActivity;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
-import org.opencv.core.Mat;
 
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,6 +55,7 @@ public class PlateActivity extends AppCompatActivity {
     private static final int RELOAD = -1;
     private static final int SCANPLATE = 1;
     private static final int SGLCHECK = 2;
+    private static final int RMCOLOR = 3;
     private String body;
     private Map<String, Button> checkbtn = new HashMap<String, Button>();
     private Stack<String> stack = new Stack<String>();
@@ -113,9 +112,40 @@ public class PlateActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean handleMessage(Message msg) {
+        public boolean handleMessage(final Message msg) {
             try {
                 switch (msg.what) {
+                    case RMCOLOR:
+                        final String vn=msg.obj.toString();
+                        new AsyncTask(){
+                            @Override
+                            protected Object doInBackground(Object[] objects) {
+                                try {
+                                    String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
+                                    OkHttpClient client = new OkHttpClient();
+                                    Properties properties = new Properties();
+                                    properties.load(PlateActivity.this.getAssets().open("project.properties"));
+                                    String url = properties.getProperty("url");
+                                    String v = client.newCall(new Request.Builder().url(url + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
+                                    JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
+                                    if (bv != null) {
+                                        String name=vn;
+                                        JSONObject oo = new JSONObject(bv.getString(name));
+                                        oo.put("color","");
+                                        bv.put(name, oo);
+                                        RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", bv.toString()).build();
+                                        Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
+                                        client.newCall(request).execute();//发送请求
+                                    }
+                                    loadData(PlateActivity.this.body);
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+
+                                return null;
+                            }
+                        }.execute();
+                        break;
                     case RELOAD:
                         //还原单选的按钮
                         for (Iterator<Button> it = checkbtn.values().iterator(); it.hasNext(); ) {
@@ -252,8 +282,8 @@ public class PlateActivity extends AppCompatActivity {
                 }
                 Gson gson = new Gson();
                 bundle.putString("data", gson.toJson(wells));
-                String bc=((EditText)findViewById(R.id.etbarcode)).getText().toString();
-                bundle.putString("barcode",bc);
+                String bc = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
+                bundle.putString("barcode", bc);
                 intent.putExtras(bundle);
                 startActivityForResult(intent, Variables.SCAN_PLATE_WELL);
             }
@@ -286,10 +316,10 @@ public class PlateActivity extends AppCompatActivity {
                 final int r = i + 1;
                 final int c = j;
                 final Button btn = new Button(PlateActivity.this);
-                String name = vname.get(c) + r;
-                btn.setText(name);
+                final String name = vname.get(c) + r;
                 final int id = View.generateViewId();
                 btn.setId(id);
+                btn.setText(name);
                 btn.setTag(R.id.isCheck, false);
                 btn.setTag(R.id.name, name);
                 btn.setTag(R.id.barcode, "");
@@ -351,7 +381,20 @@ public class PlateActivity extends AppCompatActivity {
                             String scantime = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss").format(new Date(Long.valueOf(btn.getTag(R.id.scantime).toString()).longValue()));
                             menu.add(0, 1, 3, "Scan time:" + scantime);
                         }
-                        menu.add(0, 1, 4, "Reload").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                        if (StringUtils.isNotEmpty(btn.getTag(R.id.color).toString())) {
+                            menu.add(0, 1, 4, "Delete color").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                @Override
+                                public boolean onMenuItemClick(MenuItem item) {
+                                    Message msg = new Message();
+                                    msg.what = RMCOLOR;
+                                    msg.obj = name;
+                                    handler.sendMessage(msg);
+                                    return false;
+                                }
+                            });
+
+                        }
+                        menu.add(0, 1, 5, "Reload").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                             @Override
                             public boolean onMenuItemClick(MenuItem item) {
                                 handler.sendEmptyMessage(RELOAD);
