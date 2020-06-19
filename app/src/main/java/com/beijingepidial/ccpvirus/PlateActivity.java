@@ -106,7 +106,7 @@ public class PlateActivity extends AppCompatActivity {
                 btn.setTag(R.id.scantime, well.scantime);
                 btn.setTag(R.id.color, well.color);
                 btn.setTag(R.id.isCheck, false);
-                btn.setTextColor(getResources().getColor(R.color.well_font_white));
+                btn.setTextColor(Color.parseColor(StringUtils.isEmpty(well.color)?"#4D4D4D":"#FFFFFF"));
                 loadColor(btn);
             }
         }
@@ -116,8 +116,8 @@ public class PlateActivity extends AppCompatActivity {
             try {
                 switch (msg.what) {
                     case RMCOLOR:
-                        final String vn=msg.obj.toString();
-                        new AsyncTask(){
+                        final String vn = msg.obj.toString();
+                        new AsyncTask() {
                             @Override
                             protected Object doInBackground(Object[] objects) {
                                 try {
@@ -129,16 +129,16 @@ public class PlateActivity extends AppCompatActivity {
                                     String v = client.newCall(new Request.Builder().url(url + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
                                     JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
                                     if (bv != null) {
-                                        String name=vn;
-                                        JSONObject oo = new JSONObject(bv.getString(name));
-                                        oo.put("color","");
-                                        bv.put(name, oo);
+                                        JSONObject oo = new JSONObject(bv.getString(vn));
+                                        oo.put("color", "");
+                                        bv.put(vn, oo);
                                         RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", bv.toString()).build();
                                         Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
                                         client.newCall(request).execute();//发送请求
+                                        load(barcode);
                                     }
-                                    loadData(PlateActivity.this.body);
-                                }catch (Exception e){
+
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
 
@@ -326,7 +326,7 @@ public class PlateActivity extends AppCompatActivity {
                 btn.setTag(R.id.color, "");
                 btn.setTextSize(10);
                 btn.setRotation(90);
-                btn.setTextColor(getResources().getColor(R.color.well_font_color));
+                btn.setTextColor(Color.parseColor("#4D4D4D"));
                 btn.setBackgroundColor(R.drawable.well_setting);
                 btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well));
                 btn.setOnTouchListener(new View.OnTouchListener() {
@@ -423,7 +423,7 @@ public class PlateActivity extends AppCompatActivity {
         return true;
     }
 
-    private void scan(String barcode) {
+    private void load(String barcode) {
         ((EditText) findViewById(R.id.etbarcode)).setText(barcode);
         new AsyncTask() {
             @Override
@@ -457,7 +457,7 @@ public class PlateActivity extends AppCompatActivity {
             switch (requestCode) {
                 case Variables.REQ_QR_CODE:
                 case Variables.SCAN_PLATE_WELL:
-                    scan(barcode);
+                    load(barcode);
                     break;
                 default:
                     new AsyncTask<String, Void, String>() {
