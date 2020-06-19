@@ -550,6 +550,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
             @Override
             public void onClick(View v) {
                 findViewById(R.id.btnSave).setVisibility(View.VISIBLE);
+                findViewById(R.id.tvTip).setVisibility(View.VISIBLE);
                 Message msg = new Message();
                 msg.what = CATCHCOLOR;
                 msg.obj = new Gson().toJson(circles);
@@ -615,6 +616,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         findViewById(R.id.btnReTake).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                findViewById(R.id.tvTip).setVisibility(View.GONE);
                 findViewById(R.id.btnCatchColor).setEnabled(false);
                 findViewById(R.id.btnReTake).setEnabled(false);
                 findViewById(R.id.btnSave).setVisibility(View.GONE);
