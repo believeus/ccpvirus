@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -59,6 +60,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Stack;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -68,6 +70,13 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class ScanwellActivity extends AppCompatActivity implements SensorEventListener {
+    private List<Well> wells;
+    private Map<String, Button> initbox = new HashMap<String, Button>();
+    private Map<String, Button> checkbtn = new HashMap<String, Button>();
+    private static final int MULCHECK = 0;
+    private static final int RELOAD = -1;
+    private static final int SCANPLATE = 1;
+    private static final int SGLCHECK = 2;
     private SurfaceView svBeforeColor;
     private SurfaceView svAfterColor;
     private StringBuilder sb = new StringBuilder();
@@ -109,10 +118,22 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
     private static final int IDENTIFY = 0;
     private static final int CATCHCOLOR = 1;
     private static final int STOP = 3;
+    private Stack<String> stack = new Stack<String>();
     private Handler handle = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
+                case SGLCHECK:
+                    String vt = msg.obj.toString();
+                    Button bv = initbox.get(vt);
+                    boolean isCheck = Boolean.valueOf(bv.getTag(R.id.isCheck).toString()) ? false : true;
+                    if (isCheck) checkbtn.put(vt, bv);
+                    else checkbtn.remove(vt);
+                    bv.setTag(R.id.isCheck, isCheck);
+                    String color = bv.getTag(R.id.color).toString();
+                    bv.setBackground(ContextCompat.getDrawable(ScanwellActivity.this, !isCheck ? R.drawable.well_circle_white : R.drawable.well_circle_dash));
+                    bv.getBackground().setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_IN);
+                    break;
                 case IDENTIFY:
                     String text = String.valueOf(msg.obj);
                     ((TextView) findViewById(R.id.tvmsg)).setText(text);
@@ -159,14 +180,14 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                     }
                     paint.setStrokeWidth(Utils.px2dp(50));
                     for (Iterator<Circle> it = circles.iterator(); it.hasNext(); ) {
-                        Circle cl = it.next();
+                        final Circle cl = it.next();
                         char c = cl.name.replaceAll("[1-9]{1,2}", "").charAt(0);
                         int v = Integer.parseInt(cl.name.replaceAll("[A-H]", ""));
                         int y = ybox.get(String.valueOf(c));
                         int x = xbox.get(String.valueOf(v));
                         double[] rgb = image.get(cl.y, cl.x);
-                        String color = String.format("#%02x%02x%02x", (int) rgb[0], (int) rgb[1], (int) rgb[2]);
-                        paint.setColor(Color.parseColor(color));
+                        String cval = String.format("#%02x%02x%02x", (int) rgb[0], (int) rgb[1], (int) rgb[2]);
+                        paint.setColor(Color.parseColor(cval));
                         canvas.drawCircle(x + Utils.px2dp(30), y - Utils.px2dp(30), 10, paint);
                         int i = rowm.get(String.valueOf(v));
                         int j = colm.get(String.valueOf(c));
@@ -177,11 +198,35 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                         Button btn = new Button(ScanwellActivity.this);
                         btn.setText(cl.name);
                         btn.setId(View.generateViewId());
+                        btn.setTag(R.id.isCheck, false);
+                        btn.setTag(R.id.name, cl.name);
+                        btn.setTag(R.id.color, cval);
                         btn.setTextSize(10);
                         btn.setRotation(90);
                         btn.setTextColor(Color.parseColor("#FFFFFF"));
                         btn.setBackground(ContextCompat.getDrawable(ScanwellActivity.this, R.drawable.well_circle_white));
-                        btn.getBackground().setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_IN);
+                        btn.getBackground().setColorFilter(Color.parseColor(cval), PorterDuff.Mode.SRC_IN);
+                        btn.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
+                                switch (event.getAction()) {
+                                    case MotionEvent.ACTION_DOWN:
+                                        stack.push(cl.name);
+                                        handle.sendEmptyMessage(MULCHECK);
+                                        break;
+                                    case MotionEvent.ACTION_UP:
+                                        if (!stack.isEmpty()) {
+                                            Message m = new Message();
+                                            m.what = SGLCHECK;
+                                            m.obj = stack.pop();
+                                            handle.sendMessage(m);
+                                        }
+                                        break;
+                                }
+                                return false;
+                            }
+                        });
+                        initbox.put(cl.name, btn);
                         params.width = 100;
                         params.height = 100;
                         params.setGravity(Gravity.CENTER);
@@ -246,7 +291,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         svBeforeColor = (SurfaceView) findViewById(R.id.svBeforeCol);
         svAfterColor = (SurfaceView) findViewById(R.id.svAfterCol);
         Bundle bundle = getIntent().getExtras();
-        final List<Well> wells = new Gson().fromJson(bundle.getString("data"), new TypeToken<ArrayList<Well>>() {
+        wells = new Gson().fromJson(bundle.getString("data"), new TypeToken<ArrayList<Well>>() {
         }.getType());
         ((TextView) findViewById(R.id.tvPicksize)).setText(String.valueOf(wells.size()));
         ((EditText) findViewById(R.id.etScansize)).setText(String.valueOf(wells.size()));
@@ -349,10 +394,6 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                 //区间移动时,stop为false,禁止是为true
                 if (stop) return imat;
                 int size = Integer.valueOf(((EditText) findViewById(R.id.etScansize)).getText().toString());
-                //w=1080
-                final int w = inputFrame.rgba().cols();
-                //h=1440
-                final int h = inputFrame.rgba().rows();
                 image = inputFrame.rgba().clone();
                 Mat imgClone = image.clone();
                 if (isScan) {
@@ -397,24 +438,46 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                         }
 
                         handle.sendEmptyMessage(STOP);
-                        //排序
+                        //分组
+                        List<List<Well>> lbox = Utils.groupBy(wells, new Comparator<Well>() {
+                            @Override
+                            public int compare(Well _c1, Well _c2) {
+                                int v1 = Integer.parseInt(_c1.name.replaceAll("[A-H]", ""));
+                                int v2 = Integer.parseInt(_c2.name.replaceAll("[A-H]", ""));
+                                return v1 - v2;
+                            }
+                        });
+
+                        //排序分组
                         Collections.sort(circles, new Comparator<Circle>() {
                             @Override
                             public int compare(Circle o1, Circle o2) {
                                 return o1.x - o2.x;
                             }
                         });
-                        Collections.sort(circles, new Comparator<Circle>() {
-                            @Override
-                            public int compare(Circle o1, Circle o2) {
-                                return o1.y - o2.y;
+                        List<List<Circle>> cbox = new ArrayList<>();
+                        for (int i = 0; i < lbox.size(); i++) {
+                            //0-4  5
+                            int begin = (i == 0 ? 0 : lbox.get(i - 1).size());
+                            int end = begin + lbox.get(i).size();
+                            List<Circle> cs = circles.subList(begin, end);
+                            Collections.sort(cs, new Comparator<Circle>() {
+                                @Override
+                                public int compare(Circle o1, Circle o2) {
+                                    return o1.y - o2.y;
+                                }
+                            });
+                            cbox.add(cs);
+                        }
+
+                        for (int i = 0; i < cbox.size(); i++) {
+                            List<Circle> circles = cbox.get(i);
+                            for (int j = 0; j < circles.size(); j++) {
+                                Circle c = circles.get(j);
+                                c.name = lbox.get(i).get(j).name;
+                                Imgproc.circle(imgClone, new Point(c.x, c.y), c.radius, new Scalar(255, 0, 0), 2, 8);//绘制圆
+                                Imgproc.putText(imgClone, c.name, new Point(c.x, c.y), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 3);
                             }
-                        });
-                        for (int i = 0; i < circles.size(); i++) {
-                            Circle c = circles.get(i);
-                            c.name = wells.get(i).name;
-                            Imgproc.circle(imgClone, new Point(c.x, c.y), c.radius, new Scalar(255, 0, 0), 2, 8);//绘制圆
-                            Imgproc.putText(imgClone, c.name, new Point(c.x, c.y), Core.FONT_HERSHEY_SIMPLEX, 1, new Scalar(0, 139, 139), 3);
                         }
                         stop = true;
                         iterate = false;
@@ -486,7 +549,6 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
             @Override
             public void onClick(View v) {
                 findViewById(R.id.btnSave).setVisibility(View.VISIBLE);
-                findViewById(R.id.tvmsg).setVisibility(View.VISIBLE);
                 Message msg = new Message();
                 msg.what = CATCHCOLOR;
                 msg.obj = new Gson().toJson(circles);

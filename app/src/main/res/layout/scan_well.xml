@@ -288,7 +288,7 @@
                                     android:textStyle="bold"
                                     android:visibility="gone"
                                     android:textColor="#ffffff"
-                                    android:layout_width="200dp"
+                                    android:layout_width="300dp"
                                     android:layout_height="40dp"
                                     android:text="SAVE" />
                             </RelativeLayout>
