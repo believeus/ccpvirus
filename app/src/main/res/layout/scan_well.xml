@@ -270,14 +270,20 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical">
+                                <TextView
+                                    android:id="@+id/tvTip"
+                                    android:layout_centerHorizontal="true"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Tip: Please select the color you want to save, If you don’t choose any, will save all"/>
                                 <GridLayout
                                     android:id="@+id/gridlayout"
                                     android:layout_marginBottom="10dp"
                                     android:background="@drawable/plate_border"
                                     android:layout_centerInParent="true"
                                     android:padding="5dp"
-                                    android:layout_centerHorizontal="true"
-                                    android:layout_alignParentTop="true"
+                                    android:layout_below="@+id/tvTip"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content" />
                                 <Button

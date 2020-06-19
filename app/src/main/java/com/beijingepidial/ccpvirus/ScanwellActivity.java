@@ -29,6 +29,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.beijingepidial.entity.Circle;
 import com.beijingepidial.entity.Well;
@@ -53,6 +54,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -457,7 +459,6 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                         });
                         List<List<Circle>> cbox = new ArrayList<>();
                         for (int i = 0; i < lbox.size(); i++) {
-                            //0-4  5
                             int begin = (i == 0 ? 0 : lbox.get(i - 1).size());
                             int end = begin + lbox.get(i).size();
                             List<Circle> cs = circles.subList(begin, end);
@@ -557,50 +558,60 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
             }
         });
 
-        findViewById(R.id.btnSave).
-
-                setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnSave).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AsyncTask() {
                     @Override
-                    public void onClick(View v) {
-                        new AsyncTask() {
-                            @Override
-                            protected Object doInBackground(Object[] objects) {
-                                try {
-                                    Circle cl = circles.get(0);
-                                    double[] rgb = image.get(cl.y, cl.x);
-                                    String color = String.format("#%02x%02x%02x", (int) rgb[0], (int) rgb[1], (int) rgb[2]);
-                                    Bundle bundle = getIntent().getExtras();
-                                    String barcode = bundle.getString("barcode");
-                                    String name = bundle.getString("name");
-                                    OkHttpClient client = new OkHttpClient();
-                                    Properties properties = new Properties();
-                                    properties.load(ScanwellActivity.this.getAssets().open("project.properties"));
-                                    String url = properties.getProperty("url");
-                                    String v = client.newCall(new Request.Builder().url(url + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
-                                    JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
-                                    if (bv != null && bv.has(name)) {
-                                        JSONObject oo = new JSONObject(bv.getString(name));
-                                        oo.put("color", color);
-                                        bv.put(name, oo);
-                                        RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", bv.toString()).build();
-                                        Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
-                                        client.newCall(request).execute();//发送请求
-                                        Bundle vbund = new Bundle();
-                                        vbund.putString(Variables.INTENT_EXTRA_KEY_QR_SCAN, barcode);
-                                        setResult(RESULT_OK, new Intent().putExtras(vbund));
-                                        finish();
+                    protected Object doInBackground(Object[] objects) {
+                        try {
+                            Bundle bundle = getIntent().getExtras();
+                            String barcode = bundle.getString("barcode");
+                            OkHttpClient client = new OkHttpClient();
+                            Properties properties = new Properties();
+                            properties.load(ScanwellActivity.this.getAssets().open("project.properties"));
+                            String url = properties.getProperty("url");
+                            String v = client.newCall(new Request.Builder().url(url + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
+                            JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
+                            System.out.println("xx:"+(bv != null));
+                            if (bv != null) {
+                                Collection<Button> values = checkbtn.isEmpty() ? initbox.values() : checkbtn.values();
+                                for (Iterator<Button> it = values.iterator(); it.hasNext(); ) {
+                                    Button btn = it.next();
+                                    String n = btn.getTag(R.id.name).toString();
+                                    String c = btn.getTag(R.id.color).toString();
+                                    if (bv.has(n)) {
+                                        JSONObject oo = new JSONObject(bv.getString(n));
+                                        oo.put("color", c);
+                                        bv.put(n, oo);
+                                    } else {
+                                        Well w = new Well();
+                                        w.name = n;
+                                        w.color = c;
+                                        w.barcode = "";
+                                        JSONObject oo = new JSONObject(new Gson().toJson(w));
+                                        bv.put(n, oo);
                                     }
-
-                                } catch (Exception e) {
-
                                 }
-                                return null;
+                                RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", bv.toString()).build();
+                                Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
+                                client.newCall(request).execute();//发送请求
+                                Bundle vbund = new Bundle();
+                                vbund.putString(Variables.INTENT_EXTRA_KEY_QR_SCAN, barcode);
+                                setResult(RESULT_OK, new Intent().putExtras(vbund));
+                                finish();
                             }
-                        }.execute();
 
-
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        return null;
                     }
-                });
+                }.execute();
+
+
+            }
+        });
 
         findViewById(R.id.btnReTake).setOnClickListener(new View.OnClickListener() {
             @Override

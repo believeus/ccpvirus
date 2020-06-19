@@ -252,6 +252,8 @@ public class PlateActivity extends AppCompatActivity {
                 }
                 Gson gson = new Gson();
                 bundle.putString("data", gson.toJson(wells));
+                String bc=((EditText)findViewById(R.id.etbarcode)).getText().toString();
+                bundle.putString("barcode",bc);
                 intent.putExtras(bundle);
                 startActivityForResult(intent, Variables.SCAN_PLATE_WELL);
             }
