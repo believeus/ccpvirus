@@ -272,6 +272,7 @@
                                 android:orientation="vertical">
                                 <TextView
                                     android:id="@+id/tvTip"
+                                    android:visibility="gone"
                                     android:layout_centerHorizontal="true"
                                     android:layout_alignParentTop="true"
                                     android:layout_width="wrap_content"
