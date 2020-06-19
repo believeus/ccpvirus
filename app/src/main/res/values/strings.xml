@@ -34,7 +34,6 @@
     <string name="btnCancel">Cancel</string>
     <string name="btnNext">Next</string>
     <string-array name="spnner">
-        <item></item>
         <item>SARS-CoV-2</item>
     </string-array>
 </resources>
