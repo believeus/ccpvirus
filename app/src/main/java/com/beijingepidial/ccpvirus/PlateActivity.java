@@ -1,6 +1,8 @@
 package com.beijingepidial.ccpvirus;
 
 import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -53,6 +55,7 @@ import okhttp3.Response;
 import com.innovattic.rangeseekbar.RangeSeekBar;
 
 public class PlateActivity extends AppCompatActivity {
+    private Map<String, Well> w96 = new HashMap<String, Well>();
     private static final int MULCHECK = 0;
     private static final int RELOAD = -1;
     private static final int SCANPLATE = 1;
@@ -73,7 +76,7 @@ public class PlateActivity extends AppCompatActivity {
             boolean isCheck = Boolean.valueOf(mbv.getTag(R.id.isCheck).toString());
             boolean y = checkbtn.isEmpty() ? false : true;
             findViewById(R.id.btnNext).setVisibility(y ? View.VISIBLE : View.GONE);
-            if (StringUtils.equals(color,"@")){
+            if (StringUtils.equals(color, "@")) {
                 mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_rect_white));
                 mbv.getBackground().setColorFilter(Color.parseColor("#efefef"), PorterDuff.Mode.SRC_IN);
                 mbv.setTextColor(Color.parseColor("#efefef"));
@@ -109,14 +112,16 @@ public class PlateActivity extends AppCompatActivity {
                 well.name = name;
                 well.barcode = pv.getString("barcode");
                 well.scantime = pv.getLong("scantime");
+                well.color = pv.getString("color");
                 float[] v = new float[3];
-                if (StringUtils.isNotEmpty(pv.getString("color"))) {
-                    Color.colorToHSV(Color.parseColor(pv.getString("color")),v);
-                    System.out.println(pv.getString("color")+":" + v[0]);
-                    if (!(v[0]>min&&v[0]<max)){
-                        well.color ="@";
-                    }else well.color = pv.getString("color");
-                }else {
+                if (StringUtils.isNotEmpty(well.color)) {
+                    if (StringUtils.isNotEmpty(well.barcode)) {
+                        w96.put(name, well);
+                    }
+                    Color.colorToHSV(Color.parseColor(well.color), v);
+                    if (!(v[0] > min && v[0] < max))
+                        well.color = "@";
+                } else {
                     well.color = pv.getString("color");
                 }
                 wells.put(name, well);
@@ -181,8 +186,7 @@ public class PlateActivity extends AppCompatActivity {
                         rangeseekbar.setMinThumbValue(0);
                         rangeseekbar.setMaxThumbValue(360);
                         loadData(PlateActivity.this.body, 0, 360);
-                        findViewById(R.id.flayout).setVisibility(View.VISIBLE);
-
+                        findViewById(R.id.flayout).setVisibility(w96.keySet().isEmpty() ? View.GONE : View.VISIBLE);
                         break;
                     //多选
                     case MULCHECK:
@@ -223,7 +227,7 @@ public class PlateActivity extends AppCompatActivity {
                         int _min = rangeseekbar.getMinThumbValue();
                         int _max = rangeseekbar.getMaxThumbValue();
                         loadData(msg.obj.toString(), _min, _max);
-                        findViewById(R.id.flayout).setVisibility(View.VISIBLE);
+                        findViewById(R.id.flayout).setVisibility(w96.keySet().isEmpty() ? View.GONE : View.VISIBLE);
                         break;
                     //单选
                     case SGLCHECK:
@@ -481,6 +485,17 @@ public class PlateActivity extends AppCompatActivity {
     }
 
     private void load(String barcode) {
+        final ProgressDialog dialog = new ProgressDialog(PlateActivity.this);
+        dialog.setTitle("Message");
+        dialog.setMessage("Loading...");
+        dialog.setCancelable(false);
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
         ((EditText) findViewById(R.id.etbarcode)).setText(barcode);
         new AsyncTask() {
             @Override
@@ -493,7 +508,8 @@ public class PlateActivity extends AppCompatActivity {
                     OkHttpClient client = new OkHttpClient();
                     RequestBody body = new FormBody.Builder().add("barcode", barcode).build();
                     Request request = new Request.Builder().url(url + "plate/findData.jhtml").post(body).build();
-                    Response response = client.newCall(request).execute();//发送请求
+                    final Response response = client.newCall(request).execute();//发送请求
+                    if (response.isSuccessful()) dialog.dismiss();
                     Message msg = new Message();
                     msg.what = SCANPLATE;
                     msg.obj = PlateActivity.this.body = response.body().string();

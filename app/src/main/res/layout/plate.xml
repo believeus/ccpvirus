@@ -118,7 +118,7 @@
                 android:visibility="gone"
                 android:textStyle="bold"
                 android:textColor="#ffffff"
-                android:layout_width="250dp"
+                android:layout_width="300dp"
                 android:layout_height="35dp"
                 android:text="SCAN COLOR" />
             </LinearLayout>
