@@ -50,17 +50,21 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import com.innovattic.rangeseekbar.RangeSeekBar;
+
 public class PlateActivity extends AppCompatActivity {
     private static final int MULCHECK = 0;
     private static final int RELOAD = -1;
     private static final int SCANPLATE = 1;
     private static final int SGLCHECK = 2;
     private static final int RMCOLOR = 3;
+    private static final int CFIlTER = 4;
     private String body;
     private Map<String, Button> checkbtn = new HashMap<String, Button>();
     private Stack<String> stack = new Stack<String>();
     private Map<String, Well> wells = new HashMap<String, Well>();
     private Map<String, Button> initbox = new HashMap<String, Button>();
+    private RangeSeekBar rangeseekbar;
     private Handler handler = new Handler(new Handler.Callback() {
         private void loadColor(Button mbv) {
             String barcode = mbv.getTag(R.id.barcode).toString();
@@ -69,8 +73,13 @@ public class PlateActivity extends AppCompatActivity {
             boolean isCheck = Boolean.valueOf(mbv.getTag(R.id.isCheck).toString());
             boolean y = checkbtn.isEmpty() ? false : true;
             findViewById(R.id.btnNext).setVisibility(y ? View.VISIBLE : View.GONE);
+            if (StringUtils.equals(color,"@")){
+                mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_rect_white));
+                mbv.getBackground().setColorFilter(Color.parseColor("#efefef"), PorterDuff.Mode.SRC_IN);
+                mbv.setTextColor(Color.parseColor("#efefef"));
+                return;
+            }
             if (StringUtils.isEmpty(barcode)) {
-                //mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, (!isCheck&&StringUtils.isNotEmpty(color))?R.drawable.well_rect_white:R.drawable.well_circle_dash));
                 //没barcode有颜色
                 if (StringUtils.isNotEmpty(color)) {
                     if (!isCheck)
@@ -89,24 +98,33 @@ public class PlateActivity extends AppCompatActivity {
             }
         }
 
-        private void loadData(String body) throws Exception {
+        private void loadData(String body, int min, int max) throws Exception {
             JSONObject jsonObj = new JSONObject(new JSONObject(body).getString("data"));
             Iterator<String> keys = jsonObj.keys();
             while (keys.hasNext()) {
                 String name = keys.next();
-                JSONObject plate = jsonObj.getJSONObject(name);
+                JSONObject pv = jsonObj.getJSONObject(name);
                 Button btn = initbox.get(name);
                 Well well = new Well();
                 well.name = name;
-                well.barcode = plate.getString("barcode");
-                well.scantime = plate.getLong("scantime");
-                well.color = plate.getString("color");
+                well.barcode = pv.getString("barcode");
+                well.scantime = pv.getLong("scantime");
+                float[] v = new float[3];
+                if (StringUtils.isNotEmpty(pv.getString("color"))) {
+                    Color.colorToHSV(Color.parseColor(pv.getString("color")),v);
+                    System.out.println(pv.getString("color")+":" + v[0]);
+                    if (!(v[0]>min&&v[0]<max)){
+                        well.color ="@";
+                    }else well.color = pv.getString("color");
+                }else {
+                    well.color = pv.getString("color");
+                }
                 wells.put(name, well);
                 btn.setTag(R.id.barcode, well.barcode);
                 btn.setTag(R.id.scantime, well.scantime);
                 btn.setTag(R.id.color, well.color);
                 btn.setTag(R.id.isCheck, false);
-                btn.setTextColor(Color.parseColor(StringUtils.isEmpty(well.color)?"#4D4D4D":"#FFFFFF"));
+                btn.setTextColor(Color.parseColor(StringUtils.isEmpty(well.color) ? "#4D4D4D" : "#FFFFFF"));
                 loadColor(btn);
             }
         }
@@ -115,6 +133,11 @@ public class PlateActivity extends AppCompatActivity {
         public boolean handleMessage(final Message msg) {
             try {
                 switch (msg.what) {
+                    case CFIlTER:
+                        int min = msg.arg1;
+                        int max = msg.arg2;
+                        loadData(PlateActivity.this.body, min, max);
+                        break;
                     case RMCOLOR:
                         final String vn = msg.obj.toString();
                         new AsyncTask() {
@@ -155,7 +178,11 @@ public class PlateActivity extends AppCompatActivity {
                             it.remove();
                         }
                         //重新加载数据
-                        loadData(PlateActivity.this.body);
+                        rangeseekbar.setMinThumbValue(0);
+                        rangeseekbar.setMaxThumbValue(360);
+                        loadData(PlateActivity.this.body, 0, 360);
+                        findViewById(R.id.flayout).setVisibility(View.VISIBLE);
+
                         break;
                     //多选
                     case MULCHECK:
@@ -190,9 +217,13 @@ public class PlateActivity extends AppCompatActivity {
                                 }
                             }
                         }
+                        findViewById(R.id.flayout).setVisibility(View.GONE);
                         break;
                     case SCANPLATE:
-                        loadData(msg.obj.toString());
+                        int _min = rangeseekbar.getMinThumbValue();
+                        int _max = rangeseekbar.getMaxThumbValue();
+                        loadData(msg.obj.toString(), _min, _max);
+                        findViewById(R.id.flayout).setVisibility(View.VISIBLE);
                         break;
                     //单选
                     case SGLCHECK:
@@ -203,6 +234,7 @@ public class PlateActivity extends AppCompatActivity {
                         else checkbtn.remove(vt);
                         bv.setTag(R.id.isCheck, isCheck);
                         if (isValid(checkbtn)) loadColor(bv);
+                        findViewById(R.id.flayout).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
                         break;
                 }
 
@@ -263,6 +295,31 @@ public class PlateActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.plate);
+        rangeseekbar = (RangeSeekBar) findViewById(R.id.cfilter);
+        rangeseekbar.setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
+            private int min;
+            private int max;
+
+            @Override
+            public void onStartedSeeking() {
+
+            }
+
+            @Override
+            public void onStoppedSeeking() {
+                Message msg = new Message();
+                msg.what = CFIlTER;
+                msg.arg1 = min;
+                msg.arg2 = max;
+                handler.sendMessage(msg);
+            }
+
+            @Override
+            public void onValueChanged(int min, int max) {
+                this.min = min;
+                this.max = max;
+            }
+        });
         findViewById(R.id.btnNext).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
