@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ccpvirus</string>
+    <string name="app_name">PlateReader</string>
     <string name="catch_picture">Catch picture</string>
     <string name="catch_color">Catch</string>
     <string name="Circle_size">Setting Circle size</string>

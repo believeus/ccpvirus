@@ -1,6 +1,7 @@
 package com.beijingepidial.ccpvirus;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -186,7 +187,7 @@ public class PlateActivity extends AppCompatActivity {
                         rangeseekbar.setMinThumbValue(0);
                         rangeseekbar.setMaxThumbValue(360);
                         loadData(PlateActivity.this.body, 0, 360);
-                        findViewById(R.id.flayout).setVisibility(w96.keySet().isEmpty() ? View.GONE : View.VISIBLE);
+                        findViewById(R.id.flayout).setVisibility(View.VISIBLE);
                         break;
                     //多选
                     case MULCHECK:
@@ -226,8 +227,47 @@ public class PlateActivity extends AppCompatActivity {
                     case SCANPLATE:
                         int _min = rangeseekbar.getMinThumbValue();
                         int _max = rangeseekbar.getMaxThumbValue();
-                        loadData(msg.obj.toString(), _min, _max);
-                        findViewById(R.id.flayout).setVisibility(w96.keySet().isEmpty() ? View.GONE : View.VISIBLE);
+                        if(StringUtils.isEmpty(msg.obj.toString())){
+                            findViewById(R.id.flayout).setVisibility(View.GONE);
+                            final AlertDialog.Builder dialog = new AlertDialog.Builder(PlateActivity.this);
+                            dialog.setTitle("Message");
+                            dialog.setMessage("Barcode does not exist!\nCreate?");
+                            dialog.setNegativeButton("NO",new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                }
+
+                            });
+                            dialog.setPositiveButton("YES",new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                    new AsyncTask(){
+                                        @Override
+                                        protected Object doInBackground(Object[] objects) {
+                                            try {
+                                                Properties properties = new Properties();
+                                                properties.load(PlateActivity.this.getAssets().open("project.properties"));
+                                                String url = properties.getProperty("url");
+                                                String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
+                                                OkHttpClient client = new OkHttpClient();
+                                                RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", "{}").build();
+                                                Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
+                                                client.newCall(request).execute();//发送请求
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                            return null;
+                                        }
+                                    }.execute();
+                                }
+                            });
+                            dialog.show();
+                        }
+                        else {
+                            loadData(msg.obj.toString(), _min, _max);
+                            findViewById(R.id.flayout).setVisibility(View.VISIBLE);
+                        }
                         break;
                     //单选
                     case SGLCHECK:
