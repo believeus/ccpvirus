@@ -29,6 +29,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.beijingepidial.entity.Circle;
 import com.beijingepidial.entity.Well;
 import com.google.gson.Gson;
@@ -288,6 +290,14 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         //保持螢幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.scan_well);
+        ((EditText) findViewById(R.id.etScansize)).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                stop = true;
+                ((Button) findViewById(R.id.btnPause)).setText("start");
+                return false;
+            }
+        });
         svBeforeColor = (SurfaceView) findViewById(R.id.svBeforeCol);
         svAfterColor = (SurfaceView) findViewById(R.id.svAfterCol);
         Bundle bundle = getIntent().getExtras();
@@ -518,6 +528,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
             @Override
             public void onClick(View v) {
                 try {
+                    if (stop){Toast.makeText(ScanwellActivity.this,"Please click the start button",Toast.LENGTH_SHORT).show(); return;}
                     takePhoto = true;
                     isClone = true;
                     isReTake = false;
@@ -537,6 +548,12 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
         findViewById(R.id.btnPause).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (StringUtils.isEmpty(((EditText) findViewById(R.id.etScansize)).getText().toString())) {
+                    if (stop) {
+                        Toast.makeText(ScanwellActivity.this, "Please enter the scan size!", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                }
                 stop = stop ? false : true;
                 findViewById(R.id.etScansize).setEnabled(stop ? true : false);
                 String vb = ((Button) findViewById(R.id.btnPause)).getText().toString();
