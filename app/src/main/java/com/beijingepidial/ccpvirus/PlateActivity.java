@@ -202,12 +202,11 @@ public class PlateActivity extends AppCompatActivity {
                         int nab = Integer.valueOf(va[1]);//数字
                         int nbb = Integer.valueOf(vb[1]);//数字
                         if (Math.abs(nab - nbb) > 5) {
-                            Toast toast = Toast.makeText(PlateActivity.this, "In order to ensure the accuracy of the scanned color, choose no more than 6 columns.", Toast.LENGTH_SHORT);
-                            Display display = getWindowManager().getDefaultDisplay();
-                            // 获取屏幕高度
-                            int height = display.getHeight();
-                            toast.setGravity(Gravity.TOP, 0, height / 4);
-                            toast.show();
+                            AlertDialog.Builder dialog = new AlertDialog.Builder(PlateActivity.this);
+                            dialog.setTitle("Message");
+                            dialog.setMessage("Choose no more than 6 columns.");
+                            dialog.setCancelable(true);
+                            dialog.show();
                             findViewById(R.id.btnNext).setVisibility(View.GONE);
                         } else {
                             //框选两个手指选择的行与列
@@ -227,21 +226,21 @@ public class PlateActivity extends AppCompatActivity {
                     case SCANPLATE:
                         int _min = rangeseekbar.getMinThumbValue();
                         int _max = rangeseekbar.getMaxThumbValue();
-                        if(StringUtils.isEmpty(msg.obj.toString())){
+                        if (StringUtils.isEmpty(msg.obj.toString())) {
                             findViewById(R.id.flayout).setVisibility(View.GONE);
                             final AlertDialog.Builder dialog = new AlertDialog.Builder(PlateActivity.this);
                             dialog.setTitle("Message");
                             dialog.setMessage("Barcode does not exist!\nCreate?");
-                            dialog.setNegativeButton("NO",new DialogInterface.OnClickListener() {
+                            dialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface arg0, int arg1) {
                                 }
 
                             });
-                            dialog.setPositiveButton("YES",new DialogInterface.OnClickListener() {
+                            dialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface arg0, int arg1) {
-                                    new AsyncTask(){
+                                    new AsyncTask() {
                                         @Override
                                         protected Object doInBackground(Object[] objects) {
                                             try {
@@ -263,8 +262,7 @@ public class PlateActivity extends AppCompatActivity {
                                 }
                             });
                             dialog.show();
-                        }
-                        else {
+                        } else {
                             loadData(msg.obj.toString(), _min, _max);
                             findViewById(R.id.flayout).setVisibility(View.VISIBLE);
                         }
@@ -308,12 +306,12 @@ public class PlateActivity extends AppCompatActivity {
             int begin = Integer.parseInt(keys.get(0).toString().replaceAll("[A-H]", ""));
             int end = Integer.parseInt(keys.get(keys.size() - 1).toString().replaceAll("[A-H]", ""));
             if (Math.abs(end - begin) > 5) {
-                Toast toast = Toast.makeText(PlateActivity.this, "In order to ensure the accuracy of the scanned color, choose no more than 6 columns.", Toast.LENGTH_SHORT);
-                Display display = getWindowManager().getDefaultDisplay();
-                // 获取屏幕高度
-                int height = display.getHeight();
-                toast.setGravity(Gravity.TOP, 0, height / 4);
-                toast.show();
+                AlertDialog.Builder dialog = new AlertDialog.Builder(PlateActivity.this);
+                dialog.setTitle("Message");
+                dialog.setMessage("Choose no more than 6 columns.");
+                dialog.setCancelable(true);
+                dialog.show();
+                findViewById(R.id.btnNext).setVisibility(View.GONE);
                 maps.remove(keys.get(keys.size() - 1).toString());
                 findViewById(R.id.btnNext).setVisibility(View.GONE);
                 return false;
@@ -495,7 +493,20 @@ public class PlateActivity extends AppCompatActivity {
                             });
 
                         }
-                        menu.add(0, 1, 5, "Reload").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                        if (StringUtils.isNotEmpty(btn.getTag(R.id.color).toString())) {
+                            if (StringUtils.isNotEmpty(btn.getTag(R.id.barcode).toString())) {
+                                menu.add(0, 1, 5, "Send PDF").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                                    @Override
+                                    public boolean onMenuItemClick(MenuItem item) {
+                                        Intent intent=new Intent(PlateActivity.this,SendPDFActivity.class);
+                                        intent.putExtra("barcode",btn.getTag(R.id.barcode).toString());
+                                        startActivity(intent);
+                                        return false;
+                                    }
+                                });
+                            }
+                        }
+                        menu.add(0, 1, 6, "Reload").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                             @Override
                             public boolean onMenuItemClick(MenuItem item) {
                                 handler.sendEmptyMessage(RELOAD);
