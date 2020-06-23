@@ -84,13 +84,20 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-        <LinearLayout
-            android:layout_centerInParent="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp">
-            <FrameLayout
+            <LinearLayout
+                android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="10dp">
+                <TextView
+                    android:id="@+id/tvColor"
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:text="Color selection range"/>
+                <FrameLayout
                 android:id="@+id/flayout"
                 android:visibility="gone"
                 android:layout_height="wrap_content"
@@ -112,7 +119,7 @@
                     app:rsb_initialMaxThumbValue="360"
                     app:rsb_max="360"/>
             </FrameLayout>
-            <Button
+                <Button
                 android:id="@+id/btnNext"
                 android:background="@drawable/button"
                 android:visibility="gone"

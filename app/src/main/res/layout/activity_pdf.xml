@@ -1,95 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:scrollbars="vertical"
-    android:fadingEdge="vertical"
-    android:fadeScrollbars="false">
+    android:layout_height="match_parent">
     <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@drawable/hkg_logo"/>
-            <LinearLayout
-                android:id="@+id/LV1"
-                android:layout_width="match_parent"
-                android:layout_marginTop="23dp"
-                android:layout_height="99dp"
-                android:paddingTop="9dp"
-                android:paddingLeft="9dp"
-                android:paddingRight="9dp"
-                android:paddingBottom="9dp"
-                android:layout_centerInParent="true"
-                android:orientation="vertical">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="10dp"
+                android:orientation="vertical">
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="45dp"
+                    android:layout_height="wrap_content"
                     android:gravity="left"
                     android:text="Name:"
                     android:textSize="28sp" />
-
                 <EditText
-                    android:id="@+id/name"
+                    android:id="@+id/etName"
+                    android:background="@drawable/my_text"
                     android:layout_width="match_parent"
                     android:layout_height="45dp" />
             </LinearLayout>
-
             <LinearLayout
-                android:id="@+id/LV2"
                 android:layout_width="match_parent"
-                android:layout_height="99dp"
-                android:paddingTop="9dp"
-                android:paddingLeft="9dp"
-                android:paddingRight="9dp"
-                android:paddingBottom="9dp"
-                android:layout_below="@+id/LV1"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
                 android:orientation="vertical">
-
                 <TextView
-                    android:id="@+id/email_text"
                     android:layout_width="match_parent"
-                    android:layout_height="45dp"
+                    android:layout_height="wrap_content"
                     android:text="Email:"
                     android:textSize="28dp" />
-
                 <EditText
                     android:id="@+id/etEmail"
+                    android:background="@drawable/my_text"
                     android:layout_width="match_parent"
                     android:layout_height="45dp" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_height="56dp"
-                android:paddingTop="9dp"
-                android:paddingLeft="9dp"
-                android:paddingRight="9dp"
-                android:layout_marginTop="23dp"
-                android:layout_width="match_parent">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="45dp"
-                    android:text="Test Result"
-                    android:textSize="28dp" />
-            </LinearLayout>
-
-            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Color:"
+                        android:textSize="28dp" />
+                    <Button
+                        android:id="@+id/btnColor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
                 <RadioGroup
                     android:orientation="horizontal"
+                    android:padding="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                     <RadioButton
@@ -98,7 +77,7 @@
                         android:layout_height="45dp"
                         android:checked="true"
                         android:text="Positive"
-                        android:textSize="28dp" />
+                        android:textSize="20dp" />
 
                     <RadioButton
                         android:layout_marginLeft="50dp"
@@ -106,41 +85,41 @@
                         android:layout_width="wrap_content"
                         android:layout_height="45dp"
                         android:text="Negative"
-                        android:textSize="28dp" />
+                        android:textSize="20dp" />
                 </RadioGroup>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="123dp"
-                android:paddingTop="9dp"
-                android:paddingLeft="9dp"
-                android:paddingRight="9dp"
-                android:layout_marginTop="23dp"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
                 android:orientation="vertical">
-
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="45dp"
-                    android:text="Remark:"
+                    android:layout_height="wrap_content"
+                    android:text="Note:"
                     android:textSize="28dp" />
-
                 <EditText
-                    android:id="@+id/etRemark"
+                    android:id="@+id/etNote"
+                    android:background="@drawable/my_text"
+                    android:gravity="top"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:gravity="center"
+                    android:layout_height="150dp"
                     android:hint="remark"
-                    android:inputType="textPassword"
                     android:minLines="10"
                     android:selectAllOnFocus="true"
                     android:textSize="24dp" />
-
             </LinearLayout>
-
-
-
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/btnYes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="YES"/>
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>
