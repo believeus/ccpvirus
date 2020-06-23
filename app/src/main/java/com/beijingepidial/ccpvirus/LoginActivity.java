@@ -3,21 +3,17 @@ package com.beijingepidial.ccpvirus;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
-import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.DatePicker;
+import java.util.Date;
 import android.widget.EditText;
 import android.widget.Spinner;
-
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
 
 public class LoginActivity extends AppCompatActivity {
-    EditText birthday;
     private Spinner mSp_game_name;
 
     @SuppressLint("WrongViewCast")
@@ -45,23 +41,11 @@ public class LoginActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-        //时间
-        birthday = (EditText) findViewById(R.id.etDate);
-        birthday.setInputType(InputType.TYPE_NULL); //不显示系统输入键盘</span>
-        birthday.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    showDatePickerDialog();
-                }
-            }
-        });
-        birthday.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDatePickerDialog();
-            }
-        });
+        //时间显示
+        EditText time1 = findViewById(R.id.etDate);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd  h:mm:ss a");
+        Date date = new Date(System.currentTimeMillis());
+        time1.setText(simpleDateFormat.format(date));
         findViewById(R.id.btnNext).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,16 +58,6 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
             }
         });
-    }
-    //时间
-    private void showDatePickerDialog() {
-        Calendar c = Calendar.getInstance();
-        new DatePickerDialog(LoginActivity.this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                birthday.setText(year + "/" + (monthOfYear + 1) + "/" + dayOfMonth);
-            }
-        }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
     }
     private class PhotoEntity {
     }
