@@ -35,5 +35,6 @@
     <string name="btnNext">Next</string>
     <string-array name="spnner">
         <item>SARS-CoV-2</item>
+        <item>ssssss</item>
     </string-array>
 </resources>
