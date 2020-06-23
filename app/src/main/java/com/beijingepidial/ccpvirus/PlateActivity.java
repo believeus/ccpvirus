@@ -188,6 +188,7 @@ public class PlateActivity extends AppCompatActivity {
                         rangeseekbar.setMaxThumbValue(360);
                         loadData(PlateActivity.this.body, 0, 360);
                         findViewById(R.id.flayout).setVisibility(View.VISIBLE);
+                        findViewById(R.id.tvColor).setVisibility(View.VISIBLE);
                         break;
                     //多选
                     case MULCHECK:
@@ -222,12 +223,14 @@ public class PlateActivity extends AppCompatActivity {
                             }
                         }
                         findViewById(R.id.flayout).setVisibility(View.GONE);
+                        findViewById(R.id.tvColor).setVisibility(View.GONE);
                         break;
                     case SCANPLATE:
                         int _min = rangeseekbar.getMinThumbValue();
                         int _max = rangeseekbar.getMaxThumbValue();
                         if (StringUtils.isEmpty(msg.obj.toString())) {
                             findViewById(R.id.flayout).setVisibility(View.GONE);
+                            findViewById(R.id.tvColor).setVisibility(View.GONE);
                             final AlertDialog.Builder dialog = new AlertDialog.Builder(PlateActivity.this);
                             dialog.setTitle("Message");
                             dialog.setMessage("Barcode does not exist!\nCreate?");
@@ -265,6 +268,7 @@ public class PlateActivity extends AppCompatActivity {
                         } else {
                             loadData(msg.obj.toString(), _min, _max);
                             findViewById(R.id.flayout).setVisibility(View.VISIBLE);
+                            findViewById(R.id.tvColor).setVisibility(View.VISIBLE);
                         }
                         break;
                     //单选
@@ -277,6 +281,7 @@ public class PlateActivity extends AppCompatActivity {
                         bv.setTag(R.id.isCheck, isCheck);
                         if (isValid(checkbtn)) loadColor(bv);
                         findViewById(R.id.flayout).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
+                        findViewById(R.id.tvColor).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
                         break;
                 }
 
@@ -499,7 +504,11 @@ public class PlateActivity extends AppCompatActivity {
                                     @Override
                                     public boolean onMenuItemClick(MenuItem item) {
                                         Intent intent=new Intent(PlateActivity.this,SendPDFActivity.class);
-                                        intent.putExtra("barcode",btn.getTag(R.id.barcode).toString());
+                                        Well well=new Well();
+                                        well.color=btn.getTag(R.id.color).toString();
+                                        well.barcode=btn.getTag(R.id.barcode).toString();
+                                        well.name=btn.getTag(R.id.name).toString();
+                                        intent.putExtra("well",well);
                                         startActivity(intent);
                                         return false;
                                     }

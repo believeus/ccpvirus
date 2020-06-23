@@ -49,32 +49,22 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
                 android:orientation="vertical">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Color:"
-                        android:textSize="28dp" />
-                    <Button
-                        android:id="@+id/btnColor"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </LinearLayout>
-
                 <RadioGroup
                     android:orientation="horizontal"
                     android:padding="10dp"
+                    android:gravity="center"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="60dp">
+                    <Button
+                        android:id="@+id/btnColor"
+                        android:background="@drawable/well_circle_grey"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"/>
                     <RadioButton
                         android:id="@+id/rbPositive"
                         android:layout_width="wrap_content"
-                        android:layout_height="45dp"
+                        android:layout_height="25dp"
                         android:checked="true"
                         android:text="Positive"
                         android:textSize="20dp" />
@@ -83,7 +73,7 @@
                         android:layout_marginLeft="50dp"
                         android:id="@+id/rbNegative"
                         android:layout_width="wrap_content"
-                        android:layout_height="45dp"
+                        android:layout_height="25dp"
                         android:text="Negative"
                         android:textSize="20dp" />
                 </RadioGroup>
