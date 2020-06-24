@@ -54,6 +54,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <RadioGroup
+                    android:id="@+id/rg"
                     android:orientation="horizontal"
                     android:padding="10dp"
                     android:gravity="center"

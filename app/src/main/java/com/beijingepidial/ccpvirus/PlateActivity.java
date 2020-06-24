@@ -508,6 +508,7 @@ public class PlateActivity extends AppCompatActivity {
                                         well.color=btn.getTag(R.id.color).toString();
                                         well.barcode=btn.getTag(R.id.barcode).toString();
                                         well.name=btn.getTag(R.id.name).toString();
+                                        well.parent=((EditText) findViewById(R.id.etbarcode)).getText().toString();
                                         intent.putExtra("well",well);
                                         startActivity(intent);
                                         return false;
