@@ -24,6 +24,7 @@
                     android:gravity="left"
                     android:text="Name:"
                     android:textSize="22sp" />
+
                 <EditText
                     android:id="@+id/etName"
                     android:background="@drawable/bg_edittext"
