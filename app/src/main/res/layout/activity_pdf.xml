@@ -6,11 +6,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:src="@drawable/hkg_logo"/>
+            android:paddingTop="30dp"
+            android:src="@drawable/hkg_logo" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -22,6 +24,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="left"
+                    android:paddingTop="10dp"
                     android:text="Name:"
                     android:textSize="22sp" />
 
@@ -60,11 +63,13 @@
                     android:gravity="center"
                     android:layout_width="match_parent"
                     android:layout_height="60dp">
+
                     <Button
                         android:id="@+id/btnColor"
-                        android:background="@drawable/well_circle_grey"
                         android:layout_width="40dp"
-                        android:layout_height="40dp"/>
+                        android:layout_height="40dp"
+                        android:background="@drawable/well_circle_grey" />
+
                     <RadioButton
                         android:id="@+id/rbPositive"
                         android:layout_width="wrap_content"
@@ -116,8 +121,10 @@
                 android:id="@+id/btnYes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
                 android:background="#CE2196F3"
                 android:text="YES" />
         </LinearLayout>
+
     </LinearLayout>
 </ScrollView>
