@@ -1,10 +1,13 @@
 package com.beijingepidial.ccpvirus;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -154,15 +157,14 @@ public class PlateActivity extends AppCompatActivity {
                                     OkHttpClient client = new OkHttpClient();
                                     Properties properties = new Properties();
                                     properties.load(PlateActivity.this.getAssets().open("project.properties"));
-                                    String url = properties.getProperty("url");
-                                    String v = client.newCall(new Request.Builder().url(url + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
+                                    String v = client.newCall(new Request.Builder().url(Variables.host + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
                                     JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
                                     if (bv != null) {
                                         JSONObject oo = new JSONObject(bv.getString(vn));
                                         oo.put("color", "");
                                         bv.put(vn, oo);
                                         RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", bv.toString()).build();
-                                        Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
+                                        Request request = new Request.Builder().url(Variables.host + "plate/save.jhtml").post(body).build();
                                         client.newCall(request).execute();//发送请求
                                         load(barcode);
                                     }
@@ -247,15 +249,11 @@ public class PlateActivity extends AppCompatActivity {
                                         @Override
                                         protected Object doInBackground(Object[] objects) {
                                             try {
-                                                Properties properties = new Properties();
-                                                properties.load(PlateActivity.this.getAssets().open("project.properties"));
-                                                String url = properties.getProperty("url");
                                                 String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
                                                 OkHttpClient client = new OkHttpClient();
                                                 RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", "{}").build();
-                                                Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
+                                                Request request = new Request.Builder().url(Variables.host + "plate/save.jhtml").post(body).build();
                                                 client.newCall(request).execute();//发送请求
-
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -503,12 +501,16 @@ public class PlateActivity extends AppCompatActivity {
                                 menu.add(0, 1, 5, "Send PDF").setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                                     @Override
                                     public boolean onMenuItemClick(MenuItem item) {
+                                        Context context = PlateActivity.this.getApplicationContext();
+                                        SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
+                                        String operator = sp.getString(Variables.SESSIONUSER, "");
                                         Intent intent=new Intent(PlateActivity.this,SendPDFActivity.class);
                                         Well well=new Well();
                                         well.color=btn.getTag(R.id.color).toString();
                                         well.barcode=btn.getTag(R.id.barcode).toString();
                                         well.name=btn.getTag(R.id.name).toString();
                                         well.parent=((EditText) findViewById(R.id.etbarcode)).getText().toString();
+                                        well.operator=operator;
                                         intent.putExtra("well",well);
                                         startActivity(intent);
                                         return false;
@@ -562,13 +564,10 @@ public class PlateActivity extends AppCompatActivity {
             @Override
             protected Object doInBackground(Object[] params) {
                 try {
-                    Properties properties = new Properties();
-                    properties.load(PlateActivity.this.getAssets().open("project.properties"));
-                    String url = properties.getProperty("url");
                     String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
                     OkHttpClient client = new OkHttpClient();
                     RequestBody body = new FormBody.Builder().add("barcode", barcode).build();
-                    Request request = new Request.Builder().url(url + "plate/findData.jhtml").post(body).build();
+                    Request request = new Request.Builder().url(Variables.host + "plate/findData.jhtml").post(body).build();
                     final Response response = client.newCall(request).execute();//发送请求
                     if (response.isSuccessful()) dialog.dismiss();
                     Message msg = new Message();
@@ -620,11 +619,8 @@ public class PlateActivity extends AppCompatActivity {
                             try {
                                 if (alert("Please scan the Plate barcode!")) return "NULL";
                                 OkHttpClient client = new OkHttpClient();
-                                Properties properties = new Properties();
-                                properties.load(PlateActivity.this.getAssets().open("project.properties"));
-                                String url = properties.getProperty("url");
                                 String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
-                                String v = client.newCall(new Request.Builder().url(url + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
+                                String v = client.newCall(new Request.Builder().url(Variables.host + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
                                 JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
                                 Button btn = (Button) findViewById(requestCode);
                                 Well well = new Well();
@@ -642,7 +638,7 @@ public class PlateActivity extends AppCompatActivity {
                                 Gson gson = new Gson();
                                 String data = gson.toJson(wells);
                                 RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", data).build();
-                                Request request = new Request.Builder().url(url + "plate/save.jhtml").post(body).build();
+                                Request request = new Request.Builder().url(Variables.host + "plate/save.jhtml").post(body).build();
                                 client.newCall(request).execute();//发送请求
                                 Message message = new Message();
                                 message.obj = well;

@@ -93,32 +93,32 @@
                 <TextView
                     android:id="@+id/tvColor"
                     android:visibility="gone"
-                    android:layout_width="match_parent"
+                    android:layout_width="350dp"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="Color selection range"/>
+                    android:text="Color filter"/>
                 <FrameLayout
-                android:id="@+id/flayout"
-                android:visibility="gone"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent">
-                <com.duan.colorpicker.ColorPickerView
-                    android:background="#e3e3e3"
-                    android:layout_width="match_parent"
-                    android:layout_height="10dp"
-                    app:indicatorEnable="false"
-                    app:indicatorColor="#fff"
-                    app:orientation="horizontal" />
-                <com.innovattic.rangeseekbar.RangeSeekBar
-                    android:id="@+id/cfilter"
-                    android:layout_width="match_parent"
+                    android:id="@+id/flayout"
+                    android:visibility="gone"
                     android:layout_height="wrap_content"
-                    app:rsb_minRange="2"
-                    app:rsb_sidePadding="10dp"
-                    app:rsb_initialMinThumbValue="0"
-                    app:rsb_initialMaxThumbValue="360"
-                    app:rsb_max="360"/>
-            </FrameLayout>
+                    android:layout_width="match_parent">
+                    <com.duan.colorpicker.ColorPickerView
+                        android:background="#e3e3e3"
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp"
+                        app:indicatorEnable="false"
+                        app:indicatorColor="#fff"
+                        app:orientation="horizontal" />
+                    <com.innovattic.rangeseekbar.RangeSeekBar
+                        android:id="@+id/cfilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:rsb_minRange="2"
+                        app:rsb_sidePadding="10dp"
+                        app:rsb_initialMinThumbValue="0"
+                        app:rsb_initialMaxThumbValue="360"
+                        app:rsb_max="360"/>
+                </FrameLayout>
                 <Button
                 android:id="@+id/btnNext"
                 android:background="@drawable/button"

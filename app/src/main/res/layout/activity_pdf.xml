@@ -1,52 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:paddingTop="30dp"
-            android:src="@drawable/hkg_logo" />
-
-            <LinearLayout
+        <RelativeLayout
+            android:padding="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/btnColor"
+                android:layout_centerInParent="true"
+                android:background="@drawable/well_circle_grey"
+                android:textSize="40dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"/>
+        </RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="5dp"
+            android:orientation="vertical">
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="10dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="left"
-                    android:paddingTop="10dp"
-                    android:text="Name:"
-                    android:textSize="22sp" />
-
-                <EditText
-                    android:id="@+id/etName"
-                    android:background="@drawable/bg_edittext"
-                    android:layout_width="match_parent"
-                    android:layout_height="45dp" />
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="Name of technologist:"
+                android:textSize="22sp" />
+            <EditText
+                android:enabled="false"
+                android:id="@+id/etOperator"
+                android:background="@drawable/bg_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="45dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="5dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="Plate barcode:"
+                android:textSize="22sp" />
+            <EditText
+                android:id="@+id/etPbarcode"
+                android:enabled="false"
+                android:background="@drawable/bg_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="45dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="5dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="Well barcode:"
+                android:textSize="22sp" />
+            <EditText
+                android:id="@+id/etWbarcode"
+                android:enabled="false"
+                android:background="@drawable/bg_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="45dp" />
+        </LinearLayout>
+        <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:paddingRight="10dp"
+             android:paddingLeft="10dp"
+             android:paddingBottom="5dp"
+             android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="Patient name:"
+                android:textSize="22sp" />
+            <EditText
+                android:id="@+id/etPatient"
+                android:background="@drawable/bg_edittext"
+                android:layout_width="match_parent"
+                android:layout_height="45dp" />
+         </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:paddingRight="10dp"
+                android:paddingLeft="10dp"
+                android:paddingBottom="5dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Email:"
+                    android:text="Patient email:"
                     android:textSize="22dp" />
                 <EditText
                     android:id="@+id/etEmail"
+                    android:inputType="textEmailAddress"
                     android:background="@drawable/bg_edittext"
                     android:layout_width="match_parent"
                     android:layout_height="45dp" />
@@ -55,35 +122,28 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingRight="10dp"
+                android:paddingLeft="10dp"
+                android:paddingBottom="5dp"
                 android:orientation="vertical">
                 <RadioGroup
                     android:id="@+id/rg"
                     android:orientation="horizontal"
-                    android:padding="10dp"
                     android:gravity="center"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp">
-
-                    <Button
-                        android:id="@+id/btnColor"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:background="@drawable/well_circle_grey" />
-
+                    android:layout_height="40dp">
+                    <RadioButton
+                        android:id="@+id/rbNegative"
+                        android:layout_width="120dp"
+                        android:layout_height="30dp"
+                        android:text="Negative"
+                        android:textSize="20dp" />
                     <RadioButton
                         android:id="@+id/rbPositive"
-                        android:layout_width="wrap_content"
-                        android:layout_height="25dp"
+                        android:layout_width="120dp"
+                        android:layout_height="30dp"
                         android:checked="true"
                         android:text="Positive"
-                        android:textSize="20dp" />
-
-                    <RadioButton
-                        android:layout_marginLeft="50dp"
-                        android:id="@+id/rbNegative"
-                        android:layout_width="wrap_content"
-                        android:layout_height="25dp"
-                        android:text="Negative"
                         android:textSize="20dp" />
                 </RadioGroup>
             </LinearLayout>
@@ -91,7 +151,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:paddingRight="10dp"
+                android:paddingLeft="10dp"
+                android:paddingBottom="5dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -106,7 +168,6 @@
                     android:layout_height="150dp"
                     android:background="@drawable/bg_edittext"
                     android:gravity="top"
-                    android:hint="remark"
                     android:minLines="10"
                     android:selectAllOnFocus="true"
                     android:textSize="20dp" />
@@ -114,16 +175,17 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
             android:orientation="horizontal">
-
             <Button
                 android:id="@+id/btnYes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:background="#CE2196F3"
-                android:text="YES" />
+                android:textColor="#ffffff"
+                android:background="@drawable/button"
+                android:textSize="12dp"
+                android:text="Send Email" />
         </LinearLayout>
 
     </LinearLayout>

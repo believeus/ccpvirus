@@ -4,7 +4,11 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -39,6 +43,12 @@ public class LoginActivity extends AppCompatActivity {
         findViewById(R.id.btnNext).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Context context = LoginActivity.this.getApplicationContext();
+                SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+                String vname = ((EditText) findViewById(R.id.etName)).getText().toString();
+                editor.putString(Variables.SESSIONUSER,vname);
+                editor.commit();
                 startActivity(new Intent(LoginActivity.this, PlateActivity.class));
             }
         });

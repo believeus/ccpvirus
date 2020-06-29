@@ -8,8 +8,5 @@ public class Well implements Serializable {
     public String barcode;
     public long scantime;
     public String color;
-
-    public String getName() {
-        return name;
-    }
+    public String operator;
 }
