@@ -9,4 +9,16 @@ public class Well implements Serializable {
     public long scantime;
     public String color;
     public String operator;
+
+    @Override
+    public String toString() {
+        return "Well{" +
+                "parent='" + parent + '\'' +
+                ", name='" + name + '\'' +
+                ", barcode='" + barcode + '\'' +
+                ", scantime=" + scantime +
+                ", color='" + color + '\'' +
+                ", operator='" + operator + '\'' +
+                '}';
+    }
 }

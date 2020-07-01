@@ -86,26 +86,31 @@ public class PlateActivity extends AppCompatActivity {
                 mbv.setTextColor(Color.parseColor("#efefef"));
                 return;
             }
-            if (StringUtils.isEmpty(barcode)) {
+            if (isCheck) {
+                mbv.setTextColor(Color.parseColor("#FFFFFF"));
+                mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_dash));
+            } else if (StringUtils.isEmpty(barcode)) {
                 //没barcode有颜色
                 if (StringUtils.isNotEmpty(color)) {
-                    if (!isCheck)
-                        mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_rect_white));
+                    mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_rect_white));
                     mbv.getBackground().setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_IN);
                     //没barcode没颜色
                 } else {
                     //没选中
-                    if (!isCheck)
-                        mbv.setBackgroundColor(R.drawable.well_setting);
-                    mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, !isCheck ? R.drawable.well : R.drawable.well_circle_dash));
+                    mbv.setBackgroundColor(R.drawable.well_setting);
+                    mbv.setTextColor(Color.parseColor("#4D4D4D"));
+                    mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well));
                 }
             } else {
-                mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, !isCheck ? (StringUtils.isNotEmpty(color) ? R.drawable.well_circle_white : R.drawable.well_circle_red) : R.drawable.well_circle_dash));
+                mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, (StringUtils.isNotEmpty(color) ? R.drawable.well_circle_white : R.drawable.well_circle_red)));
                 mbv.getBackground().setColorFilter(Color.parseColor(StringUtils.isNotEmpty(color) ? color : "#D81B60"), PorterDuff.Mode.SRC_IN);
             }
         }
 
         private void loadData(String body, int min, int max) throws Exception {
+            Context context = PlateActivity.this.getApplicationContext();
+            SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
+            String operator = sp.getString(Variables.SESSIONUSER, "");
             JSONObject jsonObj = new JSONObject(new JSONObject(body).getString("data"));
             Iterator<String> keys = jsonObj.keys();
             while (keys.hasNext()) {
@@ -117,6 +122,7 @@ public class PlateActivity extends AppCompatActivity {
                 well.barcode = pv.getString("barcode");
                 well.scantime = pv.getLong("scantime");
                 well.color = pv.getString("color");
+                well.operator = operator;
                 float[] v = new float[3];
                 if (StringUtils.isNotEmpty(well.color)) {
                     if (StringUtils.isNotEmpty(well.barcode)) {
@@ -155,8 +161,6 @@ public class PlateActivity extends AppCompatActivity {
                                 try {
                                     String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
                                     OkHttpClient client = new OkHttpClient();
-                                    Properties properties = new Properties();
-                                    properties.load(PlateActivity.this.getAssets().open("project.properties"));
                                     String v = client.newCall(new Request.Builder().url(Variables.host + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
                                     JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
                                     if (bv != null) {
@@ -183,6 +187,7 @@ public class PlateActivity extends AppCompatActivity {
                             Button bn = it.next();
                             bn.setBackgroundColor(R.drawable.well_setting);
                             bn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well));
+                            bn.setTextColor(Color.parseColor("#4D4D4D"));
                             it.remove();
                         }
                         //重新加载数据
@@ -194,8 +199,8 @@ public class PlateActivity extends AppCompatActivity {
                         break;
                     //多选
                     case MULCHECK:
-                        if (stack.size() != 2) return false;
-                        if (alert("Please scan the Plate barcode!")) return false;
+                        if (stack.size() != 2) break;
+                        if (alert("Please scan the Plate barcode!")) break;
                         String v1 = stack.pop();
                         String v2 = stack.pop();
                         String[] va = v1.split("@");
@@ -205,11 +210,7 @@ public class PlateActivity extends AppCompatActivity {
                         int nab = Integer.valueOf(va[1]);//数字
                         int nbb = Integer.valueOf(vb[1]);//数字
                         if (Math.abs(nab - nbb) > 5) {
-                            AlertDialog.Builder dialog = new AlertDialog.Builder(PlateActivity.this);
-                            dialog.setTitle("Message");
-                            dialog.setMessage("Choose no more than 6 columns.");
-                            dialog.setCancelable(true);
-                            dialog.show();
+                            Toast.makeText(PlateActivity.this, "Begin:" + v1 + " End:" + v2 + "\nChoose no more than 6 columns.", Toast.LENGTH_SHORT).show();
                             findViewById(R.id.btnNext).setVisibility(View.GONE);
                         } else {
                             //框选两个手指选择的行与列
@@ -278,8 +279,10 @@ public class PlateActivity extends AppCompatActivity {
                         else checkbtn.remove(vt);
                         bv.setTag(R.id.isCheck, isCheck);
                         if (isValid(checkbtn)) loadColor(bv);
-                        findViewById(R.id.flayout).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
-                        findViewById(R.id.tvColor).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
+                        else {
+                            findViewById(R.id.flayout).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
+                            findViewById(R.id.tvColor).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
+                        }
                         break;
                 }
 
@@ -309,12 +312,7 @@ public class PlateActivity extends AppCompatActivity {
             int begin = Integer.parseInt(keys.get(0).toString().replaceAll("[A-H]", ""));
             int end = Integer.parseInt(keys.get(keys.size() - 1).toString().replaceAll("[A-H]", ""));
             if (Math.abs(end - begin) > 5) {
-                AlertDialog.Builder dialog = new AlertDialog.Builder(PlateActivity.this);
-                dialog.setTitle("Message");
-                dialog.setMessage("Choose no more than 6 columns.");
-                dialog.setCancelable(true);
-                dialog.show();
-                findViewById(R.id.btnNext).setVisibility(View.GONE);
+                Toast.makeText(PlateActivity.this, "Begin:" + keys.get(0).toString() + " End:" + keys.get(keys.size() - 1).toString() + "\nChoose no more than 6 columns.", Toast.LENGTH_SHORT).show();
                 maps.remove(keys.get(keys.size() - 1).toString());
                 findViewById(R.id.btnNext).setVisibility(View.GONE);
                 return false;
@@ -352,17 +350,16 @@ public class PlateActivity extends AppCompatActivity {
 
             @Override
             public void onStoppedSeeking() {
+
+            }
+
+            @Override
+            public void onValueChanged(int min, int max) {
                 Message msg = new Message();
                 msg.what = CFIlTER;
                 msg.arg1 = min;
                 msg.arg2 = max;
                 handler.sendMessage(msg);
-            }
-
-            @Override
-            public void onValueChanged(int min, int max) {
-                this.min = min;
-                this.max = max;
             }
         });
         findViewById(R.id.btnNext).setOnClickListener(new View.OnClickListener() {
@@ -434,7 +431,6 @@ public class PlateActivity extends AppCompatActivity {
                 btn.setOnTouchListener(new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
-
                         switch (event.getAction()) {
                             case MotionEvent.ACTION_DOWN:
                                 stack.push(String.valueOf(vname.get(c) + "@" + r));
@@ -504,14 +500,14 @@ public class PlateActivity extends AppCompatActivity {
                                         Context context = PlateActivity.this.getApplicationContext();
                                         SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
                                         String operator = sp.getString(Variables.SESSIONUSER, "");
-                                        Intent intent=new Intent(PlateActivity.this,SendPDFActivity.class);
-                                        Well well=new Well();
-                                        well.color=btn.getTag(R.id.color).toString();
-                                        well.barcode=btn.getTag(R.id.barcode).toString();
-                                        well.name=btn.getTag(R.id.name).toString();
-                                        well.parent=((EditText) findViewById(R.id.etbarcode)).getText().toString();
-                                        well.operator=operator;
-                                        intent.putExtra("well",well);
+                                        Intent intent = new Intent(PlateActivity.this, SendPDFActivity.class);
+                                        Well well = new Well();
+                                        well.color = btn.getTag(R.id.color).toString();
+                                        well.barcode = btn.getTag(R.id.barcode).toString();
+                                        well.name = btn.getTag(R.id.name).toString();
+                                        well.parent = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
+                                        well.operator = operator;
+                                        intent.putExtra("well", well);
                                         startActivity(intent);
                                         return false;
                                     }
@@ -623,10 +619,14 @@ public class PlateActivity extends AppCompatActivity {
                                 String v = client.newCall(new Request.Builder().url(Variables.host + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
                                 JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
                                 Button btn = (Button) findViewById(requestCode);
+                                Context context = PlateActivity.this.getApplicationContext();
+                                SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
+                                String operator = sp.getString(Variables.SESSIONUSER, "");
                                 Well well = new Well();
                                 well.name = btn.getTag(R.id.name).toString();
                                 well.scantime = System.currentTimeMillis();
                                 well.barcode = bundle.getString(Variables.INTENT_EXTRA_KEY_QR_SCAN);
+                                well.operator = operator;
                                 if (bv != null && bv.has(String.valueOf(btn.getTag(R.id.name)))) {
                                     JSONObject oo = new JSONObject(bv.getString(String.valueOf(btn.getTag(R.id.name))));
                                     if (StringUtils.isNotEmpty(oo.getString("color"))) {

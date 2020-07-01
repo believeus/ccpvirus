@@ -588,6 +588,9 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                             OkHttpClient client = new OkHttpClient();
                             String v = client.newCall(new Request.Builder().url(Variables.host + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
                             JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
+                            Context context = ScanwellActivity.this.getApplicationContext();
+                            SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
+                            String operator = sp.getString(Variables.SESSIONUSER, "");
                             if (bv != null) {
                                 Collection<Button> values = checkbtn.isEmpty() ? initbox.values() : checkbtn.values();
                                 for (Iterator<Button> it = values.iterator(); it.hasNext(); ) {
@@ -597,11 +600,9 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                                     if (bv.has(n)) {
                                         JSONObject oo = new JSONObject(bv.getString(n));
                                         oo.put("color", c);
+                                        oo.put("operator",operator);
                                         bv.put(n, oo);
                                     } else {
-                                        Context context = ScanwellActivity.this.getApplicationContext();
-                                        SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
-                                        String operator = sp.getString(Variables.SESSIONUSER, "");
                                         Well w = new Well();
                                         w.name = n;
                                         w.color = c;
@@ -612,7 +613,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                                     }
                                 }
                                 RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", bv.toString()).build();
-                                Request request = new Request.Builder().url(Variables.host + "plate/save.jhtml").post(body).build();
+                                Request request = new Request.Builder().url(Variables.host + "plate/savewell.jhtml").post(body).build();
                                 client.newCall(request).execute();//发送请求
                                 Bundle vbund = new Bundle();
                                 vbund.putString(Variables.INTENT_EXTRA_KEY_QR_SCAN, barcode);
