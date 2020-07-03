@@ -27,8 +27,10 @@ import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.Toast;
 
+import com.beijingepidial.entity.Plate;
 import com.beijingepidial.entity.Well;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.zxing.activity.CaptureActivity;
 
 import org.apache.commons.lang3.StringUtils;
@@ -168,7 +170,7 @@ public class PlateActivity extends AppCompatActivity {
                                         oo.put("color", "");
                                         bv.put(vn, oo);
                                         RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", bv.toString()).build();
-                                        Request request = new Request.Builder().url(Variables.host + "plate/save.jhtml").post(body).build();
+                                        Request request = new Request.Builder().url(Variables.host + "plate/rmcolor.jhtml").post(body).build();
                                         client.newCall(request).execute();//发送请求
                                         load(barcode);
                                     }
@@ -253,7 +255,7 @@ public class PlateActivity extends AppCompatActivity {
                                                 String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
                                                 OkHttpClient client = new OkHttpClient();
                                                 RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", "{}").build();
-                                                Request request = new Request.Builder().url(Variables.host + "plate/save.jhtml").post(body).build();
+                                                Request request = new Request.Builder().url(Variables.host + "plate/create.jhtml").post(body).build();
                                                 client.newCall(request).execute();//发送请求
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -279,10 +281,9 @@ public class PlateActivity extends AppCompatActivity {
                         else checkbtn.remove(vt);
                         bv.setTag(R.id.isCheck, isCheck);
                         if (isValid(checkbtn)) loadColor(bv);
-                        else {
-                            findViewById(R.id.flayout).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
-                            findViewById(R.id.tvColor).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
-                        }
+                        findViewById(R.id.flayout).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
+                        findViewById(R.id.tvColor).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
+                        findViewById(R.id.btnNext).setVisibility(!checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
                         break;
                 }
 
@@ -617,6 +618,7 @@ public class PlateActivity extends AppCompatActivity {
                                 OkHttpClient client = new OkHttpClient();
                                 String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
                                 String v = client.newCall(new Request.Builder().url(Variables.host + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
+                                Plate plate = new Gson().fromJson(v, new TypeToken<Plate>() {}.getType());
                                 JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
                                 Button btn = (Button) findViewById(requestCode);
                                 Context context = PlateActivity.this.getApplicationContext();
@@ -627,6 +629,7 @@ public class PlateActivity extends AppCompatActivity {
                                 well.scantime = System.currentTimeMillis();
                                 well.barcode = bundle.getString(Variables.INTENT_EXTRA_KEY_QR_SCAN);
                                 well.operator = operator;
+                                well.parent=plate.barcode;
                                 if (bv != null && bv.has(String.valueOf(btn.getTag(R.id.name)))) {
                                     JSONObject oo = new JSONObject(bv.getString(String.valueOf(btn.getTag(R.id.name))));
                                     if (StringUtils.isNotEmpty(oo.getString("color"))) {
@@ -634,11 +637,10 @@ public class PlateActivity extends AppCompatActivity {
                                     } else well.color = "";
                                 } else well.color = "";
 
-                                wells.put(well.name, well);
                                 Gson gson = new Gson();
-                                String data = gson.toJson(wells);
+                                String data = gson.toJson(well);
                                 RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", data).build();
-                                Request request = new Request.Builder().url(Variables.host + "plate/save.jhtml").post(body).build();
+                                Request request = new Request.Builder().url(Variables.host + "barcode/update.jhtml").post(body).build();
                                 client.newCall(request).execute();//发送请求
                                 Message message = new Message();
                                 message.obj = well;

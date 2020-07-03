@@ -69,7 +69,7 @@ public class SendPDFActivity extends AppCompatActivity {
                         @Override
                         protected Object doInBackground(Object[] objects) {
                             try {
-                                FormBody form = new FormBody.Builder().add("wellname", well.name).build();
+                                FormBody form = new FormBody.Builder().add("barcode", well.barcode).add("parent",well.parent).build();
                                 Request.Builder request = new Request.Builder().url(Variables.host + "patient/result.jhtml");
                                 String v = client.newCall(request.post(form).build()).execute().body().string();
                                 PDF pdf = new Gson().fromJson(v, PDF.class);

@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.beijingepidial.entity.Circle;
+import com.beijingepidial.entity.Plate;
 import com.beijingepidial.entity.Well;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -587,6 +588,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                             String barcode = bundle.getString("barcode");
                             OkHttpClient client = new OkHttpClient();
                             String v = client.newCall(new Request.Builder().url(Variables.host + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
+                            Plate plate = new Gson().fromJson(v, new TypeToken<Plate>() {}.getType());
                             JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
                             Context context = ScanwellActivity.this.getApplicationContext();
                             SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
@@ -608,6 +610,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                                         w.color = c;
                                         w.barcode = "";
                                         w.operator=operator;
+                                        w.parent=plate.barcode;
                                         JSONObject oo = new JSONObject(new Gson().toJson(w));
                                         bv.put(n, oo);
                                     }
