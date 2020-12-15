@@ -8,6 +8,6 @@ public class PDF {
 	public String parent;
 	public String patientname;
 	public byte positive;
-
+	public String labdirector;
 
 }

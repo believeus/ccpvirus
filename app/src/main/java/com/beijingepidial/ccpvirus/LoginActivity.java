@@ -21,6 +21,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.Toast;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -33,8 +36,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup);
-//        Spinner spinner = findViewById(R.id.spSars);
-//        spinner.setSelection(1,true);
         //时间显示
         EditText time1 = findViewById(R.id.etDate);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd  h:mm:ss a");
@@ -43,11 +44,22 @@ public class LoginActivity extends AppCompatActivity {
         findViewById(R.id.btnNext).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (StringUtils.isEmpty(((EditText) findViewById(R.id.etName)).getText())) {
+                    Toast.makeText(LoginActivity.this, "Please enter username!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (((Spinner) findViewById(R.id.spSars)).getSelectedItemPosition() == 0) {
+                    Toast.makeText(LoginActivity.this, "Please select assay!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                String vname = ((EditText) findViewById(R.id.etName)).getText().toString();
+
                 Context context = LoginActivity.this.getApplicationContext();
                 SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sp.edit();
-                String vname = ((EditText) findViewById(R.id.etName)).getText().toString();
-                editor.putString(Variables.SESSIONUSER,vname);
+
+                editor.putString(Variables.SESSIONUSER, vname);
                 editor.commit();
                 startActivity(new Intent(LoginActivity.this, PlateActivity.class));
             }
@@ -58,9 +70,6 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
             }
         });
-    }
-
-    private class PhotoEntity {
     }
 
 

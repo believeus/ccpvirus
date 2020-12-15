@@ -77,7 +77,7 @@
         <RelativeLayout
             android:orientation="vertical"
             android:layout_width="0dp"
-            app:layout_widthPercent="30%"
+            app:layout_widthPercent="50%"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
             android:layout_height="wrap_content">
@@ -97,10 +97,11 @@
                 android:text="Export Data"/>
         </RelativeLayout>
         <RelativeLayout
-            android:layout_centerInParent="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
             android:orientation="horizontal"
             android:layout_width="0dp"
-            app:layout_widthPercent="40%"
+            app:layout_widthPercent="50%"
             android:layout_height="wrap_content">
             <Button
                 android:id="@+id/btnStatis"
@@ -117,27 +118,6 @@
                 android:layout_height="wrap_content"
                 android:text="View Statistics"/>
         </RelativeLayout>
-        <RelativeLayout
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:orientation="horizontal"
-            android:layout_width="0dp"
-            app:layout_widthPercent="30%"
-            android:layout_height="wrap_content">
-            <Button
-                android:id="@+id/btnSetting"
-                android:layout_centerInParent="true"
-                android:background="@drawable/setting"
-                android:gravity="center"
-                android:layout_width="65dp"
-                android:layout_height="65dp"/>
-            <TextView
-                android:layout_marginTop="30dp"
-                android:gravity="center"
-                android:layout_below="@+id/btnSetting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Setting"/>
-        </RelativeLayout>
+
     </androidx.percentlayout.widget.PercentRelativeLayout>
 </LinearLayout>

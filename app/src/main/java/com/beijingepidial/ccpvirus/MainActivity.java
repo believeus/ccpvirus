@@ -17,17 +17,24 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnScan).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
             }
         });
         findViewById(R.id.btnData).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, ScanBarcodeActivity.class));
-
+                Intent intent = new Intent(MainActivity.this, ScanBarcodeActivity.class);
+                startActivity(intent);
             }
         });
-
+        findViewById(R.id.btnStatis).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, StatisActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 }

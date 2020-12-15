@@ -104,8 +104,10 @@ public class PlateActivity extends AppCompatActivity {
                     mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well));
                 }
             } else {
-                mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, (StringUtils.isNotEmpty(color) ? R.drawable.well_circle_white : R.drawable.well_circle_red)));
-                mbv.getBackground().setColorFilter(Color.parseColor(StringUtils.isNotEmpty(color) ? color : "#D81B60"), PorterDuff.Mode.SRC_IN);
+                mbv.setTextColor(getResources().getColor(R.color.well_font_grey));
+                mbv.setBackground(ContextCompat.getDrawable(PlateActivity.this, (StringUtils.isNotEmpty(color) ? R.drawable.well_circle_white : R.drawable.qrwell)));
+                if (StringUtils.isNotEmpty(color))
+                    mbv.getBackground().setColorFilter(Color.parseColor(color), PorterDuff.Mode.SRC_IN);
             }
         }
 
@@ -432,6 +434,18 @@ public class PlateActivity extends AppCompatActivity {
                 btn.setOnTouchListener(new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
+                        if (StringUtils.isEmpty(((EditText) findViewById(R.id.etbarcode)).getText().toString())) {
+                            final AlertDialog.Builder dialog = new AlertDialog.Builder(PlateActivity.this);
+                            dialog.setTitle("Message");
+                            dialog.setMessage("Please scan barcode!");
+                            dialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                }
+                            });
+                            dialog.show();
+                            return true;
+                        }
                         switch (event.getAction()) {
                             case MotionEvent.ACTION_DOWN:
                                 stack.push(String.valueOf(vname.get(c) + "@" + r));
@@ -601,9 +615,9 @@ public class PlateActivity extends AppCompatActivity {
                                     Drawable drw = btn.getBackground();
                                     drw.setColorFilter(Color.parseColor(well.color), PorterDuff.Mode.SRC_IN);
                                 } else {
-                                    btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.well_circle_red));
+                                    btn.setBackground(ContextCompat.getDrawable(PlateActivity.this, R.drawable.qrwell));
                                 }
-                                btn.setTextColor(getResources().getColor(R.color.well_font_white));
+                                btn.setTextColor(getResources().getColor(R.color.well_font_grey));
                                 btn.setTag(R.id.barcode, barcode);
                                 btn.setTag(R.id.scantime, well.scantime);
                                 btn.setTag(R.id.color, well.color);
@@ -618,7 +632,8 @@ public class PlateActivity extends AppCompatActivity {
                                 OkHttpClient client = new OkHttpClient();
                                 String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
                                 String v = client.newCall(new Request.Builder().url(Variables.host + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
-                                Plate plate = new Gson().fromJson(v, new TypeToken<Plate>() {}.getType());
+                                Plate plate = new Gson().fromJson(v, new TypeToken<Plate>() {
+                                }.getType());
                                 JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
                                 Button btn = (Button) findViewById(requestCode);
                                 Context context = PlateActivity.this.getApplicationContext();
@@ -629,7 +644,7 @@ public class PlateActivity extends AppCompatActivity {
                                 well.scantime = System.currentTimeMillis();
                                 well.barcode = bundle.getString(Variables.INTENT_EXTRA_KEY_QR_SCAN);
                                 well.operator = operator;
-                                well.parent=plate.barcode;
+                                well.parent = plate.barcode;
                                 if (bv != null && bv.has(String.valueOf(btn.getTag(R.id.name)))) {
                                     JSONObject oo = new JSONObject(bv.getString(String.valueOf(btn.getTag(R.id.name))));
                                     if (StringUtils.isNotEmpty(oo.getString("color"))) {

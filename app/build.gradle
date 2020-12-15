@@ -48,5 +48,6 @@ dependencies {
     implementation 'androidx.percentlayout:percentlayout:1.0.0'
     implementation 'androidx.navigation:navigation-fragment:2.2.0'
     implementation 'androidx.navigation:navigation-ui:2.2.2'
+    implementation 'com.github.supertaohaili:UI:1.0.0'
 
 }

@@ -9,5 +9,6 @@ public class Variables {
     public final static int SCAN_PLATE_WELL = 22222;
     //打开扫描界面请求码
     public final static int REQ_QR_CODE=11002;
-    public final static String host ="http://192.168.0.117/";
+    //public final static String host ="http://192.168.0.109/";
+    public final static String host ="http://60.205.210.148:8080/";
 }

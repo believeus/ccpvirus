@@ -55,6 +55,7 @@
         <activity android:name=".SendPDFActivity"/>
         <activity android:name="com.google.zxing.activity.CaptureActivity" />
         <activity android:name=".ScanBarcodeActivity" />
+        <activity android:name=".StatisActivity"/>
     </application>
 
 </manifest>
