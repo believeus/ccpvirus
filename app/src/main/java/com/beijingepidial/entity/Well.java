@@ -8,7 +8,6 @@ public class Well implements Serializable {
     public String barcode;
     public long scantime;
     public String color;
-    public String operator;
 
     @Override
     public String toString() {
@@ -18,7 +17,6 @@ public class Well implements Serializable {
                 ", barcode='" + barcode + '\'' +
                 ", scantime=" + scantime +
                 ", color='" + color + '\'' +
-                ", operator='" + operator + '\'' +
                 '}';
     }
 }

@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Stack;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -112,9 +111,7 @@ public class PlateActivity extends AppCompatActivity {
         }
 
         private void loadData(String body, int min, int max) throws Exception {
-            Context context = PlateActivity.this.getApplicationContext();
-            SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
-            String operator = sp.getString(Variables.SESSIONUSER, "");
+
             JSONObject jsonObj = new JSONObject(new JSONObject(body).getString("data"));
             Iterator<String> keys = jsonObj.keys();
             while (keys.hasNext()) {
@@ -126,15 +123,15 @@ public class PlateActivity extends AppCompatActivity {
                 well.barcode = pv.getString("barcode");
                 well.scantime = pv.getLong("scantime");
                 well.color = pv.getString("color");
-                well.operator = operator;
                 float[] v = new float[3];
                 if (StringUtils.isNotEmpty(well.color)) {
                     if (StringUtils.isNotEmpty(well.barcode)) {
                         w96.put(name, well);
                     }
                     Color.colorToHSV(Color.parseColor(well.color), v);
-                    if (!(v[0] > min && v[0] < max))
-                        well.color = "@";
+                    if (!(v[0] >= min && v[0] <= max)) {
+                        well.color = "#FFFFFF";
+                    }
                 } else {
                     well.color = pv.getString("color");
                 }
@@ -163,18 +160,20 @@ public class PlateActivity extends AppCompatActivity {
                             @Override
                             protected Object doInBackground(Object[] objects) {
                                 try {
-                                    String barcode = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
+                                    Context context = PlateActivity.this.getApplicationContext();
+                                    SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
+                                    String plateBarcode = sp.getString(Variables.PLATECODE, "");
                                     OkHttpClient client = new OkHttpClient();
-                                    String v = client.newCall(new Request.Builder().url(Variables.host + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", barcode).build()).build()).execute().body().string();
+                                    String v = client.newCall(new Request.Builder().url(Variables.host + "plate/findData.jhtml").post(new FormBody.Builder().add("barcode", plateBarcode).build()).build()).execute().body().string();
                                     JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
                                     if (bv != null) {
                                         JSONObject oo = new JSONObject(bv.getString(vn));
                                         oo.put("color", "");
                                         bv.put(vn, oo);
-                                        RequestBody body = new FormBody.Builder().add("barcode", barcode).add("data", bv.toString()).build();
+                                        RequestBody body = new FormBody.Builder().add("barcode", plateBarcode).add("data", bv.toString()).build();
                                         Request request = new Request.Builder().url(Variables.host + "plate/rmcolor.jhtml").post(body).build();
                                         client.newCall(request).execute();//发送请求
-                                        load(barcode);
+                                        load(plateBarcode);
                                     }
 
                                 } catch (Exception e) {
@@ -202,36 +201,36 @@ public class PlateActivity extends AppCompatActivity {
                         findViewById(R.id.tvColor).setVisibility(View.VISIBLE);
                         break;
                     //多选
-                    case MULCHECK:
-                        if (stack.size() != 2) break;
-                        if (alert("Please scan the Plate barcode!")) break;
-                        String v1 = stack.pop();
-                        String v2 = stack.pop();
-                        String[] va = v1.split("@");
-                        String[] vb = v2.split("@");
-                        char taa = va[0].charAt(0);//字符
-                        char tba = vb[0].charAt(0);//字符
-                        int nab = Integer.valueOf(va[1]);//数字
-                        int nbb = Integer.valueOf(vb[1]);//数字
-                        if (Math.abs(nab - nbb) > 5) {
-                            Toast.makeText(PlateActivity.this, "Begin:" + v1 + " End:" + v2 + "\nChoose no more than 6 columns.", Toast.LENGTH_SHORT).show();
-                            findViewById(R.id.btnNext).setVisibility(View.GONE);
-                        } else {
-                            //框选两个手指选择的行与列
-                            for (int i = 0; i < (nab > nbb ? Math.abs(nab - nbb + 1) : Math.abs(nab - nbb - 1)); i++) {
-                                for (int j = 0; j < (taa < tba ? Math.abs(taa - tba - 1) : Math.abs(taa - tba + 1)); j++) {
-                                    int v = taa > tba ? tba : taa;//B
-                                    String vi = String.valueOf(((char) (v + j))) + (nab > nbb ? (nbb + i) : (nbb - i));
-                                    Button mbv = initbox.get(vi);
-                                    mbv.setTag(R.id.isCheck, true);
-                                    checkbtn.put(vi, mbv);
-                                    loadColor(mbv);
-                                }
-                            }
-                        }
-                        findViewById(R.id.flayout).setVisibility(View.GONE);
-                        findViewById(R.id.tvColor).setVisibility(View.GONE);
-                        break;
+//                    case MULCHECK:
+//                        if (stack.size() != 2) break;
+//                        if (alert("Please scan the Plate barcode!")) break;
+//                        String v1 = stack.pop();
+//                        String v2 = stack.pop();
+//                        String[] va = v1.split("@");
+//                        String[] vb = v2.split("@");
+//                        char taa = va[0].charAt(0);//字符
+//                        char tba = vb[0].charAt(0);//字符
+//                        int nab = Integer.valueOf(va[1]);//数字
+//                        int nbb = Integer.valueOf(vb[1]);//数字
+//                        if (Math.abs(nab - nbb) > 5) {
+//                            Toast.makeText(PlateActivity.this, "Begin:" + v1 + " End:" + v2 + "\nChoose no more than 6 columns.", Toast.LENGTH_SHORT).show();
+//                            findViewById(R.id.btnNext).setVisibility(View.GONE);
+//                        } else {
+//                            //框选两个手指选择的行与列
+//                            for (int i = 0; i < (nab > nbb ? Math.abs(nab - nbb + 1) : Math.abs(nab - nbb - 1)); i++) {
+//                                for (int j = 0; j < (taa < tba ? Math.abs(taa - tba - 1) : Math.abs(taa - tba + 1)); j++) {
+//                                    int v = taa > tba ? tba : taa;//B
+//                                    String vi = String.valueOf(((char) (v + j))) + (nab > nbb ? (nbb + i) : (nbb - i));
+//                                    Button mbv = initbox.get(vi);
+//                                    mbv.setTag(R.id.isCheck, true);
+//                                    checkbtn.put(vi, mbv);
+//                                    loadColor(mbv);
+//                                }
+//                            }
+//                        }
+//                        findViewById(R.id.flayout).setVisibility(View.GONE);
+//                        findViewById(R.id.tvColor).setVisibility(View.GONE);
+//                        break;
                     case SCANPLATE:
                         int _min = rangeseekbar.getMinThumbValue();
                         int _max = rangeseekbar.getMaxThumbValue();
@@ -282,7 +281,8 @@ public class PlateActivity extends AppCompatActivity {
                         if (isCheck) checkbtn.put(vt, bv);
                         else checkbtn.remove(vt);
                         bv.setTag(R.id.isCheck, isCheck);
-                        if (isValid(checkbtn)) loadColor(bv);
+//                      if (isValid(checkbtn))
+                        loadColor(bv);
                         findViewById(R.id.flayout).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
                         findViewById(R.id.tvColor).setVisibility(checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
                         findViewById(R.id.btnNext).setVisibility(!checkbtn.isEmpty() ? View.VISIBLE : View.GONE);
@@ -341,11 +341,12 @@ public class PlateActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.plate);
+        Context context = PlateActivity.this.getApplicationContext();
+        SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
+        String barcode=sp.getString(Variables.PLATECODE,"");
+        load(barcode);
         rangeseekbar = (RangeSeekBar) findViewById(R.id.cfilter);
         rangeseekbar.setSeekBarChangeListener(new RangeSeekBar.SeekBarChangeListener() {
-            private int min;
-            private int max;
-
             @Override
             public void onStartedSeeking() {
 
@@ -411,11 +412,13 @@ public class PlateActivity extends AppCompatActivity {
             }
         });
         GridLayout gridlayout = (GridLayout) findViewById(R.id.gridlayout);
-        final List<String> vname = Arrays.asList(new String[]{"H", "G", "F", "E", "D", "C", "B", "A"});
+        String type=sp.getString(Variables.SCANTYPE,"tube");
+
+        final List<String> vname =Arrays.asList(new String[]{"H", "G", "F", "E", "D", "C", "B", "A"});
         //12行8列
         for (int i = 0; i < gridlayout.getRowCount(); i++) { //12行
             for (int j = 0; j < gridlayout.getColumnCount(); j++) { //8列
-                final int r = i + 1;
+                final int r = type.equals("tube")?i + 1:12-i;
                 final int c = j;
                 final Button btn = new Button(PlateActivity.this);
                 final String name = vname.get(c) + r;
@@ -449,7 +452,7 @@ public class PlateActivity extends AppCompatActivity {
                         switch (event.getAction()) {
                             case MotionEvent.ACTION_DOWN:
                                 stack.push(String.valueOf(vname.get(c) + "@" + r));
-                                handler.sendEmptyMessage(MULCHECK);
+                                //handler.sendEmptyMessage(MULCHECK);
                                 break;
                             case MotionEvent.ACTION_UP:
                                 if (!stack.isEmpty()) {
@@ -514,14 +517,12 @@ public class PlateActivity extends AppCompatActivity {
                                     public boolean onMenuItemClick(MenuItem item) {
                                         Context context = PlateActivity.this.getApplicationContext();
                                         SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
-                                        String operator = sp.getString(Variables.SESSIONUSER, "");
                                         Intent intent = new Intent(PlateActivity.this, SendPDFActivity.class);
                                         Well well = new Well();
                                         well.color = btn.getTag(R.id.color).toString();
                                         well.barcode = btn.getTag(R.id.barcode).toString();
                                         well.name = btn.getTag(R.id.name).toString();
                                         well.parent = ((EditText) findViewById(R.id.etbarcode)).getText().toString();
-                                        well.operator = operator;
                                         intent.putExtra("well", well);
                                         startActivity(intent);
                                         return false;
@@ -542,10 +543,10 @@ public class PlateActivity extends AppCompatActivity {
                 GridLayout.Spec rowSpec = GridLayout.spec(i);     //设置它的行和列
                 GridLayout.Spec columnSpec = GridLayout.spec(j);
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams(rowSpec, columnSpec);
-                params.setMargins(10, 10, 10, 10);
-
-                params.width = 100;
-                params.height = 100;
+                int margin=(int)getResources().getDimension(R.dimen.plate_well_margin);
+                params.setMargins(margin, margin,margin , margin);
+                params.width = (int)getResources().getDimension(R.dimen.plate_well_width);
+                params.height = (int)getResources().getDimension(R.dimen.plate_well_height);
                 params.setGravity(Gravity.CENTER);
                 gridlayout.addView(btn, params);
                 initbox.put(name, btn);
@@ -638,12 +639,10 @@ public class PlateActivity extends AppCompatActivity {
                                 Button btn = (Button) findViewById(requestCode);
                                 Context context = PlateActivity.this.getApplicationContext();
                                 SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
-                                String operator = sp.getString(Variables.SESSIONUSER, "");
                                 Well well = new Well();
                                 well.name = btn.getTag(R.id.name).toString();
                                 well.scantime = System.currentTimeMillis();
                                 well.barcode = bundle.getString(Variables.INTENT_EXTRA_KEY_QR_SCAN);
-                                well.operator = operator;
                                 well.parent = plate.barcode;
                                 if (bv != null && bv.has(String.valueOf(btn.getTag(R.id.name)))) {
                                     JSONObject oo = new JSONObject(bv.getString(String.valueOf(btn.getTag(R.id.name))));

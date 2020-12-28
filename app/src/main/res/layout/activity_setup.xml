@@ -23,6 +23,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:typeface="serif"
             android:gravity="center"
             android:text="@string/textTitle"
             android:textColor="#D4240404"
@@ -31,7 +32,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="363dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:focusable="true"
         android:focusableInTouchMode="true"
@@ -41,7 +42,8 @@
             android:layout_width="391dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
-            android:text="@string/textSeleAssay"
+            android:typeface="serif"
+            android:text="@string/seleAssay"
             android:textColor="#D4160A0A"
             android:textSize="22dp" />
 
@@ -50,6 +52,7 @@
             style="@style/Widget.AppCompat.Spinner.Underlined"
             android:layout_width="330dp"
             android:layout_height="45dp"
+            android:typeface="serif"
             android:layout_marginLeft="15dp"
             android:layout_marginTop="8dp"
             android:dropDownVerticalOffset="45dp"
@@ -60,53 +63,82 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
             android:layout_marginTop="25dp"
-            android:text="@string/textNameTlg"
+            android:typeface="serif"
+            android:text="@string/txtPlatebarcode"
             android:textColor="#D4160303"
             android:textSize="22dp" />
+        <androidx.percentlayout.widget.PercentRelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/etPlatebarcode"
+                app:layout_widthPercent="70%"
+                android:typeface="serif"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_width="0dp"
+                android:layout_height="45dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="8dp"
+                android:autofillHints=""
+                android:ems="10"
+                android:hint="@string/fill_plate_barcode"
+                android:textColor="#99140F0F"
+                android:textColorHint="#991A0808" />
+            <Button
+                android:id="@+id/btnScan"
+                android:typeface="serif"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                app:layout_widthPercent="20%"
+                android:gravity="center"
+                android:text="Scan"
+               android:layout_toRightOf="@+id/etPlatebarcode"
+                />
+        </androidx.percentlayout.widget.PercentRelativeLayout>
 
-        <EditText
-            android:id="@+id/etName"
-            android:layout_width="330dp"
-            android:layout_height="45dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginTop="8dp"
-            android:autofillHints=""
-            android:background="@drawable/bg_edittext"
-            android:ems="10"
-            android:hint="@string/plainPleaseEN"
-            android:inputType="textPersonName"
-            android:paddingLeft="10dp"
-            android:textColor="#99140F0F"
-            android:textColorHint="#991A0808" />
-
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="18dp"
-            android:text="@string/textDataAD"
-            android:textColor="#D40C0404"
-            android:textSize="22sp" />
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/etDate"
-            android:layout_width="330dp"
-            android:layout_height="45dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginTop="8dp"
-            android:enabled="false"
-            android:background="@drawable/my_text"
-            android:ems="10"
-            android:hint="@string/enditAutoDe"
-            android:paddingLeft="10dp"
-            android:textColorHint="#991A0808" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+            <RadioGroup
+                android:id="@+id/rgscan"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                    <RadioButton
+                        android:id="@+id/rbdown"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:typeface="serif"
+                        android:text="Plate down"
+                        android:textSize="18dp" />
+                    <RadioButton
+                        android:id="@+id/rbtube"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/rbdown"
+                        android:typeface="serif"
+                        android:text="8-strip tubes"
+                        android:textSize="18dp" />
+            </RadioGroup>
+            </LinearLayout>
 
+        </LinearLayout>
     </LinearLayout>
 
     <androidx.percentlayout.widget.PercentRelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp">
+        android:layout_marginTop="20dp">
 
         <RelativeLayout
             android:layout_width="0dp"

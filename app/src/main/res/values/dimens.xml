@@ -2,4 +2,21 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="plate_well_height">35dp</dimen>
+    <dimen name="plate_well_width">35dp</dimen>
+    <dimen name="plate_well_margin">3dp</dimen>
+    <dimen name="canvas_rowname_minor_ydelta">25dp</dimen>
+    <dimen name="canvas_rowname_major_ydelta">2dp</dimen>
+    <dimen name="canvas_rowname_left_edge_xdelta">5dp</dimen>
+    <dimen name="canvas_colname_minor_left_xdelta">18dp</dimen>
+    <dimen name="canvas_colname_major_left_xdelta">2dp</dimen>
+    <dimen name="canvas_colname_major_right_xdelta">20dp</dimen>
+
+    <dimen name="canvas_colname_edge_y_top_delta">15dp</dimen>
+
+    <dimen name="canvas_well_circle_radius">3dp</dimen>
+    <dimen name="canvas_well_circle_stroke">5dp</dimen>
+    <dimen name="canvas_well_circle_delta">5dp</dimen>
+    <dimen name="canvas_rowname_right_edge_xdelta">15dp</dimen>
+    <dimen name="canvas_font_size">15dp</dimen>
 </resources>

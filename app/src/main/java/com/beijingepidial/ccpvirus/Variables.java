@@ -2,7 +2,8 @@ package com.beijingepidial.ccpvirus;
 
 public class Variables {
     public final static String APPNAME="PlateReader";
-    public final static String SESSIONUSER="SESSIONUSER";
+    public final static String PLATECODE="PLATECODE";
+    public final static String SCANTYPE="SCANTYPE";
     public final static int REQ_PERM_CAMERA = 11003; // 打开摄像头
     public final static int REQ_PERM_EXTERNAL_STORAGE = 11004; // 读写文件
     public final static String INTENT_EXTRA_KEY_QR_SCAN = "qr_scan_result";

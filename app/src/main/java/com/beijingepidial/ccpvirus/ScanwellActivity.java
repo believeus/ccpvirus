@@ -78,7 +78,6 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
     private List<Well> wells;
     private Map<String, Button> initbox = new HashMap<String, Button>();
     private Map<String, Button> checkbtn = new HashMap<String, Button>();
-    private static final int MULCHECK = 0;
     private static final int RELOAD = -1;
     private static final int SCANPLATE = 1;
     private static final int SGLCHECK = 2;
@@ -123,8 +122,10 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
     private static final int IDENTIFY = 0;
     private static final int CATCHCOLOR = 1;
     private static final int STOP = 3;
+
     private Stack<String> stack = new Stack<String>();
     private Handler handle = new Handler(new Handler.Callback() {
+
         @Override
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
@@ -171,19 +172,29 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                     GridLayout layout = (GridLayout) findViewById(R.id.gridlayout);
                     layout.setRowCount(v2 - v1 + 1);
                     layout.setColumnCount(8);
+
+                    int rowname_minor_ydelta=(int)getResources().getDimension(R.dimen.canvas_rowname_minor_ydelta);
+                    int rowname_major_ydelta=(int)getResources().getDimension(R.dimen.canvas_rowname_major_ydelta);
+                    int rowname_edge_xdelta=(int)getResources().getDimension(R.dimen.canvas_rowname_left_edge_xdelta);
+                    int colname_minor_xdelta=(int)getResources().getDimension(R.dimen.canvas_colname_minor_left_xdelta);
+                    int colname_major_xdelta=(int)getResources().getDimension(R.dimen.canvas_colname_major_left_xdelta);
+                    int colname_edge_ydelta=(int)getResources().getDimension(R.dimen.canvas_colname_edge_y_top_delta);
+                    int radius=(int)getResources().getDimension(R.dimen.canvas_well_circle_radius);
+                    int stroke=(int)getResources().getDimension(R.dimen.canvas_well_circle_stroke);
+                    int delta=(int)getResources().getDimension(R.dimen.canvas_well_circle_delta);
                     for (int i = 0; i < rowname.length; i++) {
-                        int y = Utils.px2dp((i * (yDelta + 100)) + 245);
-                        canvas.drawText(rowname[i], Utils.px2dp(30), y, paint);
+                        int y = i * (yDelta-rowname_major_ydelta)  + rowname_minor_ydelta;
+                        canvas.drawText(rowname[i], rowname_edge_xdelta, y, paint);
                         ybox.put(rowname[i], y);
                         colm.put(rowname[i], 7 - i);
                     }
                     for (int i = v1 - 1, j = 0; i < v2; i++, j++) {
-                        int x = Utils.px2dp((j * (xDelta + 150)) + 200);
-                        canvas.drawText(colname[i], x, Utils.px2dp(150), paint);
+                        int x = (j * (xDelta -colname_major_xdelta)) + colname_minor_xdelta;
+                        canvas.drawText(Integer.valueOf(colname[i])>=10?"*":colname[i], x,colname_edge_ydelta, paint);
                         xbox.put(colname[i], x);
                         rowm.put(colname[i], j);
                     }
-                    paint.setStrokeWidth(Utils.px2dp(50));
+                    paint.setStrokeWidth(stroke);
                     for (Iterator<Circle> it = circles.iterator(); it.hasNext(); ) {
                         final Circle cl = it.next();
                         char c = cl.name.replaceAll("[1-9]{1,2}", "").charAt(0);
@@ -193,7 +204,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                         double[] rgb = image.get(cl.y, cl.x);
                         String cval = String.format("#%02x%02x%02x", (int) rgb[0], (int) rgb[1], (int) rgb[2]);
                         paint.setColor(Color.parseColor(cval));
-                        canvas.drawCircle(x + Utils.px2dp(30), y - Utils.px2dp(30), 10, paint);
+                        canvas.drawCircle(x + delta, y - delta, radius, paint);
                         int i = rowm.get(String.valueOf(v));
                         int j = colm.get(String.valueOf(c));
                         GridLayout.Spec rowSpec = GridLayout.spec(i);     //设置它的行和列
@@ -217,7 +228,6 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                                 switch (event.getAction()) {
                                     case MotionEvent.ACTION_DOWN:
                                         stack.push(cl.name);
-                                        handle.sendEmptyMessage(MULCHECK);
                                         break;
                                     case MotionEvent.ACTION_UP:
                                         if (!stack.isEmpty()) {
@@ -282,6 +292,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final SharedPreferences sp = getApplicationContext().getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // 禁用横屏
         //拍照时调用声音
         final AudioManager meng = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
@@ -316,7 +327,8 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                 Paint paint = new Paint();
                 paint.setStyle(Paint.Style.STROKE);
                 paint.setStrokeWidth(Utils.px2dp(1));
-                paint.setTextSize(Utils.px2dp(120));
+                int fontsize=(int)getResources().getDimension(R.dimen.canvas_font_size);
+                paint.setTextSize(fontsize);
                 paint.setColor(Color.parseColor("#FFFFFF"));//白色
                 int w = svBeforeColor.getWidth();
                 int h = svBeforeColor.getHeight();
@@ -341,17 +353,35 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                 int yDelta = h / 8;
                 Map<String, Integer> ybox = new HashMap<String, Integer>();
                 Map<String, Integer> xbox = new HashMap<String, Integer>();
+                int rowname_minor_ydelta=(int)getResources().getDimension(R.dimen.canvas_rowname_minor_ydelta);
+                int rowname_major_ydelta=(int)getResources().getDimension(R.dimen.canvas_rowname_major_ydelta);
+                int rowname_left_edge_xdelta=(int)getResources().getDimension(R.dimen.canvas_rowname_left_edge_xdelta);
+                int rowname_right_edge_xdelta=(int)getResources().getDimension(R.dimen.canvas_rowname_right_edge_xdelta);
+
+                int colname_minor_left_xdelta=(int)getResources().getDimension(R.dimen.canvas_colname_minor_left_xdelta);
+                int colname_major_left_xdelta=(int)getResources().getDimension(R.dimen.canvas_colname_major_left_xdelta);
+                int colname_edge_y_top_delta=(int)getResources().getDimension(R.dimen.canvas_colname_edge_y_top_delta);
+                int colname_major_right_xdelta=(int)getResources().getDimension(R.dimen.canvas_colname_major_right_xdelta);
+
+
+                int radius=(int)getResources().getDimension(R.dimen.canvas_well_circle_radius);
+                int stroke=(int)getResources().getDimension(R.dimen.canvas_well_circle_stroke);
+                int delta=(int)getResources().getDimension(R.dimen.canvas_well_circle_delta);
+                String type=sp.getString(Variables.SCANTYPE,"tube");
+                int row_name_margin_y_axis=type.equals("tube")?rowname_left_edge_xdelta:w-rowname_right_edge_xdelta;
                 for (int i = 0; i < rowname.length; i++) {
-                    int y = Utils.px2dp((i * (yDelta + 100)) + 245);
+                    int y = i * (yDelta-rowname_major_ydelta)  + rowname_minor_ydelta;
                     ybox.put(rowname[i], y);
-                    canvas.drawText(rowname[i], Utils.px2dp(30), y, paint);
+                    canvas.drawText(rowname[i],row_name_margin_y_axis, y, paint);
                 }
+
                 for (int i = begin - 1, j = 0; i < end; i++, j++) {
-                    int x = Utils.px2dp((j * (xDelta + 150)) + 200);
+                    int x = type.equals("tube")?(j * (xDelta -colname_major_left_xdelta)) + colname_minor_left_xdelta:w-j*xDelta-colname_major_right_xdelta;
                     xbox.put(colname[i], x);
-                    canvas.drawText(colname[i], x, Utils.px2dp(150), paint);
+                    canvas.drawText(Integer.valueOf(colname[i])>=10?"*":colname[i], x,colname_edge_y_top_delta, paint);
                 }
-                paint.setStrokeWidth(Utils.px2dp(50));
+                //画圆圈
+                paint.setStrokeWidth(stroke);
                 for (Iterator<Well> it = wells.iterator(); it.hasNext(); ) {
                     Well w1 = it.next();
                     char c = w1.name.replaceAll("[1-9]{1,2}", "").charAt(0);
@@ -359,7 +389,7 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                     int y = ybox.get(String.valueOf(c));
                     int x = xbox.get(String.valueOf(v));
                     paint.setColor(Color.parseColor(StringUtils.isEmpty(w1.color) ? "#FFFFFF" : w1.color));
-                    canvas.drawCircle(x + Utils.px2dp(30), y - Utils.px2dp(30), 10, paint);
+                    canvas.drawCircle(x + delta, y - delta, radius, paint);
                 }
                 holder.unlockCanvasAndPost(canvas);
             }
@@ -591,8 +621,6 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                             Plate plate = new Gson().fromJson(v, new TypeToken<Plate>() {}.getType());
                             JSONObject bv = StringUtils.isNotEmpty(v) ? new JSONObject(new JSONObject(v).getString("data")) : null;
                             Context context = ScanwellActivity.this.getApplicationContext();
-                            SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
-                            String operator = sp.getString(Variables.SESSIONUSER, "");
                             if (bv != null) {
                                 Collection<Button> values = checkbtn.isEmpty() ? initbox.values() : checkbtn.values();
                                 for (Iterator<Button> it = values.iterator(); it.hasNext(); ) {
@@ -602,14 +630,12 @@ public class ScanwellActivity extends AppCompatActivity implements SensorEventLi
                                     if (bv.has(n)) {
                                         JSONObject oo = new JSONObject(bv.getString(n));
                                         oo.put("color", c);
-                                        oo.put("operator",operator);
                                         bv.put(n, oo);
                                     } else {
                                         Well w = new Well();
                                         w.name = n;
                                         w.color = c;
                                         w.barcode = "";
-                                        w.operator=operator;
                                         w.parent=plate.barcode;
                                         JSONObject oo = new JSONObject(new Gson().toJson(w));
                                         bv.put(n, oo);

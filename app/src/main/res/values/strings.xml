@@ -26,13 +26,14 @@
     <string name="red2orange">6:Red⇄Orange:6</string>
     <string name="red">165:Purple⇄Red:165</string>
     <string name="textTitle">Setup New Run</string>
-    <string name="textSeleAssay">Select assay:</string>
-    <string name="textNameTlg">Name of technologist:</string>
-    <string name="plainPleaseEN">Please enter name.</string>
+    <string name="seleAssay">Select assay:</string>
+    <string name="txtPlatebarcode">Plate barcode:</string>
+    <string name="fill_plate_barcode">Please enter Plate Barcode.</string>
     <string name="textDataAD">Date and Time:</string>
     <string name="enditAutoDe">(Automatically detected)</string>
     <string name="btnCancel">Cancel</string>
     <string name="btnNext">Next</string>
+    <string name="scantype">Scan type:</string>
     <string-array name="spnner">
         <item>please choose:</item>
         <item>SARS-CoV-2</item>

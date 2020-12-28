@@ -159,9 +159,6 @@ public class SendPDFActivity extends AppCompatActivity {
                     @Override
                     protected Object doInBackground(Object[] objects) {
                         try {
-                            Context context = SendPDFActivity.this.getApplicationContext();
-                            SharedPreferences sp = context.getSharedPreferences(Variables.APPNAME, Activity.MODE_PRIVATE);
-                            String operator = sp.getString(Variables.SESSIONUSER, "");
                             Editable note = ((EditText) findViewById(R.id.etNote)).getText();
                             PDF pdf = new PDF();
                             RadioGroup rg = ((RadioGroup) findViewById(R.id.rg));
